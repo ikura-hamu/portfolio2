@@ -1,0 +1,26 @@
+---
+import { getEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+const allSkills = await getEntry("skill", "skills");
+
+const skills = allSkills.data.map((skill) => ({
+  name: skill.name,
+  description: skill.description,
+  level: skill.level,
+  icon: skill.icon,
+}));
+---
+
+<div>
+  {
+    skills.map((skill) => (
+      <div>
+        {skill.name}
+        {skill.description}
+        {skill.level}
+        <Icon name={skill.icon} />
+      </div>
+    ))
+  }
+</div>

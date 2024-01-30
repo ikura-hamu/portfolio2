@@ -1,0 +1,26 @@
+# アイコンはここ https://icon-sets.iconify.design/devicon/
+- go:
+  name: Go
+  level: 5
+  description: 普段何か作るときはだいたいGoを使います
+  icon: devicon:go
+- python:
+  name: Python
+  level: 4
+  description: 競プロや何かさくっと作るときはPythonを使います
+  icon: devicon:python
+- docker:
+  name: Docker
+  level: 3
+  description: DockerやDocker Composeを使って開発環境の構築やサービスのデプロイをします
+  icon: devicon:docker
+- vue:
+  name: Vue.js
+  level: 2
+  description: フロントを触るときに使います
+  icon: devicon:vuejs
+- next:
+  name: Next.js
+  level: 2
+  description: 1回だけ
+  icon: devicon:nextjs

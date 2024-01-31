@@ -19,4 +19,20 @@ const skill = defineCollection({
 	schema: skills,
 })
 
-export const collections = { blog, skill };
+const work = defineCollection({
+	type: "data",
+	schema: z.array(z.object({
+		title: z.string(),
+		description: z.string(),
+		heroImage: z.string(),
+		tags: z.array(z.string()),
+		links: z.array(z.object({
+			name: z.string(),
+			url: z.string(),
+			icon: z.string(),
+			primary: z.boolean().optional(),
+		})),
+	})),
+});
+
+export const collections = { "blog": blog, "skill": skill, "work": work };

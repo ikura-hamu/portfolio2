@@ -1,0 +1,35 @@
+---
+import { getEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  workType: string;
+}
+
+const { workType } = Astro.props;
+const allWorks = await getEntry("work", workType);
+if (!allWorks) {
+  throw new Error(`No works found ${workType}`);
+}
+---
+
+<div>
+  {
+    allWorks?.data.map((work) => (
+      <div>
+        <a href={work.links.filter((link) => link.primary)[0].url}>
+          {work.title}
+        </a>
+
+        {work.description}
+        <img src={work.heroImage} />
+        {work.tags.map((tag) => `#${tag}`).join(" ")}
+        {work.links.map((link) => (
+          <a href={link.url}>
+            <Icon name={link.icon} />
+          </a>
+        ))}
+      </div>
+    ))
+  }
+</div>

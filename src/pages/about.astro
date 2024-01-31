@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/BlogPost.astro";
 import Skills from "../components/Skill.astro";
+import Works from "../components/Work.astro";
 
 const grade =
   new Date().getFullYear() - 2021 - (new Date().getMonth() > 3 ? 0 : 1);
@@ -31,8 +32,8 @@ const grade =
   <!--ここに言語とかのリストを置く-->
   <Skills />
 
-  <h3 id="Works"><a href="#Works">Works</a></h3>
-
+  <h3 id="Products"><a href="#Products">Products</a></h3>
+  <Works workType="products" />
   <!--作ったものリスト -->
 
   <h3 id="Articles"><a href="#Articles">Articles</a></h3>

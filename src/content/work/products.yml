@@ -1,0 +1,34 @@
+# schema: ./_schema.ts
+- traP Collection:
+  title: traP Collection
+  description: traPで開発したゲームを管理・配信するためのサービスです。
+  heroImage: /src/images/products/trap-collection.png
+  tags:
+    - Go
+    - MariaDB
+    - traP
+  links:
+    - Github:
+      name: GitHub
+      url: https://github.com/traPtitech/trap-collection-server
+      icon: devicon:github
+      primary: true
+- isu-isu-h:
+  title: isu-isu-h
+  description: 'ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。'
+  heroImage: /src/images/products/isu-isu-h.png
+  tags: 
+    - ISUCON
+    - Ansible
+    - Docker
+  links:
+    - Github:
+      name: GitHub
+      url: https://github.com/reactive-futakotamagawa/isu-isu-h-13
+      icon: devicon:github
+      primary: true
+    - ブログ:
+      name: ブログ
+      url: https://trap.jp/post/2047/
+      icon: ri:article-line
+      primary: false

@@ -1,0 +1,31 @@
+---
+import { getEntry } from "astro:content";
+
+const allCareers = await getEntry("career", "career");
+
+const careers = allCareers.data
+  .filter((career) => {
+    return {
+      organization: career.organization,
+      start: career.start,
+      end: career.end,
+      description: career.description,
+    };
+  })
+  .sort((a, b) => a.start.getTime() - b.start.getTime());
+---
+
+<div>
+  {
+    careers.map((career) => (
+      <div>
+        <h3>{career.organization}</h3>
+        <p>
+          {career.start.toLocaleDateString()} -{" "}
+          {career.end ? career.end.toLocaleDateString() : "Present"}
+        </p>
+        <p>{career.description}</p>
+      </div>
+    ))
+  }
+</div>

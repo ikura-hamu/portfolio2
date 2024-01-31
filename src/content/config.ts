@@ -36,4 +36,14 @@ const work = defineCollection({
 	})),
 });
 
-export const collections = { "blog": blog, "skill": skill, "work": work };
+const career = defineCollection({
+	type: "data",
+	schema: z.array(z.object({
+		organization: z.string(),
+		description: z.string(),
+		start: z.coerce.date(),
+		end: z.coerce.date().optional(),
+	}))
+})
+
+export const collections = { "blog": blog, "skill": skill, "work": work, "career": career };

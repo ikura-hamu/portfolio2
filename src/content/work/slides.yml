@@ -1,0 +1,22 @@
+- isu-isu-h:
+  title: 最近の若者はsshしない(する)らしいですよ
+  subtitle: 2023/11/23 「traP ISUCON LT」
+  description: 対ISUCONツール群「isu-isu-h」の紹介です。
+  heroImage: https://ikura-hamu.github.io/slides/images/ogp/231223_isucon.png
+  tags: 
+    - ISUCON
+  links:
+    - event:
+      name: イベントページ
+      url: https://trap.jp/post/2111/
+      icon: ri:article-line
+    - event:
+      name: スライド
+      url: https://ikura-hamu.github.io/slides/231223_isucon/
+      icon: ri:slideshow-fill
+      primary: true
+    - YouTube:
+      name: "YouTube アーカイブ"
+      url: https://www.youtube.com/watch?v=EzJQKtHRpEw&t=1152s
+      icon: ri:youtube-line
+      primary: false

@@ -20,7 +20,7 @@ if (!allWorks) {
         <a href={work.links.filter((link) => link.primary)[0].url}>
           {work.title}
         </a>
-
+        {work.subtitle}
         {work.description}
         <img src={work.heroImage} />
         {work.tags.map((tag) => `#${tag}`).join(" ")}

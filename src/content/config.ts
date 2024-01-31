@@ -23,6 +23,7 @@ const work = defineCollection({
 	type: "data",
 	schema: z.array(z.object({
 		title: z.string(),
+		subtitle: z.string().optional(),
 		description: z.string(),
 		heroImage: z.string(),
 		tags: z.array(z.string()),

@@ -1,8 +1,11 @@
 ---
+import { Image } from "astro:assets";
+
 import Layout from "../layouts/BlogPost.astro";
 import Skills from "../components/Skill.astro";
 import Works from "../components/Work.astro";
 import Career from "@/components/Career.astro";
+import iconImage from "@/images/icon.png";
 
 const grade =
   new Date().getFullYear() - 2021 - (new Date().getMonth() > 3 ? 0 : 1);
@@ -12,8 +15,13 @@ const grade =
   title="About Me"
   description="いくら・はむについて"
   pubDate={new Date("2024/1/26")}
-  heroImage="/src/images/icon.png"
 >
+  <Image
+    src={iconImage}
+    alt="いくら・はむのアイコン"
+    width={200}
+    height={200}
+  />
   <h2>いくら・はむ</h2>
   <h3>@ikura-hamu</h3>
 

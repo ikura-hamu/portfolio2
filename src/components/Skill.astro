@@ -22,10 +22,7 @@ const skills = allSkills.data.map((skill) => {
 });
 ---
 
-<div
-  class="grid"
-  style="grid-template-columns: repeat( auto-fill, minmax(240px,1fr) ) ;"
->
+<div class="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))]">
   {
     skills.map((skill) => (
       <div class="border-2 border-blue-800 rounded-md my-1 flex h-[120px] min-w-60 max-w-80">

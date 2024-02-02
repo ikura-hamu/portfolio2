@@ -4,22 +4,41 @@ import { Icon } from "astro-icon/components";
 
 const allSkills = await getEntry("skill", "skills");
 
-const skills = allSkills.data.map((skill) => ({
-  name: skill.name,
-  description: skill.description,
-  level: skill.level,
-  icon: skill.icon,
-}));
+const skills = allSkills.data.map((skill) => {
+  let levelStarts = "";
+  for (let i = 0; i < 3; i++) {
+    if (i < skill.level) {
+      levelStarts += "★";
+      continue;
+    }
+    levelStarts += "☆";
+  }
+  return {
+    name: skill.name,
+    description: skill.description,
+    level: levelStarts,
+    icon: skill.icon,
+  };
+});
 ---
 
-<div>
+<div
+  class="grid"
+  style="grid-template-columns: repeat( auto-fill, minmax(240px,1fr) ) ;"
+>
   {
     skills.map((skill) => (
-      <div>
-        {skill.name}
-        {skill.description}
-        {skill.level}
-        <Icon name={skill.icon} />
+      <div class="border-2 border-blue-800 rounded-md my-1 flex h-[120px] min-w-60 max-w-80">
+        <div class="grid m-1">
+          <Icon name={skill.icon} size={70} />
+          <div class="text-blue-800 text-lg justify-self-center ">
+            {skill.level}
+          </div>
+        </div>
+        <div class="m-1">
+          <h4>{skill.name}</h4>
+          <p class="text-sm">{skill.description}</p>
+        </div>
       </div>
     ))
   }

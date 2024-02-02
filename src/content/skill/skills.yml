@@ -12,7 +12,7 @@
 - docker:
   name: Docker
   level: 2
-  description: DockerやDocker Composeを使って開発環境の構築やサービスのデプロイをします
+  description: Docker Composeなどを使って開発環境構築やデプロイをします
   icon: devicon:docker
 - vue:
   name: Vue.js

@@ -22,10 +22,10 @@ const skills = allSkills.data.map((skill) => {
 });
 ---
 
-<div class="grid grid-cols-[repeat(auto-fill,_minmax(240px,_1fr))]">
+<div class="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
   {
     skills.map((skill) => (
-      <div class="border-2 border-blue-800 rounded-md my-1 flex h-[120px] min-w-60 max-w-80">
+      <div class="border-2 border-blue-800 rounded-md m-1 flex h-[120px] min-w-60 max-w-full">
         <div class="grid m-1">
           <Icon name={skill.icon} size={70} />
           <div class="text-blue-800 text-lg justify-self-center ">

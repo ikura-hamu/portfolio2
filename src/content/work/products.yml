@@ -1,8 +1,8 @@
 # schema: ./_schema.ts
 - traP Collection:
   title: traP Collection
-  description: traPで開発したゲームを管理・配信するためのサービスです。
-  heroImage: /src/images/products/trap-collection.png
+  description: traPで開発したゲームを管理・配信するためのサービスです。バックエンドの開発・運用を行っています。
+  heroImage: "src/images/products/trap-collection-logo.png"
   tags:
     - Go
     - MariaDB
@@ -16,7 +16,7 @@
 - isu-isu-h:
   title: isu-isu-h
   description: 'ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。'
-  heroImage: /src/images/products/isu-isu-h.png
+  heroImage: "src/images/products/isu-isu-h.png"
   tags: 
     - ISUCON
     - Ansible

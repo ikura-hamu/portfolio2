@@ -73,6 +73,9 @@ h4 {
 h5 {
 	font-size: 1.25em;
 }
+h6 {
+	font-size: 1em;
+}
 strong,
 b {
 	font-weight: 700;

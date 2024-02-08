@@ -2,34 +2,95 @@
 import { getEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 
+import { replaceURL } from "@/util/url";
+
 interface Props {
   workType: string;
+  extraContent?: {
+    icon: string;
+    name: string;
+    url: string;
+  };
 }
 
-const { workType } = Astro.props;
+const { workType, extraContent } = Astro.props;
 const allWorks = await getEntry("work", workType);
 if (!allWorks) {
   throw new Error(`No works found ${workType}`);
 }
+
+const works = allWorks.data.map((work) => {
+  return {
+    title: work.title,
+    subtitle: work.subtitle,
+    heroImage: work.heroImage,
+    tags: work.tags,
+    description: replaceURL(work.description),
+    links: work.links,
+  };
+});
 ---
 
-<div>
-  {
-    allWorks?.data.map((work) => (
-      <div>
-        <a href={work.links.filter((link) => link.primary)[0].url}>
-          {work.title}
-        </a>
-        {work.subtitle}
-        {work.description}
-        <img src={work.heroImage} />
-        {work.tags.map((tag) => `#${tag}`).join(" ")}
-        {work.links.map((link) => (
-          <a href={link.url}>
-            <Icon name={link.icon} />
+<div class="flex flex-col">
+  <div class="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
+    {
+      works.map((work) => (
+        <div class="flex flex-col border-2 border-blue-800 rounded-md m-1 h-[350px] min-w-[300px] max-w-full p-1">
+          <a href={work.links.filter((link) => link.primary)[0].url}>
+            <div class="flex justify-center">
+              <img src={work.heroImage} class="h-32" />
+            </div>
           </a>
-        ))}
-      </div>
-    ))
-  }
+
+          <h5
+            class="truncate my-0.5 hover:whitespace-normal hover:leading-tight"
+            title={work.title}
+          >
+            <a href={work.links.filter((link) => link.primary)[0].url}>
+              {work.title}
+            </a>
+          </h5>
+
+          {work.subtitle && <h6 class="leading-tight my-0">{work.subtitle}</h6>}
+
+          <div class="flex">
+            {work.tags.map((tag) => (
+              <div class="text-sm mx-1 bg-slate-300 rounded-md px-1">
+                #{tag}
+              </div>
+            ))}
+          </div>
+
+          <div class="text-base py-1" set:html={work.description} />
+
+          <div class="grid grid-cols-3 mt-auto">
+            {work.links.map((link) => (
+              <a href={link.url} class="mx-1" title={link.name}>
+                <div class="flex items-end self-end">
+                  <Icon name={link.icon} class="text-3xl" />{" "}
+                  <div class="text-xs">{link.name}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="flex justify-center items-center">
+    {
+      extraContent && (
+        <a href={extraContent.url}>
+          <div class="flex items-center justify-center my-4 bg-blue-800 text-white rounded-md min-w-[300px] max-w-[400px] hover:bg-slate-200 hover:text-blue-800">
+            <Icon name={extraContent.icon} class="text-3xl" />
+            <div class="text-base ml-2">
+              See more in <br />
+              {extraContent.name}
+            </div>
+          </div>
+        </a>
+      )
+    }
+  </div>
 </div>

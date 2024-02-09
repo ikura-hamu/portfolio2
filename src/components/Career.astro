@@ -1,15 +1,16 @@
 ---
 import { getEntry } from "astro:content";
+import { replaceURL } from "@/util/url";
 
 const allCareers = await getEntry("career", "career");
 
 const careers = allCareers.data
-  .filter((career) => {
+  .map((career) => {
     return {
       organization: career.organization,
       start: career.start,
       end: career.end,
-      description: career.description,
+      description: replaceURL(career.description),
     };
   })
   .sort((a, b) => a.start.getTime() - b.start.getTime());
@@ -19,12 +20,12 @@ const careers = allCareers.data
   {
     careers.map((career) => (
       <div>
-        <h3>{career.organization}</h3>
-        <p>
-          {career.start.toLocaleDateString()} -{" "}
-          {career.end ? career.end.toLocaleDateString() : "Present"}
-        </p>
-        <p>{career.description}</p>
+        <h4>{career.organization}</h4>
+        <div class="text-base">
+          {career.start.toLocaleDateString("ja-jp")} -{" "}
+          {career.end ? career.end.toLocaleDateString("ja-jp") : "現在"}
+        </div>
+        <p set:html={career.description} />
       </div>
     ))
   }

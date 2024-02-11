@@ -5,8 +5,10 @@
  */
 
 :root {
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
+	/* --accent: #2337ff; */
+	--accent: #c792ea;
+	/* --accent-dark: #000d8a; */
+	--accent-dark: #0B253A;
 	--black: 15, 18, 25;
 	--gray: 96, 115, 159;
 	--gray-light: 229, 233, 240;
@@ -81,10 +83,12 @@ b {
 	font-weight: 700;
 }
 a {
-	color: var(--accent);
+	/* color: var(--accent); */
+	color: #0F83FD;
 }
 a:hover {
-	color: var(--accent);
+	/* color: var(--accent); */
+	text-decoration: underline;
 }
 p {
 	margin-bottom: 1em;

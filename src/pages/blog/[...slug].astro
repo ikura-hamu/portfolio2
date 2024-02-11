@@ -12,13 +12,45 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
+
+const tags = post.data.tags;
+const posts = await getCollection("blog");
+const similarPosts = posts
+  .filter((p) => p.data.tags?.some((tag) => tags?.includes(tag)))
+  .filter((p) => p.id !== post.id);
+
 const { Content } = await post.render();
 ---
 
-<style>
-
-</style>
+<style></style>
 
 <BlogPost {...post.data}>
   <Content />
+
+  {
+    similarPosts.length > 0 && (
+      <div class="mt-10">
+        <hr class="border-4 border-primary" />
+        <section class="mt-2">
+          <h3 class="mt-8">似た内容の記事</h3>
+          <ul>
+            {similarPosts.map((post) => (
+              <li>
+                <a href={`/blog/${post.slug}`} class="flex *:mr-4">
+                  <div>{post.data.title}</div>
+                  <div>
+                    {post.data.pubDate.toLocaleDateString("ja-jp", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    )
+  }
 </BlogPost>

@@ -3,6 +3,7 @@ title: 'ポートフォリオを新しくした'
 description: ''
 pubDate: '2024/2/11'
 heroImage: '/blog-placeholder-2.jpg'
+tags: ["astro", "フロントエンド"]
 ---
 
 ポートフォリオを新しくしました。

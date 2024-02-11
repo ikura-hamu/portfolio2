@@ -17,15 +17,16 @@ const grade =
   description="いくら・はむについて"
   pubDate={new Date("2024/1/26")}
 >
-  <Image
-    src={iconImage}
-    alt="いくら・はむのアイコン"
-    width={200}
-    height={200}
-  />
-  <h2>いくら・はむ</h2>
-  <h3>@ikura-hamu</h3>
-
+  <div class="flex flex-col justify-center items-center">
+    <Image
+      src={iconImage}
+      alt="いくら・はむのアイコン"
+      width={200}
+      height={200}
+    />
+    <h2>いくら・はむ</h2>
+    <h3>@ikura-hamu</h3>
+  </div>
   <ul>
     <li>東京工業大学 学士{grade}年 工学院情報通信系</li>
     <li>東京工業大学デジタル創作同好会traP</li>
@@ -38,37 +39,42 @@ const grade =
     </p>
   </div>
 
-  <h3 id="Skills"><a href="#Skills">Skills</a></h3>
-  <!--ここに言語とかのリストを置く-->
-  <Skills />
+  <div class="my-4">
+    <h3 id="Skills"><a href="#Skills" class="text-dark">Skills</a></h3>
+    <Skills />
+  </div>
 
-  <h3 id="Products"><a href="#Products">Products</a></h3>
-  <Works
-    workType="products"
-    extraContent={{
-      name: "GitHub @ikura-hamu",
-      icon: "devicon:github",
-      url: "https://github.com/ikura-hamu",
-    }}
-  />
+  <div class="my-4">
+    <h3 id="Products"><a href="#Products" class="text-dark">Products</a></h3>
+    <Works
+      workType="products"
+      extraContent={{
+        name: "GitHub @ikura-hamu",
+        icon: "codicon:github",
+        url: "https://github.com/ikura-hamu",
+      }}
+    />
+  </div>
   <!--作ったものリスト -->
 
-  <h3 id="Slides"><a href="#Slides">Slides</a></h3>
+  <div class="my-4">
+    <h3 id="Slides"><a href="#Slides" class="text-dark">Slides</a></h3>
+    <Works
+      workType="slides"
+      extraContent={{
+        name: "GitHub Pages",
+        icon: "ri:slideshow-fill",
+        url: "https://ikura-hamu.github.io/slides/",
+      }}
+    />
+  </div>
 
-  <Works
-    workType="slides"
-    extraContent={{
-      name: "GitHub Pages",
-      icon: "ri:slideshow-fill",
-      url: "https://ikura-hamu.github.io/slides/",
-    }}
-  />
+  <div class="my-4">
+    <h3 id="Career"><a href="#Career" class="text-dark">Career</a></h3>
+    <Career />
+  </div>
 
-  <h3 id="Career"><a href="#Career">Career</a></h3>
-
-  <Career />
-
-  <h3 id="Other"><a href="#Other">Other</a></h3>
+  <h3 id="Other"><a href="#Other" class="text-dark">Other</a></h3>
 
   <Other />
 </Layout>

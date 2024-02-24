@@ -35,7 +35,7 @@ const works = allWorks.data.map((work) => {
   <div class="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
     {
       works.map((work) => (
-        <div class="flex flex-col border-2 border-dark rounded-md m-1 h-[350px] min-w-[300px] max-w-full p-1">
+        <div class="flex flex-col border-2 border-dark rounded-md m-1 h-[325px] min-w-[300px] max-w-full p-1">
           <a href={work.links.filter((link) => link.primary)[0].url}>
             <div class="flex justify-center">
               <img src={work.heroImage} class="h-32" />
@@ -68,7 +68,11 @@ const works = allWorks.data.map((work) => {
 
           <div class="grid grid-cols-3 mt-auto">
             {work.links.map((link) => (
-              <a href={link.url} class="mx-1" title={link.name}>
+              <a
+                href={link.url}
+                class="mx-1 rounded-lg hover:bg-slate-100 hover:duration-150"
+                title={link.name}
+              >
                 <div class="flex items-end self-end text-primary">
                   <Icon name={link.icon} class="text-3xl" />{" "}
                   <div class="text-xs">{link.name}</div>

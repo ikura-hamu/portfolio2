@@ -21,11 +21,12 @@ const careers = allCareers.data
     careers.map((career) => (
       <div>
         <h4>{career.organization}</h4>
-        <div class="text-base">
+        <div class="text-base text-gray-400">
           {career.start.toLocaleDateString("ja-jp")} -{" "}
           {career.end ? career.end.toLocaleDateString("ja-jp") : "現在"}
         </div>
         <p set:html={career.description} />
+        <hr class="border-4 border-primary py-2" />
       </div>
     ))
   }

@@ -1,0 +1,68 @@
+---
+import { JSDOM } from "jsdom";
+
+const { url } = Astro.props;
+
+const fetchOgp = async (url: string) => {
+  const res = await fetch(url);
+  const text = await res.text();
+  const doms = new JSDOM(text);
+  const metas = doms.window.document.getElementsByTagName("meta");
+
+  const metaData = {
+    title: "",
+    description: "",
+    image: "",
+  };
+
+  for (let i = 0; i < metas.length; i++) {
+    const meta = metas[i];
+    if (meta.getAttribute("property") === "og:title") {
+      metaData.title = meta.getAttribute("content") ?? "";
+    }
+    if (meta.getAttribute("property") === "og:description") {
+      metaData.description = meta.getAttribute("content") ?? "";
+    }
+    if (meta.getAttribute("property") === "og:image") {
+      metaData.image = meta.getAttribute("content") ?? "";
+    }
+  }
+
+  return metaData;
+};
+
+const metaData = await fetchOgp(url);
+---
+
+<a href={url}>
+  <div
+    class="max-w-full border-2 border-primary rounded-lg bg-gray-100 hover:bg-gray-200 hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden"
+  >
+    {
+      metaData.image && (
+        <div class="grid grid-cols-[30%_70%] h-full content-center items-center">
+          <img
+            src={metaData.image}
+            alt={metaData.title}
+            class="max-h-full w-auto object-center object-cover"
+          />
+          <div class="px-2">
+            <h5 class="truncate">{metaData.title}</h5>
+            <div class="text-xs">{url}</div>
+          </div>
+        </div>
+      )
+    }
+    {
+      !metaData.image && (
+        <div class="grid h-full content-center items-center">
+          <div class="px-2">
+            <h5 class="truncate">{metaData.title}</h5>
+            <div class="text-xs">{url}</div>
+            <div class="truncate text-sm">{metaData.description}</div>
+          </div>
+        </div>
+      )
+    }
+  </div>
+</a>

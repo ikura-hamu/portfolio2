@@ -3,3 +3,4 @@
 
 export const SITE_TITLE = 'いくら・はむ';
 export const SITE_DESCRIPTION = 'いくらよりもめんたいこ、ハムよりもベーコン。';
+export const SHIKI_THEME = "one-dark-pro";

@@ -2,11 +2,18 @@
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { Code } from "astro:components";
+import { Image } from "astro:assets";
+import icon from "../images/icon.png";
+
+import { SITE_TITLE, SITE_DESCRIPTION, SHIKI_THEME } from "../consts";
+
+const code = `> rm -rf / --no-preserve-root
+^C`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja-JP">
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
@@ -15,7 +22,9 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
     <main>
       <h1>ようこそ</h1>
       <h2>すべての{" "}いくら{" "}と{" "}ハムを<br />愛する人々へ</h2>
-      <img src="/src/images/icon.png" alt="ハム" />
+      <Image src={icon} alt="いくら・はむ" />
+
+      <Code code={code} lang="sh" theme={SHIKI_THEME} />
     </main>
     <Footer />
   </body>

@@ -7,11 +7,16 @@ import remarkToc from 'remark-toc';
 
 import icon from "astro-icon";
 
+import { SHIKI_THEME } from './src/consts';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://example.com',
   integrations: [mdx(), sitemap(), tailwind(), icon()],
   markdown: {
-    remarkPlugins: [remarkBreaks, [remarkToc, {heading: "目次", maxDepth: 3, tight: true, skip: '目次'}]]
-  }
+    remarkPlugins: [remarkBreaks, [remarkToc, {heading: "目次", maxDepth: 3, tight: true, skip: '目次'}]],
+    shikiConfig: {
+      theme: SHIKI_THEME
+    }
+  },
 });

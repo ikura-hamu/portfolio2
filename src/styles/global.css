@@ -41,7 +41,7 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
-	font-size: 18px;
+	/* font-size: 18px; */
 	line-height: 1.7;
 }
 main {
@@ -64,7 +64,7 @@ h1 {
 	font-size: 3.052em;
 }
 h2 {
-	font-size: 2.441em;
+	font-size: 2.1em;
 }
 h3 {
 	font-size: 1.953em;
@@ -91,7 +91,8 @@ a:hover {
 	text-decoration: underline;
 }
 p {
-	margin-bottom: 1em;
+	margin-bottom: 0.5em;
+	margin-top: 0.5em;
 }
 .prose p {
 	margin-bottom: 2em;
@@ -117,8 +118,9 @@ code {
 	border-radius: 2px;
 }
 pre {
-	padding: 1.5em;
+	padding: 1.0em 1.5em 1.0em 1.5em;
 	border-radius: 8px;
+	line-height: 1.25;
 }
 pre > code {
 	all: unset;
@@ -128,7 +130,8 @@ blockquote {
 	padding: 0 0 0 20px;
 	margin-bottom: 20px;
 	/* margin: 0px; */
-	/* font-size: 1.333em; */
+	font-size: 0.9em;
+	color: gray;
 }
 hr {
 	border: none;
@@ -140,9 +143,9 @@ ul {
 }
 
 @media (max-width: 720px) {
-	body {
+	/* body {
 		font-size: 18px;
-	}
+	} */
 	main {
 		padding: 1em;
 	}

@@ -5,9 +5,10 @@ import Footer from "../../components/Footer.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
 import FormattedDate from "../../components/FormattedDate.astro";
+import { Icon } from "astro-icon/components";
 
 const posts = (await getCollection("blog")).sort(
-  (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 ---
 
@@ -82,6 +83,17 @@ const posts = (await getCollection("blog")).sort(
   <body>
     <Header />
     <main>
+      <div class="py-2">
+        <a href="https://trap.jp/author/ikura-hamu" target="_blank">
+          <div class="flex">
+            <div>traPでのブログ</div>
+            <Icon name="ri:external-link-fill" />
+          </div>
+        </a>
+      </div>
+
+      <hr class="border-4 border-primary py-4" />
+
       <section>
         <ul>
           {

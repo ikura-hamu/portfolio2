@@ -8,7 +8,7 @@ import remarkToc from 'remark-toc';
 import icon from "astro-icon";
 import { SHIKI_THEME } from './src/consts';
 
-import vercel from "@astrojs/vercel/serverless";
+import vercel from "@astrojs/vercel/static";
 
 // https://astro.build/config
 export default defineConfig({
@@ -25,6 +25,8 @@ export default defineConfig({
       theme: SHIKI_THEME
     }
   },
-  output: "server",
-  adapter: vercel()
+  output: "static",
+  adapter: vercel({
+    webAnalytics: { enabled: true },
+  }),
 });

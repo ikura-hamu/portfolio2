@@ -40,7 +40,7 @@ const metaData = await fetchOgp(url);
   >
     {
       metaData.image && (
-        <div class="grid grid-cols-[30%_70%] h-full content-center items-center">
+        <div class="grid grid-cols-[30%_70%] max-h-28 content-center items-center">
           <img
             src={metaData.image}
             alt={metaData.title}

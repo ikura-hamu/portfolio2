@@ -1,6 +1,8 @@
 - traP:
   organization: 東京工業大学デジタル創作同好会traP
-  description: "大学のサークルです。(ホームページ: https://trap.jp) サーバーサイドの開発以外にも、ゲーム制作や役員としてサークル運営を行っています。"
+  description: |
+    大学のサークルです。(ホームページ: https://trap.jp) サーバーサイドの開発以外にも、ゲーム制作や役員としてのサークル運営を行っています。<br>
+    ブログはhttps://trap.jp/author/ikura-hamuにまとまっています。
   start: 2022/04
 - チームラボ:
   organization: 株式会社チームラボ
@@ -9,5 +11,5 @@
   end: 2023/09/1
 - 日経:
   organization: 日本経済新聞電子版
-  description: 長期インターンに参加しています。AWS Lambdaを使ったアプリケーション開発をPythonで行っています。
+  description: 長期インターンに参加しています。社内用のPython製アプリの設計、実装、テスト、CI・CDなど広い範囲に取り組んでいます。
   start: 2023/11/1

@@ -22,5 +22,5 @@
 - next:
   name: Next.js
   level: 1
-  description: 1回だけ
+  description: 1回だけ部内のハッカソンで使いました
   icon: devicon:nextjs

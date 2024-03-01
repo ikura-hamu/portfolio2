@@ -7,7 +7,8 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "new": "cp ./src/content/blog/_template.mdx ./src/content/blog/$npm_config_file.mdx"
   },
   "dependencies": {
     "@astrojs/check": "^0.4.1",

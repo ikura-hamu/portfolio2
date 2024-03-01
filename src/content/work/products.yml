@@ -32,3 +32,21 @@
       url: https://trap.jp/post/2047/
       icon: ri:article-line
       primary: false
+- なろう講習会:
+  title: Webエンジニアになろう講習会
+  description: traPで毎年開催される、Web開発の基礎を扱う講習会です。2023年度の講師を務め、資料作成などを行いました。
+  heroImage: "src/images/products/naro.png"
+  tags:
+    - Web
+    - traP
+  links:
+    - 資料:
+      name: 資料
+      url: https://traptitech.github.io/naro-text
+      icon: ri:file-text-line
+      primary: true
+    - ブログ:
+      name: ブログ
+      url: https://trap.jp/post/1969/
+      icon: ri:article-line
+      primary: false

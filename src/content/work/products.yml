@@ -2,7 +2,7 @@
 - traP Collection:
   title: traP Collection
   description: traPで開発したゲームを管理・配信するためのサービスです。バックエンドの開発・運用を行っています。
-  heroImage: "src/images/products/trap-collection-logo.png"
+  heroImage: "/products/trap-collection-logo.png"
   tags:
     - Go
     - MariaDB
@@ -17,7 +17,7 @@
 - isu-isu-h:
   title: isu-isu-h
   description: "ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。"
-  heroImage: "src/images/products/isu-isu-h.png"
+  heroImage: "/products/isu-isu-h.png"
   tags:
     - ISUCON
     - Ansible
@@ -37,7 +37,7 @@
 - postQard:
   title: postQard
   description: traPのハッカソンで作った、年賀状投稿サービスです。Next.jsのApp Routerによるフロントエンドの開発を行いました。
-  heroImage: "src/images/products/postQard.png"
+  heroImage: "/products/postQard.png"
   tags:
     - Next.js
     - traP
@@ -55,7 +55,7 @@
 - いかしかめかアクティビティズ:
   title: いかしかめかアクティビティズ
   description: traPのハッカソンで作った、部内SNSのメッセージを使ったブラウザゲームです。バックエンドの開発を行いました。
-  heroImage: "src/images/products/ika-shika-meka.png"
+  heroImage: "/products/ika-shika-meka.png"
   tags:
     - Go
     - MariaDB
@@ -74,7 +74,7 @@
 - なろう講習会:
   title: Webエンジニアになろう講習会
   description: traPで毎年開催される、Web開発の基礎を扱う講習会です。2023年度の講師を務め、資料作成などを行いました。
-  heroImage: "src/images/products/naro.png"
+  heroImage: "/products/naro.png"
   tags:
     - Web
     - traP

@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwind from "@astrojs/tailwind";
 import remarkBreaks from 'remark-breaks';
 import remarkToc from 'remark-toc';
+import vercel from '@astrojs/vercel/serverless';
 
 import icon from "astro-icon";
 
@@ -19,4 +20,10 @@ export default defineConfig({
       theme: SHIKI_THEME
     }
   },
+  adapters: [
+    vercel({
+      webAnalytics: { enabled: true }
+    })
+  ],
+  output: "server",
 });

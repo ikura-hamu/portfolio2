@@ -13,11 +13,12 @@
       url: https://github.com/traPtitech/trap-collection-server
       icon: codicon:github
       primary: true
+
 - isu-isu-h:
   title: isu-isu-h
-  description: 'ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。'
+  description: "ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。"
   heroImage: "src/images/products/isu-isu-h.png"
-  tags: 
+  tags:
     - ISUCON
     - Ansible
     - Docker
@@ -32,6 +33,44 @@
       url: https://trap.jp/post/2047/
       icon: ri:article-line
       primary: false
+
+- postQard:
+  title: postQard
+  description: traPのハッカソンで作った、年賀状投稿サービスです。Next.jsのApp Routerによるフロントエンドの開発を行いました。
+  heroImage: "src/images/products/postQard.png"
+  tags:
+    - Next.js
+    - traP
+  links:
+    - GitHub:
+      name: GitHub
+      url: https://github.com/traP-jp/h23w_01-frontend
+      icon: codicon:github
+      primary: true
+    - ブログ:
+      name: ブログ
+      url: https://trap.jp/post/1983/
+      icon: ri:article-line
+
+- いかしかめかアクティビティズ:
+  title: いかしかめかアクティビティズ
+  description: traPのハッカソンで作った、部内SNSのメッセージを使ったブラウザゲームです。バックエンドの開発を行いました。
+  heroImage: "src/images/products/ika-shika-meka.png"
+  tags:
+    - Go
+    - MariaDB
+    - traP
+  links:
+    - GitHub:
+      name: GitHub
+      url: https://github.com/traP-jp/h23s_01
+      icon: codicon:github
+      primary: true
+    - ブログ:
+      name: ブログ
+      url: https://trap.jp/post/1899
+      icon: ri:article-line
+
 - なろう講習会:
   title: Webエンジニアになろう講習会
   description: traPで毎年開催される、Web開発の基礎を扱う講習会です。2023年度の講師を務め、資料作成などを行いました。

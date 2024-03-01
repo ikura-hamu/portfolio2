@@ -13,7 +13,11 @@ const { title, description, pubDate, updatedDate, heroImage, tags } =
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description ?? SITE_DESCRIPTION} />
+    <BaseHead
+      title={title}
+      description={description ?? SITE_DESCRIPTION}
+      image={heroImage ?? "/favicon.png"}
+    />
     <style>
       main {
         /* width: calc(100% - 2em); */

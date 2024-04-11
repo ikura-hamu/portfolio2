@@ -12,7 +12,7 @@
       icon: ri:article-line
     - event:
       name: スライド
-      url: https://ikura-hamu.github.io/slides/231223_isucon/
+      url: https://ikura-hamu.github.io/slides/231223_isucon
       icon: ri:slideshow-fill
       primary: true
     - YouTube:

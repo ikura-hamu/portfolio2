@@ -126,6 +126,15 @@ const posts = (await getCollection("blog")).sort(
                   <h4 class="title">{post.data.title}</h4>
                   <p class="date">
                     <FormattedDate date={post.data.pubDate} />
+                    {post.data.updatedDate && (
+                      <>
+                        <br>
+                        <FormattedDate
+                          date={post.data.updatedDate ?? post.data.pubDate}
+                        />
+                        <span class="text-gray-500">更新</span>
+                      </>
+                    )}
                   </p>
                 </a>
               </li>

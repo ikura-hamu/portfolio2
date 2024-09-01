@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@iconify-json/codicon": "^1.1.41",
-    "@iconify-json/devicon": "^1.1.49",
+    "@iconify-json/devicon": "^1.1.51",
     "@iconify-json/ri": "^1.1.21",
     "@types/jsdom": "^21.1.7",
     "astro-icon": "^1.0.4"

@@ -45,7 +45,7 @@ body {
 	line-height: 1.7;
 }
 main {
-	width: 720px;
+	width: 840px;
 	max-width: calc(100% - 2em);
 	margin: auto;
 	padding: 3em 3em;
@@ -59,6 +59,7 @@ h6 {
 	margin: 2rem 0 1rem 0;
 	color: rgb(var(--black));
 	line-height: 1.2;
+	border-bottom: var(--accent) 2px dotted;
 }
 h1 {
 	font-size: 3.052em;
@@ -68,9 +69,13 @@ h2 {
 }
 h3 {
 	font-size: 1.953em;
+	padding-left: 6px;
+	border-left: var(--accent) 4px solid;
 }
 h4 {
 	font-size: 1.563em;
+	padding-left: 12px;
+	border-left: var(--accent) 8px solid;
 }
 h5 {
 	font-size: 1.25em;

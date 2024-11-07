@@ -88,11 +88,9 @@ b {
 	font-weight: 700;
 }
 a {
-	/* color: var(--accent); */
 	color: #0F83FD;
 }
 a:hover {
-	/* color: var(--accent); */
 	text-decoration: underline;
 }
 p {

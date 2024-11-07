@@ -1,0 +1,45 @@
+---
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "./FormattedDate.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+const { post } = Astro.props;
+---
+
+<style>
+  .card:hover {
+    box-shadow: var(--box-shadow);
+  }
+
+  a {
+    color: var(--accent);
+  }
+</style>
+
+<div class="rounded-lg px-4 py-2 max-w-md mx-auto card">
+  <a href={`/blog/${post.slug}/`} class="block">
+    <div class="border-2 border-primary overflow-hidden rounded-lg mb-2">
+      <img
+        src={post.data.heroImage ?? "/favicon.png"}
+        alt={post.data.title}
+        class="w-full h-36 object-cover"
+      />
+    </div>
+    <h3 class="text-xl font-semibold mb-1">
+      {post.data.title}
+    </h3>
+    <p class="text-gray-500">
+      <FormattedDate date={post.data.pubDate} />
+    </p>
+    {
+      post.data.updatedDate && (
+        <p class="text-gray-500 date">
+          <FormattedDate date={post.data.updatedDate ?? post.data.pubDate} />
+          <span>更新</span>
+        </p>
+      )
+    }
+  </a>
+</div>

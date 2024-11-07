@@ -25,8 +25,7 @@ const careers = allCareers.data
           {career.start.toLocaleDateString("ja-jp")} -{" "}
           {career.end ? career.end.toLocaleDateString("ja-jp") : "現在"}
         </div>
-        <p set:html={career.description} />
-        <hr class="border-4 border-primary py-2" />
+        <p set:html={career.description} class="mb-0" />
       </div>
     ))
   }

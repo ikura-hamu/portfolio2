@@ -69,13 +69,13 @@ h2 {
 }
 h3 {
 	font-size: 1.953em;
-	padding-left: 6px;
+	padding-left: 8px;
 	border-left: var(--accent) 4px solid;
 }
 h4 {
 	font-size: 1.563em;
-	padding-left: 12px;
-	border-left: var(--accent) 8px solid;
+	padding-left: 8px;
+	border-left: var(--accent) 12px solid;
 }
 h5 {
 	font-size: 1.25em;

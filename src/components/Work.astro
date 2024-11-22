@@ -3,7 +3,7 @@ import { getEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 
 import { replaceURL } from "@/util/url";
-import { Image } from "astro:assets";
+import ViewMoreButton from "./ViewMoreButton.astro";
 
 interface Props {
   workType: string;
@@ -86,19 +86,15 @@ const works = allWorks.data.map((work) => {
     }
   </div>
 
-  <div class="flex justify-center items-center">
-    {
-      extraContent && (
-        <a href={extraContent.url}>
-          <div class="flex items-center justify-center my-4 bg-primary text-white rounded-md min-w-[300px] max-w-[400px] hover:bg-dark hover:duration-150">
-            <Icon name={extraContent.icon} class="text-3xl" />
-            <div class="text-base ml-2">
-              {extraContent.name}で<br />
-              もっと見る
-            </div>
-          </div>
-        </a>
-      )
-    }
-  </div>
+  {
+    extraContent && (
+      <ViewMoreButton
+        extraContent={{
+          icon: extraContent.icon,
+          name: extraContent.name,
+          url: extraContent.url,
+        }}
+      />
+    )
+  }
 </div>

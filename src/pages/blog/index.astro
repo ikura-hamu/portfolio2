@@ -4,13 +4,55 @@ import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
-import FormattedDate from "../../components/FormattedDate.astro";
-import { Icon } from "astro-icon/components";
 import BlogPostCard from "@/components/BlogPostCard.astro";
+import { JSDOM } from "jsdom";
+import ViewMoreButton from "@/components/ViewMoreButton.astro";
 
-const posts = (await getCollection("blog")).sort(
+const blogs = (await getCollection("blog")).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+
+const fetchTrapBlogs = async () => {
+  const res = await fetch("https://trap.jp/author/ikura-hamu");
+  const text = await res.text();
+  const doms = new JSDOM(text);
+  const articleElements =
+    doms.window.document.getElementsByClassName("article");
+
+  type Blog = {
+    title: string;
+    url: string;
+    pubDate: Date;
+    heroImage: string;
+  };
+
+  const blogs: Blog[] = [];
+
+  for (let i = 0; i < articleElements.length; i++) {
+    const articleElement = articleElements[i];
+    const dateStrJp =
+      articleElement.getElementsByTagName("small")[0]?.textContent;
+    const dateStr = dateStrJp
+      ?.replace("年", "-")
+      .replace("月", "-")
+      .replace("日", "");
+    const article: Blog = {
+      title:
+        articleElement.getElementsByTagName("strong")[0]?.textContent ?? "",
+      url: `https://trap.jp${articleElement.getAttribute("href")}`,
+      pubDate: new Date(dateStr ?? ""),
+      heroImage:
+        articleElement
+          .getElementsByTagName("source")[0]
+          ?.getAttribute("srcset") ?? "",
+    };
+    blogs.push(article);
+  }
+
+  return blogs;
+};
+
+const trapBlogs = await fetchTrapBlogs();
 ---
 
 <!doctype html>
@@ -55,51 +97,40 @@ const posts = (await getCollection("blog")).sort(
   <body>
     <Header />
     <main>
-      <div class="py-2">
-        <a href="https://trap.jp/author/ikura-hamu" target="_blank">
-          <div class="flex">
-            <div>traPでのブログ</div>
-            <Icon name="ri:external-link-fill" />
-          </div>
-        </a>
-      </div>
-
-      <hr class="border-4 border-primary py-4" />
-
       <section>
         <ul class="">
           {
-            posts.map((post) => (
+            blogs.map((post) => (
               <li>
                 <BlogPostCard post={post} />
-                {/* <a href={`/blog/${post.slug}/`} class="post-link">
-                  <img
-                    width={720}
-                    height={360}
-                    src={post.data.heroImage ?? "/favicon.png"}
-                    alt={post.data.title}
-                    class="border-2 border-primary"
-                  />
-                  <h4 class="title">{post.data.title}</h4>
-                  <p class="date">
-                    <FormattedDate date={post.data.pubDate} />
-                    {post.data.updatedDate && (
-                      <>
-                        <br>
-                        <FormattedDate
-                          date={post.data.updatedDate ?? post.data.pubDate}
-                        />
-                        <span class="text-gray-500">更新</span>
-                      </>
-                    )}
-                  </p>
-                </a> */}
               </li>
             ))
           }
         </ul>
       </section>
+      <hr class="border-4 border-primary py-4" />
+
+      <section>
+        <h2>traPでのブログ (直近12件のみ)</h2>
+        外部ページに飛びます
+        <ul class="">
+          {
+            trapBlogs.map((post) => (
+              <li>
+                <BlogPostCard post={post} />
+              </li>
+            ))
+          }
+        </ul>
+        <ViewMoreButton
+          extraContent={{
+            icon: "ri:external-link-fill",
+            name: "traP 公式ページ",
+            url: "https://trap.jp/author/ikura-hamu",
+          }}
+        />
+      </section>
+      <Footer />
     </main>
-    <Footer />
   </body>
 </html>

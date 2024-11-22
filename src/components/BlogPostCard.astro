@@ -1,11 +1,41 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "./FormattedDate.astro";
+import { Icon } from "astro-icon/components";
 
 interface Props {
-  post: CollectionEntry<"blog">;
+  post:
+    | CollectionEntry<"blog">
+    | {
+        title: string;
+        url: string;
+        pubDate: Date;
+        heroImage: string;
+      };
 }
 const { post } = Astro.props;
+
+const isCollectionEntry = (
+  post:
+    | CollectionEntry<"blog">
+    | { title: string; url: string; pubDate: Date; heroImage: string }
+): post is CollectionEntry<"blog"> => {
+  return (post as CollectionEntry<"blog">).data !== undefined;
+};
+
+const generalPost = isCollectionEntry(post)
+  ? {
+      url: `/blog/${post.slug}/`,
+      title: post.data.title,
+      heroImage: post.data.heroImage ?? "/favicon.png",
+      pubDate: post.data.pubDate,
+      updatedDate: post.data.updatedDate,
+      internal: true,
+    }
+  : {
+      ...post,
+      internal: false,
+    };
 ---
 
 <style>
@@ -19,24 +49,39 @@ const { post } = Astro.props;
 </style>
 
 <div class="rounded-lg px-4 py-2 max-w-md mx-auto card">
-  <a href={`/blog/${post.slug}/`} class="block">
+  <a
+    href={generalPost.url}
+    class="block"
+    target={generalPost.internal ? "" : "_blank"}
+    rel={generalPost.internal ? "" : "noopener noreferrer"}
+  >
     <div class="border-2 border-primary overflow-hidden rounded-lg mb-2">
       <img
-        src={post.data.heroImage ?? "/favicon.png"}
-        alt={post.data.title}
+        src={generalPost.heroImage ?? "/favicon.png"}
+        alt={generalPost.title}
         class="w-full h-36 object-cover"
       />
     </div>
     <h3 class="text-xl font-semibold mb-1">
-      {post.data.title}
+      {generalPost.title}
+      {
+        generalPost.internal ? null : (
+          <Icon
+            name="ri:external-link-fill"
+            class="inline-block w-4 h-4 ml-1"
+          />
+        )
+      }
     </h3>
     <p class="text-gray-500">
-      <FormattedDate date={post.data.pubDate} />
+      <FormattedDate date={generalPost.pubDate} />
     </p>
     {
-      post.data.updatedDate && (
+      generalPost.updatedDate && (
         <p class="text-gray-500 date">
-          <FormattedDate date={post.data.updatedDate ?? post.data.pubDate} />
+          <FormattedDate
+            date={generalPost.updatedDate ?? generalPost.pubDate}
+          />
           <span>更新</span>
         </p>
       )

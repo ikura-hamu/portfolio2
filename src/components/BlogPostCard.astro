@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "./FormattedDate.astro";
+import { Icon } from "astro-icon/components";
 
 interface Props {
   post:
@@ -63,6 +64,14 @@ const generalPost = isCollectionEntry(post)
     </div>
     <h3 class="text-xl font-semibold mb-1">
       {generalPost.title}
+      {
+        generalPost.internal ? null : (
+          <Icon
+            name="ri:external-link-fill"
+            class="inline-block w-4 h-4 ml-1"
+          />
+        )
+      }
     </h3>
     <p class="text-gray-500">
       <FormattedDate date={generalPost.pubDate} />

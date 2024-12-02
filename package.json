@@ -31,6 +31,6 @@
     "@iconify-json/devicon": "^1.1.51",
     "@iconify-json/ri": "^1.2.3",
     "@types/jsdom": "^21.1.7",
-    "astro-icon": "^1.0.4"
+    "astro-icon": "^1.1.4"
   }
 }

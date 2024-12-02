@@ -19,7 +19,7 @@
     "@astrojs/vercel": "^7.8.2",
     "@vercel/analytics": "^1.2.2",
     "@vercel/speed-insights": "^1.0.12",
-    "astro": "^4.16.3",
+    "astro": "^4.16.16",
     "jsdom": "^25.0.1",
     "remark-breaks": "^4.0.0",
     "remark-toc": "^9.0.0",

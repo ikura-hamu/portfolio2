@@ -11,7 +11,7 @@
     "new": "cp ./src/content/blog/_template.mdx ./src/content/blog/$npm_config_file.mdx"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.3",
+    "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^3.1.9",
     "@astrojs/rss": "^4.0.7",
     "@astrojs/sitemap": "^3.2.1",

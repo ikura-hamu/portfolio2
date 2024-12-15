@@ -37,25 +37,28 @@ const works = allWorks.data.map((work) => {
     {
       works.map((work) => (
         <div class="flex flex-col border-2 border-dark rounded-md m-1 h-[325px] min-w-[300px] max-w-full p-1">
-          <a href={work.links.filter((link) => link.primary)[0].url}>
+          <a
+            href={work.links.filter((link) => link.primary)[0].url}
+            class="decoration-dark hover:duration-150 hover:bg-slate-200 rounded-md p-1"
+          >
             <div class="flex justify-center h-32">
               <img src={work.heroImage} class="object-contain h-full w-full" />
             </div>
+
+            <h5 class="truncate my-0.5" title={work.title}>
+              {/* <a
+                href={work.links.filter((link) => link.primary)[0].url}
+                class="text-dark"
+              > */}
+              <div class="inline">{work.title}</div>
+              <Icon name="codicon:link-external" class="inline ml-1 text-xs" />
+              {/* </a> */}
+            </h5>
+
+            {work.subtitle && (
+              <h6 class="leading-tight my-0">{work.subtitle}</h6>
+            )}
           </a>
-
-          <h5
-            class="truncate my-0.5 hover:whitespace-normal hover:leading-tight"
-            title={work.title}
-          >
-            <a
-              href={work.links.filter((link) => link.primary)[0].url}
-              class="text-dark"
-            >
-              {work.title}
-            </a>
-          </h5>
-
-          {work.subtitle && <h6 class="leading-tight my-0">{work.subtitle}</h6>}
 
           <div class="flex">
             {work.tags.map((tag) => (
@@ -71,7 +74,7 @@ const works = allWorks.data.map((work) => {
             {work.links.map((link) => (
               <a
                 href={link.url}
-                class="mx-1 rounded-lg hover:bg-slate-100 hover:duration-150"
+                class="mx-1 rounded-lg hover:bg-slate-200 hover:duration-150"
                 title={link.name}
               >
                 <div class="flex items-end self-end text-primary">

@@ -4,21 +4,23 @@ import { replaceURL } from "@/util/url";
 
 const allCareers = await getEntry("career", "career");
 
-const careers = allCareers.data
-  .map((career) => {
-    return {
-      organization: career.organization,
-      start: career.start,
-      end: career.end,
-      description: replaceURL(career.description),
-    };
-  })
-  .sort((a, b) => a.start.getTime() - b.start.getTime());
+const sortedCareers = allCareers
+  ? allCareers.data
+      .map((career) => {
+        return {
+          organization: career.organization,
+          start: career.start,
+          end: career.end,
+          description: replaceURL(career.description),
+        };
+      })
+      .sort((a, b) => a.start.getTime() - b.start.getTime())
+  : [];
 ---
 
 <div>
   {
-    careers.map((career) => (
+    sortedCareers.map((career) => (
       <div>
         <h4>{career.organization}</h4>
         <div class="text-base text-gray-400">

@@ -3,7 +3,7 @@
   subtitle: 2023/11/23 「traP ISUCON LT」
   description: 対ISUCONツール群「isu-isu-h」を作ったときの思考について話しました。
   heroImage: https://ikura-hamu.github.io/slides/images/ogp/231223_isucon.png
-  tags: 
+  tags:
     - ISUCON
   links:
     - event:
@@ -20,3 +20,20 @@
       url: https://www.youtube.com/watch?v=EzJQKtHRpEw&t=1152s
       icon: ri:youtube-line
       primary: false
+- isucon14_review:
+  title: traP の部内 ISUCON とそれを支えるポータル
+  subtitle: 2025/1/10 ISUCON14 公式反省会
+  description: traP の部内 ISUCON について、内容と工夫、新しいポータルの計画について話しました。
+  heroImage: https://ikura-hamu.github.io/slides/images/ogp/250110_isucon14_review/index.png
+  tags:
+    - ISUCON
+  links:
+    - event:
+      name: connpass
+      url: https://lycorptech-jp.connpass.com/event/340046/
+      icon: ri:article-line
+    - event:
+      name: スライド
+      url: https://ikura-hamu.github.io/slides/250110_isucon14_review
+      icon: ri:slideshow-fill
+      primary: true

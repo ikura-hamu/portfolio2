@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry, getCollection } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
+import Comments from "@/components/Comments.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -27,12 +28,12 @@ const { Content } = await post.render();
 <BlogPost {...post.data}>
   <Content />
 
-  {
-    similarPosts.length > 0 && (
-      <div class="mt-10">
-        <hr class="border-4 border-primary" />
+  <div class="mt-10">
+    <hr class="border-4 border-primary" />
+    {
+      similarPosts.length > 0 && (
         <section class="mt-2">
-          <h3 class="mt-8">似た内容の記事</h3>
+          <h2 class="mt-8">似た内容の記事</h2>
           <ul>
             {similarPosts.map((post) => (
               <li>
@@ -50,7 +51,8 @@ const { Content } = await post.render();
             ))}
           </ul>
         </section>
-      </div>
-    )
-  }
+      )
+    }
+    <Comments />
+  </div>
 </BlogPost>

@@ -46,13 +46,8 @@ const works = allWorks.data.map((work) => {
             </div>
 
             <h5 class="truncate my-0.5" title={work.title}>
-              {/* <a
-                href={work.links.filter((link) => link.primary)[0].url}
-                class="text-dark"
-              > */}
               <div class="inline">{work.title}</div>
               <Icon name="codicon:link-external" class="inline ml-1 text-xs" />
-              {/* </a> */}
             </h5>
 
             {work.subtitle && (

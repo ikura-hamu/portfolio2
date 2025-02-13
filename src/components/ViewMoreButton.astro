@@ -13,10 +13,15 @@ const { extraContent } = Astro.props;
 ---
 
 <div class="flex justify-center items-center">
-  <a href={extraContent.url} target="_blank" rel="noopener noreferrer" class="no-underline">
+  <a
+    href={extraContent.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="no-underline"
+  >
     <div
       class="flex items-center justify-center my-4 bg-primary text-white rounded-md min-w-[300px] max-w-[400px]
-      hover:bg-primary-dark hover:duration-150"
+      hover:duration-150"
     >
       <Icon name={extraContent.icon} class="text-3xl" />
       <div class="text-base ml-2">

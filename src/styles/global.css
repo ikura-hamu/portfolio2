@@ -5,6 +5,11 @@
  */
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #c792ea;
+  --color-secondary: #c5e478;
+}
+
 :root {
   /* --accent: #2337ff; */
   --accent: #c792ea;
@@ -57,9 +62,6 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 2rem 0 1rem 0;
-  color: rgb(var(--black));
-  line-height: 1.2;
   border-bottom: var(--accent) 2px dotted;
 }
 h1 {

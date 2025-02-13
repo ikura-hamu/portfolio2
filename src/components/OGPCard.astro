@@ -55,11 +55,11 @@ const metaData = await fetchOgp(url);
     }
     {
       !metaData.image && (
-        <div class="grid h-full content-center items-center">
+        <div class="grid h-28 content-center items-center">
           <div class="px-2">
             <h5 class="truncate">{metaData.title}</h5>
             <div class="text-xs">{url}</div>
-            <div class="truncate text-sm">{metaData.description}</div>
+            <div class="text-ellipsis text-sm">{metaData.description}</div>
           </div>
         </div>
       )

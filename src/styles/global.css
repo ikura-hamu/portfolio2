@@ -98,8 +98,12 @@ b {
 }
 a {
   color: #0f83fd;
+}
+
+a:hover {
   text-decoration: underline;
 }
+
 p {
   margin-bottom: 0.5em;
   margin-top: 0.5em;

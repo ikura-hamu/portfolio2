@@ -4,8 +4,24 @@ import { JSDOM } from "jsdom";
 const { url } = Astro.props;
 
 const fetchOgp = async (url: string) => {
-  const res = await fetch(url);
-  const text = await res.text();
+  const fetchWithRetry = async (url: string, retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res;
+      } catch (error) {
+        if (i < retries - 1) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
+    }
+  };
+
+  const res = await fetchWithRetry(url);
+  const text = await res?.text();
   const doms = new JSDOM(text);
   const metas = doms.window.document.getElementsByTagName("meta");
 

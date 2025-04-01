@@ -1,0 +1,125 @@
+---
+title: '2024年度 春休み振り返り'
+description: '2025年(2024年度の春休みの振り返り)' # optional
+pubDate: '2025-04-06'
+heroImage: '/250406_spring.jpg' # optional
+tags:
+  - 振り返り
+---
+import OGPCard from '@/components/OGPCard.astro'
+import { Image } from 'astro:assets'
+
+2024年度(2025年)の春休みを振り返りたいと思います。4月から授業があるわけではないので春休みかどうか怪しいですが、なんとなくで。
+
+## ぱそかた
+
+### piscon-portal-v2
+
+traPの部内ISUCON「PISCON」で使うポータルを作り直すプロジェクト。リーダー的な仕事とバックエンド書くのをやってます。楽しい。頑張って今年のISUCON練習に間に合わせたい。
+
+#### `io.LimitReader`
+
+`io.LimitReader`を使う機会があってびっくりした。
+
+https://github.com/traPtitech/piscon-portal-v2/commit/67db3f8cca28c8f25ab64e25fc7d8605f9d62246#diff-20e6696d056b9497806d8852a99dad01af18dab2c3378ebf73dee3ccbea93f45R81
+
+ざっくり使いどころを話すと、継続的にデータが書き込まれている`io.Reader`から定期的にデータを読み取りたくて、普通にやると`EOF`が来るまで待ってしまうが`io.LimitReader`を使うと途中まで読んで処理してまた続きを読む、ということができる。
+
+### ブログのコメント機能
+
+このブログにコメント機能がついた。GitHubのDiscussionを使って簡単に埋め込める[giscus](https://giscus.app/ja)を使った。とても簡単にできたのでおすすめです。
+
+<OGPCard url="https://giscus.app/ja" />
+
+### Go1.24 `testing/synctest`
+
+PISCON Portal で使いたくてrelease candidateの段階から使ってたら、穴にはまった。当然あまり資料が出回ってないので、issueをあさったりしていい経験になった。ブログも書いた。
+
+[Go1.24 の testing/synctest で time.Ticker 使うなら (*time.Ticker).Stop しないと、異世界から抜け出せなくなる。| https://trap.jp/post/2485/](https://trap.jp/post/2485/)
+
+<OGPCard url="https://trap.jp/post/2485/" />
+
+### データコンペ
+
+traPであったデータコンペに出た。普段やらないぱそかただったから難しかった。
+
+<OGPCard url="https://trap.jp/post/2518/" />
+
+### Go の静的解析ツール `c3`
+
+**C**leanup **C**ontext **C**hecker なので `c3`。我ながらいい感じの命名を見つけたなと思う。
+Go1.24で追加された`(*testing.common).Context()`で得られる`context.Context`を`(*testing.common).Cleanup`で使うと、その前にキャンセルされてしまうので動かない。これを検知するツールを書いた。golangci-lintのmodule pluginとしても使えるようにしたのが推しポイント。もっといろんな人にmodule pluginを使ってほしい。
+
+```go
+func Test(t *testing.T) {
+  t.Cleanup(func() {
+    t.Context() // ←これで得られるcontext.ContextはCleanup前にcancelされている
+  })
+}
+```
+
+https://github.com/ikura-hamu/c3
+
+<OGPCard url="https://github.com/ikura-hamu/c3" />
+
+静的解析は難しいが、ChatGPT君にとても助けてもらえた。今話題のagent的なやつを使った開発では静的解析が有利に働くと聞いたことがあるので、いい感じに活用して生きたい。
+
+### CPCTF
+
+CPCTFは、traPが毎年春にやってる競プロとCTFの大会。今年もインフラ担当としていろいろやってる。2年目の経験を活かしていろんな作業の自動化を進めている。去年は競技終了直前にサーバーを落とすというスーパーミスをしたので、今年は絶対落とさないようにしたい。参加待ってます。
+
+去年のブログ
+
+<OGPCard url="https://trap.jp/post/2235/" />
+
+## ぱそかた以外
+
+### 東京ディズニーシー
+
+サークルの同期とディズニーシーに行った。ディズニーランドには中学の修学旅行とかで3回来たことがあったが、シーは初だった。新エリアがあったが、自分的には全て新エリアだったのでとても楽しめた。ソアリンというアトラクションとアナ雪のやつがお気に入りになった。
+
+import disney from '../../images/250406_spring/disney.jpg'
+
+<Image src={disney} alt="夜ディズニーシー" width={500}/>
+
+### 草津
+
+traPの合宿で草津に行った。スキーをしたり温泉に行ったりした。夜に宴会場でボードゲームをしたのが楽しかった。
+
+import yubateke from '../../images/250406_spring/yubatake.jpg'
+
+<Image src={yubateke} alt="湯畑" width={500}/>
+
+これは湯畑。このブログのサムネイルはスキー場のてっぺん。
+
+### 帰省
+
+実家に帰省した。安心した。帰省中には湖に野鳥を見に行った。Jリーグの試合も2試合観に行ったが、どっちも引き分けだった。
+
+import duck from '../../images/250406_spring/duck.jpg'
+
+<Image src={duck} alt="野鳥" width={500}/>
+
+### 伊東
+
+サークルの同期と伊東に行った。バーベキューした。ピザ窯で焼いたピザが美味しかった。シャボテン公園にも行った。サボテンの公園かと思ったら動物がその辺にたくさんいてびっくりした。とても満足した。
+
+import shiroKujaku from '../../images/250406_spring/shiro_kujaku.jpg'
+
+<Image src={shiroKujaku} alt="シャボテン公園にいたシロクジャク" width={500}/>
+
+これはシャボテン公園にいたシロクジャク。とても近くにいたし人間を怖がるそぶりも無かったのですごかった。
+
+### 研究
+
+情報通信系は3年の4Qから研究室に仮配属されるので、研究が始まっている。内容はぱそかたと言えばぱそかただが、ぱそかたが本質ではないのでこっちに書いた。「〇〇(任意)の研究をやってます」って名乗るのかっこいいと思っていたので、できるようになって嬉しい。
+
+## 今後
+
+4年生になるので、授業はほぼ無い。研究をそれなりに頑張りたい。絶賛就活中なので、早く決まってほしい。就活がうまくいったら大学生活はあと1年なので、やった方がいいことをちゃんとやりたい。traP も技術的な面でなんか貢献したい。
+
+import cherryBlossom from '../../images/250406_spring/cherry_blossom.jpg'
+
+<Image src={cherryBlossom} alt="桜" width={500}/>
+
+大岡山の桜満開。

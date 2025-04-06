@@ -32,6 +32,7 @@ export default defineConfig({
     shikiConfig: {
       theme: SHIKI_THEME,
     },
+    syntaxHighlight: "shiki",
   },
 
   output: "static",

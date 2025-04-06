@@ -33,7 +33,9 @@ const { Content } = await post.render();
     {
       similarPosts.length > 0 && (
         <section class="mt-2">
-          <h2 class="mt-8">似た内容の記事</h2>
+          <h2 class="mt-8">
+            いくら・はむは、あなたに本記事に似たこれらの記事も読んでほしいと思っています
+          </h2>
           <ul>
             {similarPosts.map((post) => (
               <li>

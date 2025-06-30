@@ -15,18 +15,20 @@ import ThemeToggle from "./ThemeToggle.astro";
     </div>
     <div class="social-links">
       <ThemeToggle />
-      <a
-        href="https://twitter.com/ikura_hamu"
-        target="_blank"
-        title="X(Twitter)"
-      >
-        <span class="sr-only">X @ikura_hamu</span>
-        <Icon name="ri:twitter-x-fill" width={32} height={32} />
-      </a>
-      <a href="https://github.com/ikura-hamu" target="_blank" title="GitHub">
-        <span class="sr-only">GitHub @ikura-hamu</span>
-        <Icon name="codicon:github-inverted" width={32} height={32} />
-      </a>
+      <div class="social-icons">
+        <a
+          href="https://twitter.com/ikura_hamu"
+          target="_blank"
+          title="X(Twitter)"
+        >
+          <span class="sr-only">X @ikura_hamu</span>
+          <Icon name="ri:twitter-x-fill" width={32} height={32} />
+        </a>
+        <a href="https://github.com/ikura-hamu" target="_blank" title="GitHub">
+          <span class="sr-only">GitHub @ikura_hamu</span>
+          <Icon name="codicon:github-inverted" width={32} height={32} />
+        </a>
+      </div>
     </div>
   </nav>
 </header>
@@ -72,8 +74,13 @@ import ThemeToggle from "./ThemeToggle.astro";
   .social-links a {
     color: var(--text-color);
   }
+  .social-icons {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+  }
   @media (max-width: 720px) {
-    .social-links {
+    .social-icons {
       display: none;
     }
   }

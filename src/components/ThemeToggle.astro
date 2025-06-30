@@ -1,0 +1,102 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  title="Toggle theme"
+  aria-label="Toggle dark/light theme"
+  class="theme-toggle"
+>
+  <Icon name="ri:sun-line" class="sun-icon" width={24} height={24} />
+  <Icon name="ri:moon-line" class="moon-icon" width={24} height={24} />
+</button>
+
+<script>
+  function initThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    // Get initial theme from localStorage or system preference
+    const getInitialTheme = () => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        return savedTheme;
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    
+    const setTheme = (theme: string) => {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    };
+    
+    const toggleTheme = () => {
+      const currentTheme = html.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    };
+    
+    // Set initial theme
+    setTheme(getInitialTheme());
+    
+    // Add click event listener
+    themeToggle?.addEventListener('click', toggleTheme);
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+  }
+  
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeToggle);
+  } else {
+    initThemeToggle();
+  }
+  
+  // Re-initialize on navigation (for SPA-like behavior)
+  document.addEventListener('astro:after-swap', initThemeToggle);
+</script>
+
+<style>
+  .theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+  
+  .theme-toggle:hover {
+    background: var(--hover-bg);
+    transform: scale(1.05);
+  }
+  
+  .theme-toggle:active {
+    transform: scale(0.95);
+  }
+  
+  /* Show sun icon in dark mode, moon icon in light mode */
+  [data-theme="light"] .sun-icon {
+    display: none;
+  }
+  
+  [data-theme="dark"] .moon-icon {
+    display: none;
+  }
+  
+  .sun-icon,
+  .moon-icon {
+    transition: opacity 0.2s ease;
+  }
+</style>

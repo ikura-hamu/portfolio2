@@ -2,6 +2,7 @@
 import HeaderLink from "./HeaderLink.astro";
 import { SITE_TITLE } from "../consts";
 import { Icon } from "astro-icon/components";
+import ThemeToggle from "./ThemeToggle.astro";
 ---
 
 <header>
@@ -13,6 +14,7 @@ import { Icon } from "astro-icon/components";
       <HeaderLink href="/blog">Blog</HeaderLink>
     </div>
     <div class="social-links">
+      <ThemeToggle />
       <a
         href="https://twitter.com/ikura_hamu"
         target="_blank"
@@ -32,8 +34,9 @@ import { Icon } from "astro-icon/components";
   header {
     margin: 0;
     padding: 0 1em;
-    background: white;
+    background: var(--header-bg);
     box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    transition: background-color 0.3s ease;
   }
   h2 {
     margin: 0;
@@ -43,6 +46,7 @@ import { Icon } from "astro-icon/components";
   h2 a,
   h2 a.active {
     text-decoration: none;
+    color: var(--text-color);
   }
   nav {
     display: flex;
@@ -51,7 +55,7 @@ import { Icon } from "astro-icon/components";
   }
   nav a {
     padding: 1em 0.5em;
-    color: var(--black);
+    color: var(--text-color);
     border-bottom: 4px solid transparent;
     text-decoration: none;
   }
@@ -62,6 +66,11 @@ import { Icon } from "astro-icon/components";
   .social-links,
   .social-links a {
     display: flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+  .social-links a {
+    color: var(--text-color);
   }
   @media (max-width: 720px) {
     .social-links {

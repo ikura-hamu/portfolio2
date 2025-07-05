@@ -1,0 +1,164 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  title="Toggle theme"
+  aria-label="Toggle dark/light theme"
+  class="theme-toggle"
+>
+  <Icon name="ri:sun-line" class="sun-icon" width={24} height={24} />
+  <Icon name="ri:moon-line" class="moon-icon" width={24} height={24} />
+</button>
+
+<script is:inline>
+  class ThemeManager {
+    constructor() {
+      this.themeToggle = null;
+      this.html = document.documentElement;
+      this.THEMES = {
+        LIGHT: "light",
+        DARK: "dark",
+      };
+      this.GISCUS_THEMES = {
+        light: "catppuccin_latte",
+        dark: "catppuccin_mocha",
+      };
+    }
+
+    init() {
+      this.themeToggle = document.getElementById("theme-toggle");
+      if (!this.themeToggle) {
+        console.warn("Theme toggle button not found.");
+        return;
+      }
+
+      this.setTheme(this.getInitialTheme());
+      this.bindEvents();
+    }
+
+    getInitialTheme() {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme && Object.values(this.THEMES).includes(savedTheme)) {
+        return savedTheme;
+      }
+
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? this.THEMES.DARK
+        : this.THEMES.LIGHT;
+    }
+
+    setTheme(theme) {
+      this.html.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      this.updateGiscusTheme(theme);
+      this.updateIconVisibility(theme);
+    }
+
+    toggleTheme() {
+      const currentTheme =
+        this.html.getAttribute("data-theme") || this.THEMES.LIGHT;
+      const newTheme =
+        currentTheme === this.THEMES.LIGHT
+          ? this.THEMES.DARK
+          : this.THEMES.LIGHT;
+      this.setTheme(newTheme);
+    }
+
+    updateGiscusTheme(theme) {
+      const giscusScript = document.querySelector("#giscus-script");
+      if (!giscusScript) return;
+
+      const giscusTheme = this.GISCUS_THEMES[theme];
+      giscusScript.setAttribute("data-theme", giscusTheme);
+
+      const iframe = document.querySelector("iframe.giscus-frame");
+      if (iframe) {
+        iframe.contentWindow.postMessage(
+          {
+            giscus: { setConfig: { theme: giscusTheme } },
+          },
+          "https://giscus.app"
+        );
+      }
+    }
+
+    updateIconVisibility(theme) {
+      if (!this.themeToggle) return;
+
+      const sunIcon = this.themeToggle.querySelector(".sun-icon");
+      const moonIcon = this.themeToggle.querySelector(".moon-icon");
+
+      if (sunIcon && moonIcon) {
+        const isDark = theme === this.THEMES.DARK;
+        sunIcon.style.display = isDark ? "block" : "none";
+        moonIcon.style.display = isDark ? "none" : "block";
+      }
+    }
+
+    bindEvents() {
+      if (this.themeToggle) {
+        this.themeToggle.addEventListener("click", () => this.toggleTheme());
+      }
+
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          if (!localStorage.getItem("theme")) {
+            this.setTheme(e.matches ? this.THEMES.DARK : this.THEMES.LIGHT);
+          }
+        });
+    }
+  }
+
+  function initThemeToggle() {
+    const themeManager = new ThemeManager();
+    themeManager.init();
+  }
+
+  // Initialize on page load
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThemeToggle);
+  } else {
+    initThemeToggle();
+  }
+
+  // Re-initialize on navigation (for SPA-like behavior)
+  document.addEventListener("astro:after-swap", () => {
+    themeManager.bindEvents(); // Rebind events if necessary
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    transition:
+      background-color 0.2s ease,
+      transform 0.1s ease;
+  }
+
+  .theme-toggle:hover {
+    background: var(--hover-bg);
+    transform: scale(1.05);
+  }
+
+  .theme-toggle:active {
+    transform: scale(0.95);
+  }
+
+  /* Default: hide both icons, JavaScript will control visibility */
+  .theme-toggle .sun-icon,
+  .theme-toggle .moon-icon {
+    display: none;
+  }
+</style>

@@ -52,7 +52,7 @@ const metaData = await fetchOgp(url);
 
 <a href={url}>
   <div
-    class="max-w-full border-2 border-primary rounded-lg bg-gray-100 hover:bg-gray-200 hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden my-8"
+    class="max-w-full border-2 border-primary rounded-lg hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden my-8"
   >
     {
       metaData.image && (
@@ -63,7 +63,7 @@ const metaData = await fetchOgp(url);
             class="max-h-full w-auto object-center object-cover"
           />
           <div class="px-2">
-            <h5 class="truncate">{metaData.title}</h5>
+            <h5 class="truncate text-[var(--text-color)]">{metaData.title}</h5>
             <div class="text-xs">{url}</div>
           </div>
         </div>
@@ -73,7 +73,7 @@ const metaData = await fetchOgp(url);
       !metaData.image && (
         <div class="grid h-28 content-center items-center">
           <div class="px-2">
-            <h5 class="truncate">{metaData.title}</h5>
+            <h5 class="truncate text-[var(--text-color)]">{metaData.title}</h5>
             <div class="text-xs">{url}</div>
             <div class="text-ellipsis text-sm">{metaData.description}</div>
           </div>

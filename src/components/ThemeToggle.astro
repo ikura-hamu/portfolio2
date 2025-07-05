@@ -14,55 +14,119 @@ import { Icon } from "astro-icon/components";
 </button>
 
 <script is:inline>
-  function initThemeToggle() {
-    const themeToggle = document.getElementById('theme-toggle');
-    const html = document.documentElement;
-    
-    // Get initial theme from localStorage or system preference
-    function getInitialTheme() {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) {
+  class ThemeManager {
+    constructor() {
+      this.themeToggle = null;
+      this.html = document.documentElement;
+      this.THEMES = {
+        LIGHT: "light",
+        DARK: "dark",
+      };
+      this.GISCUS_THEMES = {
+        light: "catppuccin_latte",
+        dark: "catppuccin_mocha",
+      };
+    }
+
+    init() {
+      this.themeToggle = document.getElementById("theme-toggle");
+      if (!this.themeToggle) {
+        console.warn("Theme toggle button not found.");
+        return;
+      }
+
+      this.setTheme(this.getInitialTheme());
+      this.bindEvents();
+    }
+
+    getInitialTheme() {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme && Object.values(this.THEMES).includes(savedTheme)) {
         return savedTheme;
       }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? this.THEMES.DARK
+        : this.THEMES.LIGHT;
     }
-    
-    function setTheme(theme) {
-      html.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
+
+    setTheme(theme) {
+      this.html.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      this.updateGiscusTheme(theme);
+      this.updateIconVisibility(theme);
     }
-    
-    function toggleTheme() {
-      const currentTheme = html.getAttribute('data-theme') || 'light';
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      setTheme(newTheme);
+
+    toggleTheme() {
+      const currentTheme =
+        this.html.getAttribute("data-theme") || this.THEMES.LIGHT;
+      const newTheme =
+        currentTheme === this.THEMES.LIGHT
+          ? this.THEMES.DARK
+          : this.THEMES.LIGHT;
+      this.setTheme(newTheme);
     }
-    
-    // Set initial theme
-    setTheme(getInitialTheme());
-    
-    // Add click event listener
-    if (themeToggle) {
-      themeToggle.addEventListener('click', toggleTheme);
-    }
-    
-    // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-      if (!localStorage.getItem('theme')) {
-        setTheme(e.matches ? 'dark' : 'light');
+
+    updateGiscusTheme(theme) {
+      const giscusScript = document.querySelector("#giscus-script");
+      if (!giscusScript) return;
+
+      const giscusTheme = this.GISCUS_THEMES[theme];
+      giscusScript.setAttribute("data-theme", giscusTheme);
+
+      const iframe = document.querySelector("iframe.giscus-frame");
+      if (iframe) {
+        iframe.contentWindow.postMessage(
+          {
+            giscus: { setConfig: { theme: giscusTheme } },
+          },
+          "https://giscus.app"
+        );
       }
-    });
+    }
+
+    updateIconVisibility(theme) {
+      if (!this.themeToggle) return;
+
+      const sunIcon = this.themeToggle.querySelector(".sun-icon");
+      const moonIcon = this.themeToggle.querySelector(".moon-icon");
+
+      if (sunIcon && moonIcon) {
+        const isDark = theme === this.THEMES.DARK;
+        sunIcon.style.display = isDark ? "block" : "none";
+        moonIcon.style.display = isDark ? "none" : "block";
+      }
+    }
+
+    bindEvents() {
+      if (this.themeToggle) {
+        this.themeToggle.addEventListener("click", () => this.toggleTheme());
+      }
+
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          if (!localStorage.getItem("theme")) {
+            this.setTheme(e.matches ? this.THEMES.DARK : this.THEMES.LIGHT);
+          }
+        });
+    }
   }
-  
+
+  function initThemeToggle() {
+    const themeManager = new ThemeManager();
+    themeManager.init();
+  }
+
   // Initialize on page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initThemeToggle);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThemeToggle);
   } else {
     initThemeToggle();
   }
-  
+
   // Re-initialize on navigation (for SPA-like behavior)
-  document.addEventListener('astro:after-swap', initThemeToggle);
+  document.addEventListener("astro:after-swap", initThemeToggle);
 </script>
 
 <style>
@@ -76,29 +140,23 @@ import { Icon } from "astro-icon/components";
     align-items: center;
     justify-content: center;
     color: var(--text-color);
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition:
+      background-color 0.2s ease,
+      transform 0.1s ease;
   }
-  
+
   .theme-toggle:hover {
     background: var(--hover-bg);
     transform: scale(1.05);
   }
-  
+
   .theme-toggle:active {
     transform: scale(0.95);
   }
-  
-  /* Icon visibility: show moon in light mode, show sun in dark mode */
-  [data-theme="light"] .sun-icon {
+
+  /* Default: hide both icons, JavaScript will control visibility */
+  .theme-toggle .sun-icon,
+  .theme-toggle .moon-icon {
     display: none;
-  }
-  
-  [data-theme="dark"] .moon-icon {
-    display: none;
-  }
-  
-  .sun-icon,
-  .moon-icon {
-    transition: opacity 0.2s ease;
   }
 </style>

@@ -1,6 +1,4 @@
-import { type CollectionEntry, getCollection } from "astro:content";
-import fs from 'fs';
-import path from 'path';
+import { getCollection, getEntry } from "astro:content";
 import type { APIRoute } from "astro";
 
 export async function getStaticPaths() {
@@ -11,30 +9,18 @@ export async function getStaticPaths() {
   }));
 }
 
-export const GET: APIRoute = async ({ props }) => {
-  const post = props as CollectionEntry<"blog">;
-
-  // Read the raw MDX file content
-  const filePath = path.join(process.cwd(), 'src', 'content', 'blog', `${post.id}`);
-  let rawContent: string;
-  try {
-    rawContent = fs.readFileSync(filePath, 'utf-8');
-  } catch (error) {
-    rawContent = `# ${post.data.title}
-
-Error: Could not read source file.
-
-Published: ${post.data.pubDate.toLocaleDateString("ja-JP")}
-${post.data.description ? `\nDescription: ${post.data.description}` : ''}
-${post.data.tags ? `\nTags: ${post.data.tags.join(', ')}` : ''}
-`;
+export const GET: APIRoute = async ({ params }) => {
+  const post = await getEntry("blog", params.slug as string);
+  
+  if (!post) {
+    return new Response("Blog post not found", { status: 404 });
   }
 
-  // Remove frontmatter and clean up for markdown output
-  const contentWithoutFrontmatter = rawContent.replace(/^---\n[\s\S]*?\n---\n/, '');
+  // Get the raw content body from the collection entry
+  const rawContent = post.body;
 
   // Clean up MDX imports (convert to comments for context)
-  const cleanContent = contentWithoutFrontmatter
+  const cleanContent = rawContent
     .replace(/^import .* from .*$/gm, '<!-- $& -->')
     .replace(/^export .*/gm, '<!-- $& -->');
 

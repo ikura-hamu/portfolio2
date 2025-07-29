@@ -8,7 +8,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "new": "cp ./src/content/blog/_template.mdx ./src/content/blog/$npm_config_file.mdx"
+    "new": "npx tsx scripts/new_post.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

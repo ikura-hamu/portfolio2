@@ -24,7 +24,7 @@
     "remark-breaks": "^4.0.0",
     "remark-toc": "^9.0.0",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@iconify-json/codicon": "^1.2.25",

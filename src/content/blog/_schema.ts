@@ -1,6 +1,6 @@
-import { z, type SchemaContext } from "astro:content";
+import { z } from "astro:content";
 
-export const post = (context: SchemaContext) =>
+export const post = () =>
   z.object({
     title: z.string(),
     description: z.string().optional(),

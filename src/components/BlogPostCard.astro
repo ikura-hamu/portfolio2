@@ -18,7 +18,7 @@ const { post } = Astro.props;
 const isCollectionEntry = (
   post:
     | CollectionEntry<"blog">
-    | { title: string; url: string; pubDate: Date; heroImage: string }
+    | { title: string; url: string; pubDate: Date; heroImage: string },
 ): post is CollectionEntry<"blog"> => {
   return (post as CollectionEntry<"blog">).data !== undefined;
 };

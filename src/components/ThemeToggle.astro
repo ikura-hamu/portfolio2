@@ -127,7 +127,7 @@ import { Icon } from "astro-icon/components";
 
   // Re-initialize on navigation (for SPA-like behavior)
   document.addEventListener("astro:after-swap", () => {
-    themeManager.bindEvents(); // Rebind events if necessary
+    ThemeManager.bindEvents(); // Rebind events if necessary
   });
 </script>
 

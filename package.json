@@ -7,6 +7,8 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
+    "ci": "astro check && prettier --check . && eslint . --ext .js,.ts,.astro",
+    "lint": "eslint . --ext .js,.ts,.astro",
     "astro": "astro",
     "new": "npx tsx scripts/new_post.ts"
   },
@@ -36,6 +38,7 @@
     "eslint": "^9.33.0",
     "eslint-plugin-astro": "^1.3.1",
     "prettier": "3.6.2",
-    "prettier-plugin-astro": "0.14.1"
+    "prettier-plugin-astro": "0.14.1",
+    "typescript-eslint": "^8.39.1"
   }
 }

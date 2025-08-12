@@ -1,14 +1,16 @@
 ---
-title: 'ポートフォリオを新しくした'
+title: "ポートフォリオを新しくした"
 pubDate: 2024-03-01T00:00:00+09:00
-heroImage: '/240301_portfolio.png'
+heroImage: "/240301_portfolio.png"
 tags:
   - astro
   - フロントエンド
 ---
-import OGPCard from '@/components/OGPCard.astro'
+
+import OGPCard from "@/components/OGPCard.astro";
 
 ポートフォリオを新しくしました。
+
 <OGPCard url="https://github.com/ikura-hamu/portfolio2" />
 
 ## 目次
@@ -32,20 +34,22 @@ traPの先輩のmazreanさんがポートフォリオで使っていたのを見
 (mazreanさんのポートフォリオはこちら→ https://mazrean.com)
 
 実際に使ってみて、コンテンツコレクションが便利だと感じました。
+
 <OGPCard url="https://docs.astro.build/ja/guides/content-collections/" />
 
 コンテンツコレクションは、markdownやyamlなどのドキュメントやデータを、TypeScriptの型の恩恵を受けながら管理して扱うことができる仕組みです。このブログの内容や[aboutページ](/about)の技術とかのやつはコンテンツコレクションで管理しています。
 
 ```ts
-import {z} from 'astro:content'
+import { z } from "astro:content";
 
-export const skills = z.array(z.object({
-  name: z.string(),
-  level: z.number(),
-  description: z.string(),
-  icon: z.string(),
-}))
-
+export const skills = z.array(
+  z.object({
+    name: z.string(),
+    level: z.number(),
+    description: z.string(),
+    icon: z.string(),
+  }),
+);
 ```
 
 こんな感じでスキーマを定義して、
@@ -92,6 +96,7 @@ const allSkills = await getEntry("skill", "skills");
 
 特に強くこだわったところがあるわけではないのですが、いい感じにできたと思うのはOGPのカードです。
 ↓こんな感じです。
+
 <OGPCard url="https://github.com" />
 
 URLを指定するとカードを表示してくれます。
@@ -167,13 +172,14 @@ const metaData = await fetchOgp(url);
     }
   </div>
 </a>
-
 ```
 
 実装するときにはこの記事を参考にしました。ありがとうございました。
+
 <OGPCard url="https://zenn.dev/tomi/articles/2021-03-22-blog-card" />
 
 ## おわり
 
 おわりです。自分専用のブログが欲しいと思っていてついに念願かなったわけですが、当面はtraPのブログに書く気がします。こっちには何を書くんだろう。自慢のOGPカードを置いて終わりにします。
+
 <OGPCard url="https://trap.jp/author/ikura-hamu" />

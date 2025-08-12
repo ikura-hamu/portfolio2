@@ -64,15 +64,17 @@ const { title, description, image = "/favicon.png" } = Astro.props;
 <!-- Theme initialization script -->
 <script is:inline>
   // Prevent flash of unstyled content by setting theme immediately
-  (function() {
+  (function () {
     const getInitialTheme = () => {
-      const savedTheme = localStorage.getItem('theme');
+      const savedTheme = localStorage.getItem("theme");
       if (savedTheme) {
         return savedTheme;
       }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
     };
-    
-    document.documentElement.setAttribute('data-theme', getInitialTheme());
+
+    document.documentElement.setAttribute("data-theme", getInitialTheme());
   })();
 </script>

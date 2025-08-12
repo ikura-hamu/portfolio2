@@ -11,7 +11,7 @@ export async function getStaticPaths() {
 
 export const GET: APIRoute = async ({ params }) => {
   const post = await getEntry("blog", params.slug as string);
-  
+
   if (!post) {
     return new Response("Blog post not found", { status: 404 });
   }
@@ -21,13 +21,13 @@ export const GET: APIRoute = async ({ params }) => {
 
   // Clean up MDX imports (convert to comments for context)
   const cleanContent = rawContent
-    .replace(/^import .* from .*$/gm, '<!-- $& -->')
-    .replace(/^export .*/gm, '<!-- $& -->');
+    .replace(/^import .* from .*$/gm, "<!-- $& -->")
+    .replace(/^export .*/gm, "<!-- $& -->");
 
   const finalContent = `# ${post.data.title}
 
 **Published:** ${post.data.pubDate.toLocaleDateString("ja-JP")}
-${post.data.description ? `**Description:** ${post.data.description}\n` : ''}${post.data.tags ? `**Tags:** ${post.data.tags.join(', ')}\n` : ''}
+${post.data.description ? `**Description:** ${post.data.description}\n` : ""}${post.data.tags ? `**Tags:** ${post.data.tags.join(", ")}\n` : ""}
 
 ---
 
@@ -35,7 +35,7 @@ ${cleanContent}`;
 
   return new Response(finalContent, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
+      "Content-Type": "text/plain; charset=utf-8",
     },
   });
 };

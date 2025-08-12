@@ -9,7 +9,7 @@ import { JSDOM } from "jsdom";
 import ViewMoreButton from "@/components/ViewMoreButton.astro";
 
 const blogs = (await getCollection("blog")).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
 const fetchTrapBlogs = async () => {

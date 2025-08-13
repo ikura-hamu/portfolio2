@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@iconify-json/codicon": "^1.2.25",
-    "@iconify-json/devicon": "^1.2.23",
+    "@iconify-json/devicon": "^1.2.41",
     "@iconify-json/ri": "^1.2.5",
     "@types/jsdom": "^21.1.7",
     "@typescript-eslint/parser": "^8.39.1",

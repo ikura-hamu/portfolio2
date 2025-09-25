@@ -8,9 +8,7 @@ export const post = ({ image }: { image: ImageFunction }) => {
     pubDate: z.date(),
     updatedDate: z.date().optional(),
     heroImage: z.string().optional(),
-    heroImageContent: image()
-      .refine(() => true)
-      .optional(),
+    heroImageContent: image().optional(),
     tags: z.array(z.string()).optional(),
   });
 };

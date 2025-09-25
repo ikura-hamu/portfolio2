@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "./FormattedDate.astro";
 import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
 
 interface Props {
   post:
@@ -18,7 +19,7 @@ const { post } = Astro.props;
 const isCollectionEntry = (
   post:
     | CollectionEntry<"blog">
-    | { title: string; url: string; pubDate: Date; heroImage: string },
+    | { title: string; url: string; pubDate: Date; heroImage: string }
 ): post is CollectionEntry<"blog"> => {
   return (post as CollectionEntry<"blog">).data !== undefined;
 };
@@ -28,6 +29,7 @@ const generalPost = isCollectionEntry(post)
       url: `/blog/${post.slug}/`,
       title: post.data.title,
       heroImage: post.data.heroImage ?? "/favicon.png",
+      heroImageContent: post.data.heroImageContent ?? null,
       pubDate: post.data.pubDate,
       updatedDate: post.data.updatedDate,
       internal: true,
@@ -56,11 +58,21 @@ const generalPost = isCollectionEntry(post)
     rel={generalPost.internal ? "" : "noopener noreferrer"}
   >
     <div class="border-2 border-primary overflow-hidden rounded-lg mb-2">
-      <img
-        src={generalPost.heroImage ?? "/favicon.png"}
-        alt={generalPost.title}
-        class="w-full h-36 object-cover"
-      />
+      {
+        generalPost.heroImageContent ? (
+          <Image
+            src={generalPost.heroImageContent}
+            alt={generalPost.title}
+            class="w-full h-36 object-cover"
+          />
+        ) : (
+          <img
+            src={generalPost.heroImage ?? "/favicon.png"}
+            alt={generalPost.title}
+            class="w-full h-36 object-cover"
+          />
+        )
+      }
     </div>
     <h3 class="text-xl font-semibold mb-1">
       {generalPost.title}

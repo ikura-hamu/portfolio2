@@ -1,12 +1,14 @@
-import { z } from "astro:content";
+import { z, type ImageFunction } from "astro:content";
 
-export const post = () =>
-  z.object({
+export const post = ({ image }: { image: ImageFunction }) => {
+  return z.object({
     title: z.string(),
     description: z.string().optional(),
     // Transform string to Date object
     pubDate: z.date(),
     updatedDate: z.date().optional(),
     heroImage: z.string().optional(),
+    heroImageContent: image().optional(),
     tags: z.array(z.string()).optional(),
   });
+};

@@ -7,7 +7,7 @@ const rl = createInterface({ input, output });
 async function main() {
   try {
     // Get user input
-    const title = await rl.question("title: ");
+    const title = await rl.question("title (date is not required): ");
     const description = await rl.question("description (optional): ");
     const tagsInput = await rl.question("tags (comma-separated, optional): ");
 
@@ -52,6 +52,8 @@ pubDate: ${pubDate}`;
     if (tags.length > 0) {
       frontmatter += `\ntags: [${tags.map((tag) => `"${tag}"`).join(", ")}]`;
     }
+
+    frontmatter += `\nheroImageContent: "./${slug}.jpg" # optional`;
 
     frontmatter += "\n---\n\n";
 

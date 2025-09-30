@@ -1,24 +1,27 @@
 ---
-title "2025年度前期の振り返り"
-pubDate: 2025-09-25T14:18:56.936Z
+title: "2025年度前期の振り返り"
+pubDate: 2025-09-30T23:20:00+09:00
 description: "2025年度前期の振り返りです"
 tags: ["振り返り"]
-heroImageContent: "./250930_1st-semester.png" # optional
-heroImage: "/250930_1st-semester.png" # optional
+heroImageContent: "./250930_1st-semester.webp" # optional
+heroImage: "/250930_1st-semester.webp" # optional
 ---
 
-振り返ります。
+import OGPCard from "@/components/OGPCard.astro";
+import { Image } from "astro:assets";
+
+2025 年度前期(学士 4 年生の 4 月から 9 月)を振り返ります。
 
 ## ぱそかた
 
 ### traP Collection
 
-https://github.com/traPtitech/trap-collection-server
-
-traP で作られたゲームを管理するアプリ。今年はサーバーサイドに新たに2人メンバーが増えた。
+traP で作られたゲームを管理するアプリ。自分は 1 年生のころから関わっているが、今年はサーバーサイドに新たに2人メンバーが増えた。
 人が増えるとやれることが増えるので色々やっていきたい。
 自分は前期はコードをあまり書かずに環境整える部分を多くやっていたが、後期はコードも書きたい。
 ただ、マネジメントの方もやる必要があるのでうまくバランスを取りたい。
+
+<OGPCard url="https://github.com/traPtitech/trap-collection-server" showURL />
 
 #### 宣伝
 
@@ -26,16 +29,21 @@ traP で作られたゲームを管理するアプリ。今年はサーバーサ
 
 ### hasTEN (春ハッカソン)
 
+
 traP の春ハッカソンで作ったブラウザで動くオンライン対戦ゲーム。リーダーとサーバーサイドの実装をした。
 ゲームの内容としては 2人対戦型 make 10 パズルみたいな感じで、より長い式で 10 を作ると得点が高くなる。
 実装の難しかった点としては、リアルタイムに通信させる点。WebSocket を使っていい感じにできたと思う。
 発表の直前までバグが直らず、最後に入れた PR が動くか分からないまま発表を始めたが、一発勝負でちゃんと動いてくれたので嬉しかった。
 一部の部員にめっちゃ刺さっていたのでよかった。
 
+<OGPCard url="https://trap.jp/post/2617/" showURL />
+
 ### PISCON Portal v2
 
 部内 ISUCON 用のポータルを作っている。アプリ部分はほぼできて、あとはインフラ周りをいじるくらい。
 AWS は慣れてないので難しかった。今年の PISCON には間に合いそうでよかった。
+
+<OGPCard url="https://github.com/traPtitech/piscon-portal-v2" showURL />
 
 ### NIGHT DESIRE
 
@@ -54,19 +62,55 @@ Unity でプログラムを書いている。
 MCP サーバーが話題になり始めたくらいになんか面白いのできないかなと思って作った。
 最近 `shorten_japan_summer` ツールも追加した。
 
+<OGPCard showURL url="https://github.com/ikura-hamu/summer-in-japan-is-too-hot-mcp" />
+
+僕のリポジトリの中で、現時点(2025/9/30)では一番スターが多い。もっとまともなリポジトリにスターがついてほしい。
+
+### 自己紹介 TUI
+
+ターミナルで動く自己紹介アプリ。名刺とかに書けたらかっこいいなと思って作った。
+Go の [bubbletea](https://github.com/charmbracelet/bubbletea) とその周辺の [charm](https://charm.land) のライブラリを使った。
+bubbletea は Elm アーキテクチャを基に作られた TUI フレームワークで、低いレイヤーの部分を考えずに TUI を作ることができる。
+
+Go でかかれているので、`go run` コマンドで実行できる。[このブログのトップページ](/)にも実行のためのコマンドを書いた。
+（前は `rm -rf /` って書いてあった。）
+
+```sh
+go run go.ikura-hamu.work/card@latest
+```
+
+こういう感じで動く。
+
+import card from "../../images/250930_1st-semester/card.gif";
+
+<Image src={card}  alt="自己紹介 TUI のスクリーンショット" />
+
+<OGPCard showURL url="https://github.com/ikura-hamu/card" />
+
 ### go-import-pages
 
 Go で、github.com 以外のモジュール・パッケージパスを使えるようにするためのGitHub Actionsの Action。
-Go の仕組みにしたがった HTML をいい感じに生成してくれる。
-初めてAction を作ったが、思ったより簡単だった。
+自己紹介 TUI の副産物。自己紹介は `github.com` じゃなくて自分のドメインでやりたかった。
+Go がリポジトリを見に行く仕組みに従った HTML をいい感じに生成してくれる。
+初めて GitHub Actions の Action を作ったが、思ったより簡単にできた。
+
+<OGPCard showURL url="https://github.com/ikura-hamu/go-import-pages" />
+
+これで traP の夏のブログリレーも書いた。
+
+<OGPCard showURL url="https://trap.jp/post/2668/" />
 
 ### Go Conference 2025
 
+9/27, 28
+
 Go Conferenceに初めて参加した。いろんな話を聴けて面白かった。
-セッションの中では、ビルドシステムの歴史の話と mockio の話が面白かった。
+セッションの中では、ビルドシステムの歴史の話と [mockio](https://github.com/ovechkin-dm/mockio) の話が面白かった。
 また、ワークショップは newmo さんの黒魔術のやつに参加した。実際に手を動かすのは楽しかったので、来年もワークショップをやってほしい。
 Optim さんのブースの Go Package Guesser で結構上位の得点を取れて嬉しかった。
-来年は登壇とかもしたい。
+来年は登壇とかスタッフとかもしたい。
+
+<blockquote class="twitter-tweet"><p lang="ja" dir="ltr"><a href="https://twitter.com/hashtag/gocon?src=hash&amp;ref_src=twsrc%5Etfw">#gocon</a> Go Package Guesser 暫定2位！ <a href="https://t.co/mtvEuoFrwk">pic.twitter.com/mtvEuoFrwk</a></p>&mdash; いくら・はむ (@ikura_hamu) <a href="https://twitter.com/ikura_hamu/status/1972156633964048406?ref_src=twsrc%5Etfw">September 28, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 ## ぱそかた以外
 
@@ -78,13 +122,37 @@ Optim さんのブースの Go Package Guesser で結構上位の得点を取れ
 京都は高校の修学旅行で行くはずだったがコロナで無くなってしまって行ったことがなかったので、行けてよかった。
 観光はそんなにしなかったが、京都にいる高校の友達と会った。
 
-春に書いて出した国際学会の論文の査読が返ってきて、accept されていた。びっくり。
+import miru from "../../images/250930_1st-semester/miru.webp";
+
+<Image height={500} src={miru} alt="MIRUの看板" />
+
+このブログのサムネイル画像は会場の京都国際会館の庭から撮った写真。
+
+春に書いて出した国際学会の論文の査読が返ってきて、Accept されていた。びっくり。
 12 月に台北である IEEE GLOBECOM で発表することになった。
 初海外なので楽しみ。海外も高校のときに行くはずだったのがコロナで無くなったので嬉しい。
 
 ### 帰省
 
-お盆の時期に帰省した。サッカーを観に行ったり家族と外食に行ったりした。
+お盆の時期に帰省した。お墓参りに行ったりサッカーを観に行ったり家族と外食に行ったりした。
+
+import seaFoodParfait from "../../images/250930_1st-semester/sea_food_parfait.webp";
+
+<Image width={500} src={seaFoodParfait} alt="海鮮パフェ" />
+
+海鮮パフェを食らえ！
+
+### traP 合宿
+
+traP の合宿は越後湯沢に行った。巨大ロープウェイで山の上に登ったり、1 個 1 合の爆弾おにぎりを食べたりした。
+
+import ropeway from "../../images/250930_1st-semester/ropeway.webp";
+import riceball from "../../images/250930_1st-semester/riceball.webp";
+import view from "../../images/250930_1st-semester/view.webp";
+
+<Image height={500} src={ropeway} class="mb-2" alt="ロープウェイ" />
+<Image width={500} src={view} class="mb-2" alt="越後湯沢の景色" />
+<Image width={500} src={riceball} alt="爆弾おにぎり" />
 
 ### 就活・インターン
 
@@ -94,6 +162,10 @@ Optim さんのブースの Go Package Guesser で結構上位の得点を取れ
 
 これに付随して、2 年の 11 月からお世話になっていた日経の長期インターンをやめた。
 自分の守備範囲がかなり広がったし。社員の方にも優しくしてもらって、いろいろな経験ができた。ありがとうございました。
+
+import nikkei from "../../images/250930_1st-semester/nikkei.webp";
+
+<Image height={500} src={nikkei} alt="日経ビルの入り口" />
 
 収入が無くなったので、ぱそかたではないバイトを始めた。
 
@@ -105,5 +177,5 @@ Optim さんのブースの Go Package Guesser で結構上位の得点を取れ
 
 ## 今後
 
-卒業に向けてちゃんと研究をやりつつ、traP とかのぱそかたもたくさんやりたい。
-学生は今年が最後と思っていたのに 2 年延びたので、いろんなぱそかたに時間を使いたい。
+卒業に向けてちゃんと研究をやりつつ、traP や個人のぱそかたもたくさんやりたい。
+学生は今年が最後と思っていたのに 2 年延びたので、いろんなぱそかたに時間を使って、いろんな知見を得ながら楽しみたい。

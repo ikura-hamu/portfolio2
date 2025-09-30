@@ -53,7 +53,8 @@ pubDate: ${pubDate}`;
       frontmatter += `\ntags: [${tags.map((tag) => `"${tag}"`).join(", ")}]`;
     }
 
-    frontmatter += `\nheroImageContent: "./${slug}.jpg" # optional`;
+    frontmatter += `\nheroImageContent: "./${slug}.png" # optional`;
+    frontmatter += `\nheroImage: "./${slug}.png" # optional`;
 
     frontmatter += "\n---\n\n";
 

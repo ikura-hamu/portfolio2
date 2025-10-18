@@ -4,3 +4,15 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    pull-request-branch-name:
+      separator: "-"
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"

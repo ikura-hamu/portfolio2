@@ -1,6 +1,7 @@
 ---
 import { getEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
 
 import { replaceURL } from "@/util/url";
 import ViewMoreButton from "./ViewMoreButton.astro";
@@ -25,6 +26,7 @@ const works = allWorks.data.map((work) => {
     title: work.title,
     subtitle: work.subtitle,
     heroImage: work.heroImage,
+    heroImageContent: work.heroImageContent,
     tags: work.tags,
     description: replaceURL(work.description),
     links: work.links,
@@ -42,7 +44,21 @@ const works = allWorks.data.map((work) => {
             class="hover:duration-150 rounded-md p-1 work-link"
           >
             <div class="flex justify-center h-32">
-              <img src={work.heroImage} class="object-contain h-full w-full" />
+              {
+                work.heroImageContent ? (
+                  <Image
+                    src={work.heroImageContent}
+                    alt={work.title}
+                    class="object-contain h-full w-full"
+                  />
+                ) : (
+                  <img
+                    src={work.heroImage ?? "/favicon.png"}
+                    alt={work.title}
+                    class="object-contain h-full w-full"
+                  />
+                )
+              }
             </div>
 
             <h5 class="truncate my-0.5" title={work.title}>

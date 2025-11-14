@@ -21,7 +21,7 @@
     "@tailwindcss/vite": "^4.1.16",
     "@vercel/analytics": "^1.2.2",
     "@vercel/speed-insights": "^1.2.0",
-    "astro": "^5.15.3",
+    "astro": "^5.15.6",
     "jsdom": "^27.1.0",
     "remark-breaks": "^4.0.0",
     "remark-toc": "^9.0.0",

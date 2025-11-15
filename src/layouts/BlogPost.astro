@@ -97,7 +97,7 @@ const {
         <div class="w-[720px] max-w-full m-auto">
           <div class="title mb-4 py-4 px-0 text-center leading-none">
             <div class="date mb-2 rgb">
-              <FormattedDate date={pubDate} />
+              {pubDate && <FormattedDate date={pubDate} />}
               {
                 updatedDate && (
                   <div class="last-updated-on italic">

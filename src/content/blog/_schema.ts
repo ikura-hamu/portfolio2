@@ -5,7 +5,7 @@ export const post = ({ image }: { image: ImageFunction }) => {
     title: z.string(),
     description: z.string().optional(),
     // Transform string to Date object
-    pubDate: z.date(),
+    pubDate: z.date().optional(),
     updatedDate: z.date().optional(),
     heroImage: z.string().optional(),
     heroImageContent: image().optional(),

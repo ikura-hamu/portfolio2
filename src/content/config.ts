@@ -15,23 +15,25 @@ const skill = defineCollection({
 
 const work = defineCollection({
   type: "data",
-  schema: z.array(
-    z.object({
-      title: z.string(),
-      subtitle: z.string().optional(),
-      description: z.string(),
-      heroImage: z.string(),
-      tags: z.array(z.string()),
-      links: z.array(
-        z.object({
-          name: z.string(),
-          url: z.string(),
-          icon: z.string(),
-          primary: z.boolean().optional(),
-        }),
-      ),
-    }),
-  ),
+  schema: ({ image }) =>
+    z.array(
+      z.object({
+        title: z.string(),
+        subtitle: z.string().optional(),
+        description: z.string(),
+        heroImage: z.string().optional(),
+        heroImageContent: image().optional(),
+        tags: z.array(z.string()),
+        links: z.array(
+          z.object({
+            name: z.string(),
+            url: z.string(),
+            icon: z.string(),
+            primary: z.boolean().optional(),
+          }),
+        ),
+      }),
+    ),
 });
 
 const career = defineCollection({

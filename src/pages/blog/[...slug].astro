@@ -42,7 +42,7 @@ const { Content } = await post.render();
                 <a href={`/blog/${post.slug}`} class="flex *:mr-4">
                   <div>{post.data.title}</div>
                   <div>
-                    {post.data.pubDate.toLocaleDateString("ja-jp", {
+                    {post.data.pubDate?.toLocaleDateString("ja-jp", {
                       year: "numeric",
                       month: "short",
                       day: "numeric",

@@ -1,0 +1,59 @@
+---
+import BaseHead from "@/components/BaseHead.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "@/consts";
+import { Image } from "astro:assets";
+import icon from "@/images/icon.png";
+---
+
+<!doctype html>
+<html lang="ja-JP">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <script>
+      const spinFaster = () => {
+        const image = document.getElementById("spinning-icon");
+        if (image) {
+          const currentDuration = parseFloat(
+            getComputedStyle(image).animationDuration
+          );
+          const newDuration = currentDuration / 1.3;
+          image.style.animationDuration = `${newDuration}s`;
+          const animationSpeedText = document.getElementById(
+            "animation-speed-text"
+          );
+          if (animationSpeedText) {
+            animationSpeedText.textContent = `${newDuration.toFixed(2)} sec / 回転`;
+          }
+        }
+      };
+      const sppedUpButton = document.getElementById("speed-up");
+      if (sppedUpButton) {
+        sppedUpButton.addEventListener("click", spinFaster);
+      }
+    </script>
+    <Header title={SITE_TITLE} />
+    <main>
+      <h1>ページが見つかりませんでした</h1>
+      <div>うわ ～</div>
+      <Image
+        id="spinning-icon"
+        src={icon}
+        alt="いくら・はむ"
+        class="animate-spin"
+      />
+      <div class="flex gap-2">
+        <button
+          id="speed-up"
+          class="bg-primary text-white px-2 py-1 rounded-sm hover:bg-primary-hover transition cursor-pointer"
+          >速く回す</button
+        >
+        <div id="animation-speed-text">1 sec / 回転</div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>

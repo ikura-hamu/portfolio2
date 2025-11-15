@@ -85,9 +85,13 @@ const generalPost = isCollectionEntry(post)
         )
       }
     </h3>
-    <p class="text-gray-500">
-      <FormattedDate date={generalPost.pubDate} />
-    </p>
+    {
+      generalPost.pubDate && (
+        <p class="text-gray-500">
+          <FormattedDate date={generalPost.pubDate} />
+        </p>
+      )
+    }
     {
       generalPost.updatedDate && (
         <p class="text-gray-500 date">

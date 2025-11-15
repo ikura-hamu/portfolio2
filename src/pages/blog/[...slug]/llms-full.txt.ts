@@ -26,7 +26,7 @@ export const GET: APIRoute = async ({ params }) => {
 
   const finalContent = `# ${post.data.title}
 
-**Published:** ${post.data.pubDate.toLocaleDateString("ja-JP")}
+**Published:** ${post.data.pubDate?.toLocaleDateString("ja-JP")}
 ${post.data.description ? `**Description:** ${post.data.description}\n` : ""}${post.data.tags ? `**Tags:** ${post.data.tags.join(", ")}\n` : ""}
 
 ---

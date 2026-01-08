@@ -11,6 +11,15 @@
   --color-secondary: #c5e478;
 }
 
+/* Prevent flash of white background during theme initialization */
+html {
+  background-color: #ffffff;
+}
+
+html[data-theme="dark"] {
+  background-color: #011627;
+}
+
 :root {
   /* Light theme colors */
   --accent: #c792ea;

@@ -21,9 +21,10 @@ const { title, description, image = "/favicon.png" } = Astro.props;
 <script is:inline>
   // Prevent flash of unstyled content by setting theme immediately
   (function () {
+    const VALID_THEMES = ["light", "dark"];
     const getInitialTheme = () => {
       const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
+      if (savedTheme && VALID_THEMES.includes(savedTheme)) {
         return savedTheme;
       }
       return window.matchMedia("(prefers-color-scheme: dark)").matches

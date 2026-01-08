@@ -17,6 +17,25 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const { title, description, image = "/favicon.png" } = Astro.props;
 ---
 
+<!-- Theme initialization script - must be first to prevent flash -->
+<script is:inline>
+  // Prevent flash of unstyled content by setting theme immediately
+  (function () {
+    const VALID_THEMES = ["light", "dark"];
+    const getInitialTheme = () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme && VALID_THEMES.includes(savedTheme)) {
+        return savedTheme;
+      }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    };
+
+    document.documentElement.setAttribute("data-theme", getInitialTheme());
+  })();
+</script>
+
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -46,21 +65,3 @@ const { title, description, image = "/favicon.png" } = Astro.props;
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
 
 <SpeedInsights />
-
-<!-- Theme initialization script -->
-<script is:inline>
-  // Prevent flash of unstyled content by setting theme immediately
-  (function () {
-    const getInitialTheme = () => {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        return savedTheme;
-      }
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    };
-
-    document.documentElement.setAttribute("data-theme", getInitialTheme());
-  })();
-</script>

@@ -9,6 +9,13 @@
   --color-primary: #c792ea;
   --color-primary-hover: #a475d1;
   --color-secondary: #c5e478;
+  --spacing-s1: 4px;
+  --spacing-s2: 8px;
+  --spacing-s3: 12px;
+  --spacing-s4: 16px;
+  --spacing-s5: 24px;
+  --spacing-s6: 32px;
+  --spacing-s7: 48px;
 }
 
 /* Prevent flash of white background during theme initialization */

@@ -7,15 +7,6 @@ export default {
       fontFamily: {
         sans: ['"Noto Sans JP"', "sans-serif"],
       },
-      spacing: {
-        s1: "4px",
-        s2: "8px",
-        s3: "12px",
-        s4: "16px",
-        s5: "24px",
-        s6: "32px",
-        s7: "48px",
-      },
     },
   },
   plugins: [],

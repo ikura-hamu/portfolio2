@@ -43,7 +43,7 @@ const works = allWorks.data.map((work) => {
             href={work.links.filter((link) => link.primary)[0].url}
             class="hover:duration-150 rounded-md p-s1 work-link"
           >
-            <div class="flex justify-center h-32">
+            <div class="flex justify-center h-32 overflow-hidden">
               {
                 work.heroImageContent ? (
                   <Image
@@ -63,7 +63,7 @@ const works = allWorks.data.map((work) => {
 
             <h5 class="truncate my-0" title={work.title}>
               <div class="inline">{work.title}</div>
-              <Icon name="codicon:link-external" class="inline ml-1 text-xs" />
+              <Icon name="codicon:link-external" class="inline ml-s1 text-xs" />
             </h5>
 
             {work.subtitle && (

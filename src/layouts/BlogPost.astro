@@ -90,8 +90,8 @@ const {
           }
         </div>
         <div class="w-[720px] max-w-full m-auto">
-          <div class="title mb-4 py-4 px-0 text-center leading-none">
-            <div class="date mb-2 rgb">
+          <div class="title mb-s4 py-s4 px-0 text-center leading-none">
+            <div class="date mb-s2 rgb">
               {pubDate && <FormattedDate date={pubDate} />}
               {
                 updatedDate && (
@@ -104,9 +104,9 @@ const {
             <h1>{title}</h1>
             {
               tags && (
-                <div class="flex mb-4">
+                <div class="flex mb-s4 gap-s2">
                   {tags.map((tag) => (
-                    <span class="mr-2 text-primary">#{tag}</span>
+                    <span class="text-primary">#{tag}</span>
                   ))}
                 </div>
               )

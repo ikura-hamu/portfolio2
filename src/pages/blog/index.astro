@@ -66,13 +66,13 @@ const trapBlogs = await fetchTrapBlogs();
       ul {
         display: flex;
         flex-wrap: wrap;
-        gap: 2rem;
+        gap: 16px;
         list-style-type: none;
         margin: 0;
         padding: 0;
       }
       ul li {
-        width: calc(50% - 1rem);
+        width: calc(50% - 8px);
       }
       ul li * {
         text-decoration: none;
@@ -85,7 +85,7 @@ const trapBlogs = await fetchTrapBlogs();
 
       @media (max-width: 720px) {
         ul {
-          gap: 0.5em;
+          gap: 8px;
         }
         ul li {
           width: 100%;
@@ -97,7 +97,7 @@ const trapBlogs = await fetchTrapBlogs();
   <body>
     <Header />
     <main>
-      <section>
+      <section class="flex flex-col gap-s4">
         <ul class="">
           {
             blogs.map((post) => (
@@ -108,9 +108,9 @@ const trapBlogs = await fetchTrapBlogs();
           }
         </ul>
       </section>
-      <hr class="border-4 border-primary py-4" />
+      <hr class="border-4 border-primary my-s6" />
 
-      <section>
+      <section class="flex flex-col gap-s4">
         <h2>traPでのブログ (直近12件のみ)</h2>
         外部ページに飛びます
         <ul class="">

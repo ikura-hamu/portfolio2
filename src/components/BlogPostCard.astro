@@ -50,14 +50,14 @@ const generalPost = isCollectionEntry(post)
   }
 </style>
 
-<div class="rounded-lg px-4 py-2 max-w-md mx-auto card">
+<div class="rounded-lg px-s4 py-s2 max-w-md mx-auto card">
   <a
     href={generalPost.url}
     class="block"
     target={generalPost.internal ? "" : "_blank"}
     rel={generalPost.internal ? "" : "noopener noreferrer"}
   >
-    <div class="border-2 border-primary overflow-hidden rounded-lg mb-2">
+    <div class="border-2 border-primary overflow-hidden rounded-lg mb-s2">
       {
         generalPost.heroImageContent ? (
           <Image
@@ -74,7 +74,7 @@ const generalPost = isCollectionEntry(post)
         )
       }
     </div>
-    <h3 class="text-xl font-semibold mb-1">
+    <h3 class="text-xl font-semibold mb-s1">
       {generalPost.title}
       {
         generalPost.internal ? null : (

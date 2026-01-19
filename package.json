@@ -10,7 +10,15 @@
     "lint": "eslint . --ext .js,.ts,.astro",
     "format": "prettier .",
     "astro": "astro",
-    "new": "npx tsx scripts/new_post.ts"
+    "new": "tsx scripts/new_post.ts"
+  },
+  "engines": {
+    "node": "24.13.0"
+  },
+  "pnpm": {
+    "executionEnv": {
+      "nodeVersion": "24.13.0"
+    }
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",
@@ -40,6 +48,7 @@
     "eslint-plugin-astro": "^1.5.0",
     "prettier": "3.7.4",
     "prettier-plugin-astro": "0.14.1",
+    "tsx": "^4.21.0",
     "typescript-eslint": "^8.51.0"
   }
 }

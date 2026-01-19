@@ -24,19 +24,19 @@ const skills = allSkills
   : [];
 ---
 
-<div class="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
+<div class="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-s3">
   {
     skills.map((skill) => (
-      <div class="border-2 border-dark rounded-md m-1 flex h-[120px] min-w-60 max-w-full">
-        <div class="grid m-1">
+      <div class="border-2 border-dark rounded-md flex h-[120px] min-w-60 max-w-full">
+        <div class="grid m-s2">
           <Icon name={skill.icon} size={70} />
           <div class="text-primary text-lg justify-self-center ">
             {skill.level}
           </div>
         </div>
-        <div class="m-1">
-          <h4 class="my-1">{skill.name}</h4>
-          <p class="text-sm">{skill.description}</p>
+        <div class="m-s2 flex flex-col gap-s2">
+          <h4 class="my-0">{skill.name}</h4>
+          <p class="text-sm m-0">{skill.description}</p>
         </div>
       </div>
     ))

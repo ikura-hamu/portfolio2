@@ -34,58 +34,56 @@ const works = allWorks.data.map((work) => {
 });
 ---
 
-<div class="flex flex-col">
-  <div class="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
+<div class="flex flex-col gap-s4">
+  <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-s3">
     {
       works.map((work) => (
-        <div class="flex flex-col border-2 rounded-md m-1 h-[325px] min-w-[300px] max-w-full p-1 work-card">
+        <div class="flex flex-col border-2 rounded-md min-w-75 max-w-full p-s2 gap-s2 work-card">
           <a
             href={work.links.filter((link) => link.primary)[0].url}
-            class="hover:duration-150 rounded-md p-1 work-link"
+            class="hover:duration-150 rounded-md p-s1 work-link flex flex-col gap-s1"
           >
-            <div class="flex justify-center h-32">
-              {
-                work.heroImageContent ? (
-                  <Image
-                    src={work.heroImageContent}
-                    alt={work.title}
-                    class="object-contain h-full w-full"
-                  />
-                ) : (
-                  <img
-                    src={work.heroImage ?? "/favicon.png"}
-                    alt={work.title}
-                    class="object-contain h-full w-full"
-                  />
-                )
-              }
+            <div class="flex justify-center h-32 overflow-hidden">
+              {work.heroImageContent ? (
+                <Image
+                  src={work.heroImageContent}
+                  alt={work.title}
+                  class="object-contain h-full w-full"
+                />
+              ) : (
+                <img
+                  src={work.heroImage ?? "/favicon.png"}
+                  alt={work.title}
+                  class="object-contain h-full w-full"
+                />
+              )}
             </div>
 
-            <h5 class="truncate my-0.5" title={work.title}>
+            <h5 class="truncate" title={work.title}>
               <div class="inline">{work.title}</div>
-              <Icon name="codicon:link-external" class="inline ml-1 text-xs" />
+              <Icon name="codicon:link-external" class="inline ml-s1 text-xs" />
             </h5>
 
             {work.subtitle && (
-              <h6 class="leading-tight my-0">{work.subtitle}</h6>
+              <div class="leading-tight text-sm">{work.subtitle}</div>
             )}
           </a>
 
-          <div class="flex">
+          <div class="flex gap-s2">
             {work.tags.map((tag) => (
-              <div class="text-sm mx-1 bg-primary text-white rounded-md px-1">
+              <div class="text-sm bg-primary text-white rounded-md px-s2">
                 #{tag}
               </div>
             ))}
           </div>
 
-          <div class="text-base py-1" set:html={work.description} />
+          <div class="text-base" set:html={work.description} />
 
-          <div class="grid grid-cols-3 mt-auto">
+          <div class="grid grid-cols-3 gap-s2 mt-auto">
             {work.links.map((link) => (
               <a
                 href={link.url}
-                class="mx-1 rounded-lg hover:duration-150 work-link-item"
+                class="rounded-lg hover:duration-150 work-link-item"
                 title={link.name}
               >
                 <div class="flex items-end self-end text-primary">

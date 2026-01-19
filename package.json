@@ -12,13 +12,14 @@
     "astro": "astro",
     "new": "tsx scripts/new_post.ts"
   },
-  "engines": {
-    "node": "24.13.0"
-  },
   "pnpm": {
     "executionEnv": {
       "nodeVersion": "24.13.0"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",
@@ -34,6 +35,7 @@
     "jsdom": "^27.4.0",
     "remark-breaks": "^4.0.0",
     "remark-toc": "^9.0.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.3"
   },

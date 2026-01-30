@@ -16,7 +16,7 @@ This blog contains articles about software development, project experiences, and
 
 ## Blog Posts
 
-${blogs.map((post) => `- [${post.data.title}](/blog/${post.slug}/llms-full.txt): ${post.data.description || `Published on ${post.data.pubDate?.toLocaleDateString("ja-JP")}`}`).join("\n")}
+${blogs.map((post) => `- [${post.data.title}](/blog/${post.id}/llms-full.txt): ${post.data.description || `Published on ${post.data.pubDate?.toLocaleDateString("ja-JP")}`}`).join("\n")}
 `;
 
   // Set content type to text/plain for proper llms.txt format

@@ -4,7 +4,7 @@ import type { APIRoute } from "astro";
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.id },
     props: post,
   }));
 }
@@ -22,7 +22,7 @@ export const GET: APIRoute = async ({ params }) => {
   }
 
   // Get the raw content body from the collection entry
-  const rawContent = post.body;
+  const rawContent = post.body || "";
 
   // Clean up MDX imports (convert to comments for context)
   const cleanContent = rawContent

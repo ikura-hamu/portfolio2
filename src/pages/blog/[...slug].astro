@@ -1,12 +1,12 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry, getCollection, render } from "astro:content";
 import BlogPost from "../../layouts/BlogPost.astro";
 import Comments from "@/components/Comments.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.id },
     props: post,
   }));
 }
@@ -20,7 +20,7 @@ const similarPosts = posts
   .filter((p) => p.data.tags?.some((tag) => tags?.includes(tag)))
   .filter((p) => p.id !== post.id);
 
-const { Content } = await post.render();
+const { Content } = await render(post);
 ---
 
 <style></style>
@@ -39,7 +39,7 @@ const { Content } = await post.render();
           <ul>
             {similarPosts.map((post) => (
               <li>
-                <a href={`/blog/${post.slug}`} class="flex *:mr-4">
+                <a href={`/blog/${post.id}`} class="flex *:mr-4">
                   <div>{post.data.title}</div>
                   <div>
                     {post.data.pubDate?.toLocaleDateString("ja-jp", {

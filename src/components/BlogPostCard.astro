@@ -26,7 +26,7 @@ const isCollectionEntry = (
 
 const generalPost = isCollectionEntry(post)
   ? {
-      url: `/blog/${post.slug}/`,
+      url: `/blog/${post.id}/`,
       title: post.data.title,
       heroImage: post.data.heroImage ?? "/favicon.png",
       heroImageContent: post.data.heroImageContent ?? null,

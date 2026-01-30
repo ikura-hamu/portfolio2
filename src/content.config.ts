@@ -1,20 +1,20 @@
 import { defineCollection, z } from "astro:content";
-import { skills } from "./skill/_schema";
-import { post } from "./blog/_schema";
+import { glob } from "astro/loaders";
+import { skills } from "./content/skill/_schema";
+import { post } from "./content/blog/_schema";
 
 const blog = defineCollection({
-  type: "content",
-  // Type-check frontmatter using a schema
+  loader: glob({ pattern: ["**/*.{md,mdx}", "!**/_*.*"], base: "./src/content/blog" }),
   schema: post,
 });
 
 const skill = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/skills.yml", base: "./src/content/skill" }),
   schema: skills,
 });
 
 const work = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/*.yml", base: "./src/content/work" }),
   schema: ({ image }) =>
     z.array(
       z.object({
@@ -37,7 +37,7 @@ const work = defineCollection({
 });
 
 const career = defineCollection({
-  type: "data",
+  loader: glob({ pattern: "**/career.yml", base: "./src/content/career" }),
   schema: z.array(
     z.object({
       organization: z.string(),

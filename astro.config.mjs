@@ -7,7 +7,7 @@ import remarkToc from "remark-toc";
 import icon from "astro-icon";
 import { SHIKI_THEME } from "./src/consts";
 
-import vercel from "@astrojs/vercel/static";
+import vercel from "@astrojs/vercel";
 
 import tailwindcss from "@tailwindcss/vite";
 

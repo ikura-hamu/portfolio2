@@ -4,7 +4,10 @@ import { skills } from "./content/skill/_schema";
 import { post } from "./content/blog/_schema";
 
 const blog = defineCollection({
-  loader: glob({ pattern: ["**/*.{md,mdx}", "!**/_*.*"], base: "./src/content/blog" }),
+  loader: glob({
+    pattern: ["**/*.{md,mdx}", "!**/_*.*"],
+    base: "./src/content/blog",
+  }),
   schema: post,
 });
 

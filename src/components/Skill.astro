@@ -6,37 +6,25 @@ const allSkills = await getEntry("skill", "skills");
 
 const skills = allSkills
   ? allSkills.data.map((skill) => {
-      let levelStarts = "";
-      for (let i = 0; i < 3; i++) {
-        if (i < skill.level) {
-          levelStarts += "★";
-          continue;
-        }
-        levelStarts += "☆";
-      }
       return {
         name: skill.name,
         description: skill.description,
-        level: levelStarts,
         icon: skill.icon,
       };
     })
   : [];
 ---
 
-<div class="grid grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))] gap-s3">
+<div class="flex flex-col gap-s3">
   {
     skills.map((skill) => (
-      <div class="border-2 border-dark rounded-md flex h-[120px] min-w-60 max-w-full">
-        <div class="grid m-s2">
-          <Icon name={skill.icon} size={70} />
-          <div class="text-primary text-lg justify-self-center ">
-            {skill.level}
-          </div>
+      <div class="border-2 border-dark rounded-md flex min-w-60 max-w-full">
+        <div class="grid m-s2 items-center dark:bg-white/20 rounded-md">
+          <Icon name={skill.icon} size={60} />
         </div>
         <div class="m-s2 flex flex-col gap-s2">
-          <h4 class="my-0">{skill.name}</h4>
-          <p class="text-sm m-0">{skill.description}</p>
+          <div class="text-xl font-bold">{skill.name}</div>
+          <p class="">{skill.description}</p>
         </div>
       </div>
     ))

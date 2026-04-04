@@ -1,26 +1,17 @@
 # アイコンはここ https://icon-sets.iconify.design/devicon/
 - go:
   name: Go
-  level: 3
-  description: 普段何か作るときはだいたいGoを使います
+  description: Web アプリのサーバーや CLI・TUI ツールを作るときに使います。最も得意な言語です。
   icon: devicon:go
 - python:
   name: Python
-  level: 2
-  description: 競プロや何かさくっと作るときはPythonを使います
+  description: 競プロや研究（機械学習）で使います。考えたことをコードにしやすいのが良いと思っています。
   icon: devicon:python
-- docker:
-  name: Docker
-  level: 2
-  description: Docker Composeなどを使って開発環境構築やデプロイをします
-  icon: devicon:docker
-- vue:
-  name: Vue.js
-  level: 1
-  description: フロントを触るときに使います
-  icon: devicon:vuejs
 - next:
   name: Next.js
-  level: 1
-  description: 1回だけ部内のハッカソンで使いました
+  description: 関わったフロントエンドはほとんど Next.js でした。
   icon: devicon:nextjs
+- astro:
+  name: Astro
+  description: このサイトは Astro で作っています。SSG でビルドされるので、パフォーマンスがとても良いです。
+  icon: devicon:astro

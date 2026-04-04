@@ -9,7 +9,7 @@ import Other from "@/components/Other.astro";
 import iconImage from "@/images/icon.png";
 
 const grade =
-  new Date().getFullYear() - 2021 - (new Date().getMonth() > 2 ? 0 : 1);
+  new Date().getFullYear() - 2025 - (new Date().getMonth() > 2 ? 0 : 1);
 ---
 
 <style>
@@ -26,7 +26,7 @@ const grade =
 <Layout
   title="About Me"
   description="いくら・はむについて"
-  pubDate={new Date("2026/01/19")}
+  pubDate={new Date()}
 >
   <div class="flex flex-col gap-s4">
     <div class="flex flex-col justify-center items-center">
@@ -40,7 +40,7 @@ const grade =
       <h3 class="border-l-0 pl-0">@ikura-hamu</h3>
     </div>
     <ul>
-      <li>東京科学大学 学士{grade}年 工学院情報通信系</li>
+      <li>東京科学大学 修士 {grade} 年 工学院情報通信系</li>
       <li>東京科学大学デジタル創作同好会traP</li>
     </ul>
 

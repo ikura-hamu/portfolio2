@@ -28,65 +28,67 @@ const grade =
   description="いくら・はむについて"
   pubDate={new Date("2026/01/19")}
 >
-  <div class="flex flex-col justify-center items-center">
-    <Image
-      src={iconImage}
-      alt="いくら・はむのアイコン"
-      width={200}
-      height={200}
-    />
-    <h2 class="border-l-0 pl-0">いくら・はむ</h2>
-    <h3 class="border-l-0 pl-0">@ikura-hamu</h3>
-  </div>
-  <ul>
-    <li>東京科学大学 学士{grade}年 工学院情報通信系</li>
-    <li>東京科学大学デジタル創作同好会traP</li>
-  </ul>
-
-  <div>
-    <p>
-      Go言語によるWebバックエンドの開発を中心に、インフラやWebフロントエンドなどにも少し取り組んでいます。
-    </p>
-  </div>
-
-  <div class="flex flex-col gap-s5">
-    <section class="flex flex-col gap-s4">
-      <h3 id="Skills"><a href="#Skills">Skills</a></h3>
-      <Skills />
-    </section>
-
-    <section class="flex flex-col gap-s4">
-      <h3 id="Products"><a href="#Products">Products</a></h3>
-      <Works
-        workType="products"
-        extraContent={{
-          name: "GitHub @ikura-hamu",
-          icon: "codicon:github",
-          url: "https://github.com/ikura-hamu",
-        }}
+  <div class="flex flex-col gap-s4">
+    <div class="flex flex-col justify-center items-center">
+      <Image
+        src={iconImage}
+        alt="いくら・はむのアイコン"
+        width={200}
+        height={200}
       />
-    </section>
+      <h2 class="border-l-0 pl-0">いくら・はむ</h2>
+      <h3 class="border-l-0 pl-0">@ikura-hamu</h3>
+    </div>
+    <ul>
+      <li>東京科学大学 学士{grade}年 工学院情報通信系</li>
+      <li>東京科学大学デジタル創作同好会traP</li>
+    </ul>
 
-    <section class="flex flex-col gap-s4">
-      <h3 id="Slides"><a href="#Slides">Slides</a></h3>
-      <Works
-        workType="slides"
-        extraContent={{
-          name: "GitHub Pages",
-          icon: "ri:slideshow-fill",
-          url: "https://ikura-hamu.github.io/slides/",
-        }}
-      />
-    </section>
+    <div>
+      <p>
+        Go言語によるWebバックエンドの開発を中心に、インフラやWebフロントエンドなどにも少し取り組んでいます。
+      </p>
+    </div>
 
-    <section class="flex flex-col gap-s4">
-      <h3 id="Career"><a href="#Career">Career</a></h3>
-      <Career />
-    </section>
+    <div class="flex flex-col gap-s5">
+      <section class="flex flex-col gap-s4">
+        <h3 id="Skills"><a href="#Skills">Skills</a></h3>
+        <Skills />
+      </section>
 
-    <section class="flex flex-col gap-s4">
-      <h3 id="Other"><a href="#Other">Other</a></h3>
-      <Other />
-    </section>
+      <section class="flex flex-col gap-s4">
+        <h3 id="Products"><a href="#Products">Products</a></h3>
+        <Works
+          workType="products"
+          extraContent={{
+            name: "GitHub @ikura-hamu",
+            icon: "codicon:github",
+            url: "https://github.com/ikura-hamu",
+          }}
+        />
+      </section>
+
+      <section class="flex flex-col gap-s4">
+        <h3 id="Slides"><a href="#Slides">Slides</a></h3>
+        <Works
+          workType="slides"
+          extraContent={{
+            name: "GitHub Pages",
+            icon: "ri:slideshow-fill",
+            url: "https://ikura-hamu.github.io/slides/",
+          }}
+        />
+      </section>
+
+      <section class="flex flex-col gap-s4">
+        <h3 id="Career"><a href="#Career">Career</a></h3>
+        <Career />
+      </section>
+
+      <section class="flex flex-col gap-s4">
+        <h3 id="Other"><a href="#Other">Other</a></h3>
+        <Other />
+      </section>
+    </div>
   </div>
 </Layout>

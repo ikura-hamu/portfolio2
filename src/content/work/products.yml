@@ -14,6 +14,24 @@
       icon: codicon:github
       primary: true
 
+- ooo:
+  title: ooo
+  description: "自作の Go コンパイラです。Go の機能の一部を実装し、セルフホストを達成しました。<br/><i
+    style='text-color: gray; font-size: 10px'>The Go gopher was designed by
+    Renée French.</i>"
+  heroImageContent: "./products/ooo.webp"
+  tags:
+    - Go
+    - コンパイラ
+  links:
+    - name: GitHub
+      url: https://github.com/ikura-hamu/ooo
+      icon: codicon:github
+      primary: true
+    - name: ブログ
+      url: https://trap.jp/post/2931
+      icon: ri:article-line
+
 - isu-isu-h:
   title: isu-isu-h
   description: "ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。"

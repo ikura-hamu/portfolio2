@@ -1,4 +1,5 @@
-import { z, type ImageFunction } from "astro:content";
+import { type ImageFunction } from "astro:content";
+import { z } from "astro/zod";
 
 export const post = ({ image }: { image: ImageFunction }) => {
   return z.object({

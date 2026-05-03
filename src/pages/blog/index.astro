@@ -13,11 +13,10 @@ const blogs = (await getCollection("blog")).sort(
 );
 
 const fetchTrapBlogs = async () => {
-  const res = await fetch("https://trap.jp/author/ikura-hamu");
+  const res = await fetch("https://trap.jp/author/ikura-hamu/rss/");
   const text = await res.text();
-  const doms = new JSDOM(text);
-  const articleElements =
-    doms.window.document.getElementsByClassName("article");
+  const doms = new JSDOM(text, { contentType: "text/xml" });
+  const itemElements = doms.window.document.getElementsByTagName("item");
 
   type Blog = {
     title: string;
@@ -28,23 +27,18 @@ const fetchTrapBlogs = async () => {
 
   const blogs: Blog[] = [];
 
-  for (let i = 0; i < articleElements.length; i++) {
-    const articleElement = articleElements[i];
-    const dateStrJp =
-      articleElement.getElementsByTagName("small")[0]?.textContent;
-    const dateStr = dateStrJp
-      ?.replace("年", "-")
-      .replace("月", "-")
-      .replace("日", "");
+  for (let i = 0; i < itemElements.length; i++) {
+    const itemElement = itemElements[i];
     const article: Blog = {
-      title:
-        articleElement.getElementsByTagName("strong")[0]?.textContent ?? "",
-      url: `https://trap.jp${articleElement.getAttribute("href")}`,
-      pubDate: new Date(dateStr ?? ""),
+      title: itemElement.getElementsByTagName("title")[0]?.textContent ?? "",
+      url: itemElement.getElementsByTagName("link")[0]?.textContent ?? "",
+      pubDate: new Date(
+        itemElement.getElementsByTagName("pubDate")[0]?.textContent ?? ""
+      ),
       heroImage:
-        articleElement
-          .getElementsByTagName("source")[0]
-          ?.getAttribute("srcset") ?? "",
+        itemElement
+          .getElementsByTagName("media:content")[0]
+          ?.getAttribute("url") ?? "",
     };
     blogs.push(article);
   }
@@ -111,7 +105,7 @@ const trapBlogs = await fetchTrapBlogs();
       <hr class="border-4 border-primary my-s6" />
 
       <section class="flex flex-col gap-s4">
-        <h2>traPでのブログ (直近12件のみ)</h2>
+        <h2>traPでのブログ</h2>
         外部ページに飛びます
         <ul class="">
           {

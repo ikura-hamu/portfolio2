@@ -71,9 +71,7 @@ const works = allWorks.data.map((work) => {
 
           <div class="flex gap-s2">
             {work.tags.map((tag) => (
-              <div class="text-sm bg-primary text-white rounded-md px-s2">
-                #{tag}
-              </div>
+              <div class="text-sm bg-accent rounded-md px-s2">#{tag}</div>
             ))}
           </div>
 
@@ -83,13 +81,11 @@ const works = allWorks.data.map((work) => {
             {work.links.map((link) => (
               <a
                 href={link.url}
-                class="rounded-lg hover:duration-150 work-link-item"
+                class="hover:duration-150 flex items-end self-end text-primary hover:text-secondary gap-x-s1"
                 title={link.name}
               >
-                <div class="flex items-end self-end text-primary">
-                  <Icon name={link.icon} class="text-3xl" />{" "}
-                  <div class="text-xs">{link.name}</div>
-                </div>
+                <Icon name={link.icon} class="text-3xl" />
+                <div class="text-xs">{link.name}</div>
               </a>
             ))}
           </div>
@@ -114,21 +110,5 @@ const works = allWorks.data.map((work) => {
 <style>
   .work-card {
     transition: border-color 0.3s ease;
-  }
-
-  .work-link:hover {
-    background-color: color-mix(
-      in srgb,
-      var(--color-secondary) 24%,
-      transparent
-    );
-  }
-
-  .work-link-item:hover {
-    background-color: color-mix(
-      in srgb,
-      var(--color-secondary) 24%,
-      transparent
-    );
   }
 </style>

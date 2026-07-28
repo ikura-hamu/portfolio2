@@ -78,12 +78,16 @@ import ThemeToggle from "./ThemeToggle.astro";
     padding: 1em 0.5em;
     color: inherit;
     border-bottom: 4px solid transparent;
-    text-decoration: none;
   }
   nav a.active {
     text-decoration: none;
     border-bottom-color: var(--color-primary);
   }
+
+  nav a:hover:not(.active) {
+    border-bottom-color: var(--color-secondary);
+  }
+
   .social-links,
   .social-links a {
     display: flex;

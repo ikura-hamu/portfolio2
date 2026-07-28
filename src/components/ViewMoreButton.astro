@@ -24,17 +24,13 @@ const { extraContent } = Astro.props;
     href={extraContent.url}
     target="_blank"
     rel="noopener noreferrer"
-    class="no-underline"
-  >
-    <div
-      class="flex items-center justify-center my-s5 bg-primary text-white rounded-md min-w-[300px] max-w-[400px]
+    class="no-underline flex items-center justify-center my-s5 bg-primary hover:bg-secondary rounded-md min-w-75 max-w-100
       hover:duration-150 hover:underline hover:decoration-white"
-    >
-      <Icon name={extraContent.icon} class="text-3xl" />
-      <div class="text-base ml-s2">
-        {extraContent.name}で<br />
-        もっと見る
-      </div>
+  >
+    <Icon name={extraContent.icon} class="text-3xl text-accent" />
+    <div class="text-base ml-s2 text-white">
+      {extraContent.name}で<br />
+      もっと見る
     </div>
   </a>
 </div>

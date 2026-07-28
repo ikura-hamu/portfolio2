@@ -18,12 +18,12 @@ import icon from "@/images/icon.png";
         const image = document.getElementById("spinning-icon");
         if (image) {
           const currentDuration = parseFloat(
-            getComputedStyle(image).animationDuration
+            getComputedStyle(image).animationDuration,
           );
           const newDuration = currentDuration / 1.3;
           image.style.animationDuration = `${newDuration}s`;
           const animationSpeedText = document.getElementById(
-            "animation-speed-text"
+            "animation-speed-text",
           );
           if (animationSpeedText) {
             animationSpeedText.textContent = `${newDuration.toFixed(2)} sec / 回転`;
@@ -48,7 +48,7 @@ import icon from "@/images/icon.png";
       <div class="flex gap-s2">
         <button
           id="speed-up"
-          class="bg-primary text-white px-s2 py-s1 rounded-sm hover:bg-primary-hover transition cursor-pointer"
+          class="bg-primary text-white px-s2 py-s1 rounded-sm hover:brightness-85 transition cursor-pointer"
           >速く回す</button
         >
         <div id="animation-speed-text">1 sec / 回転</div>

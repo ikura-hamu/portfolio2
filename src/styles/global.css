@@ -6,9 +6,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #c792ea;
-  --color-primary-hover: #a475d1;
-  --color-secondary: #c5e478;
+  --color-primary: #0f71f2;
+  --color-secondary: #a0a8df;
+  --color-background: #e6f4f1;
+  --color-accent: #eee8a9;
   --spacing-s1: 4px;
   --spacing-s2: 8px;
   --spacing-s3: 12px;
@@ -18,78 +19,56 @@
   --spacing-s7: 48px;
 }
 
-/* Prevent flash of white background during theme initialization */
+/* Prevent a mismatched background during theme initialization. */
 html {
-  background-color: #ffffff;
+  background-color: var(--color-background);
 }
 
 html[data-theme="dark"] {
-  background-color: #011627;
+  --color-secondary: #c7d2fe;
+  --color-background: #011627;
+  --shadow-card:
+    0 2px 6px rgb(0 0 0 / 25%), 0 8px 24px rgb(0 0 0 / 33%),
+    0 16px 32px rgb(0 0 0 / 33%);
+
+  background-color: var(--color-background);
 }
 
 :root {
-  /* Light theme colors */
-  --accent: #c792ea;
-  --accent-dark: #0b253a;
-  --black: 15, 18, 25;
-  --gray: 96, 115, 159;
-  --gray-light: 229, 233, 240;
-  --gray-dark: 34, 41, 57;
-  --gray-gradient: rgba(var(--gray-light), 50%), #fff;
-  --box-shadow:
-    0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
-    0 16px 32px rgba(var(--gray), 33%);
-
-  /* Theme-aware colors */
-  --bg-color: #ffffff;
-  --text-color: rgb(var(--gray-dark));
-  --text-muted: rgb(var(--gray));
-  --border-color: rgb(var(--gray-light));
-  --hover-bg: rgba(var(--gray-light), 0.5);
-  --card-bg: #ffffff;
-  --header-bg: #ffffff;
-  --code-bg: rgb(var(--gray-light));
+  --shadow-card:
+    0 2px 6px rgb(82 96 107 / 20%), 0 8px 24px rgb(82 96 107 / 25%),
+    0 16px 32px rgb(82 96 107 / 25%);
 }
 
-/* Dark theme colors (Night Owl inspired) */
-[data-theme="dark"] {
-  --accent: #c792ea;
-  --accent-dark: #7e57c2;
-  --black: 214, 222, 235;
-  --gray: 95, 126, 151;
-  --gray-light: 18, 45, 66;
-  --gray-dark: 214, 222, 235;
-  --gray-gradient: rgba(11, 37, 58, 0.5), #011627;
-  --box-shadow:
-    0 2px 6px rgba(1, 22, 39, 0.25), 0 8px 24px rgba(1, 22, 39, 0.33),
-    0 16px 32px rgba(1, 22, 39, 0.33);
-
-  /* Dark theme specific colors */
-  --bg-color: #011627;
-  --text-color: #d6deeb;
-  --text-muted: #5f7e97;
-  --border-color: #122d42;
-  --hover-bg: rgba(18, 45, 66, 0.5);
-  --card-bg: #0b253a;
-  --header-bg: #011627;
-  --code-bg: #0b253a;
-}
 body {
   font-family: "Noto Sans JP", sans-serif;
   margin: 0;
   padding: 0;
   text-align: left;
-  background: linear-gradient(var(--gray-gradient)) no-repeat;
+  background: linear-gradient(
+      color-mix(in srgb, var(--color-secondary) 12%, var(--color-background)),
+      var(--color-background)
+    )
+    no-repeat;
   background-size: 100% 600px;
-  background-color: var(--bg-color);
+  background-color: var(--color-background);
   word-wrap: break-word;
   overflow-wrap: break-word;
-  color: var(--text-color);
+  color: #0d0d0d;
   font-size: 16px;
   line-height: 1.7;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+}
+
+html[data-theme="dark"] body {
+  color: #f4f7fb;
+}
+
+::selection {
+  color: #0d0d0d;
+  background: var(--color-accent);
 }
 main {
   width: 840px;
@@ -106,7 +85,7 @@ h3,
 h4,
 h5,
 h6 {
-  border-bottom: var(--accent) 2px dotted;
+  border-bottom: var(--color-primary) 2px dotted;
 }
 h1 {
   font-size: 3em;
@@ -127,7 +106,7 @@ h2:first-child {
 h3 {
   font-size: 1.5em;
   padding-left: 8px;
-  border-left: var(--accent) 4px solid;
+  border-left: var(--color-primary) 4px solid;
   margin-top: 24px;
   margin-bottom: 12px;
 }
@@ -137,7 +116,7 @@ h3:first-child {
 h4 {
   font-size: 1.25em;
   padding-left: 8px;
-  border-left: var(--accent) 12px solid;
+  border-left: var(--color-primary) 12px solid;
   margin-top: 16px;
   margin-bottom: 8px;
 }
@@ -146,16 +125,16 @@ h4:first-child {
 }
 h5 {
   font-size: 1em;
-  margin-top: 16px;
-  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 h5:first-child {
   margin-top: 0;
 }
 h6 {
   font-size: 1em;
-  margin-top: 16px;
-  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 h6:first-child {
   margin-top: 0;
@@ -165,11 +144,13 @@ b {
   font-weight: 700;
 }
 a {
-  color: var(--accent);
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: underline;
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--color-secondary);
 }
 
 p {
@@ -235,12 +216,20 @@ table {
 
 code {
   padding: 2px 5px;
-  background-color: var(--code-bg);
+  background-color: color-mix(
+    in srgb,
+    var(--color-secondary) 18%,
+    var(--color-background)
+  );
   border-radius: 2px;
 }
 pre {
   padding: 1em 1.5em 1em 1.5em;
-  background-color: var(--code-bg);
+  background-color: color-mix(
+    in srgb,
+    var(--color-secondary) 18%,
+    var(--color-background)
+  );
   border-radius: 8px;
   line-height: 1.25;
 }
@@ -248,15 +237,15 @@ pre > code {
   all: unset;
 }
 blockquote {
-  border-left: 4px solid var(--accent);
+  border-left: 4px solid var(--color-primary);
   padding: 0 0 0 20px;
   margin: 0;
   font-size: 0.9em;
-  color: var(--text-muted);
+  opacity: 0.7;
 }
 hr {
   border: none;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-secondary);
 }
 ul {
   padding-left: 1.2em;

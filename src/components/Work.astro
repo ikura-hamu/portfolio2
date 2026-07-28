@@ -35,10 +35,12 @@ const works = allWorks.data.map((work) => {
 ---
 
 <div class="flex flex-col gap-s4">
-  <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-s3">
+  <div
+    class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-x-s4 gap-y-s5 work-grid"
+  >
     {
       works.map((work) => (
-        <div class="flex flex-col border-2 border-secondary rounded-md min-w-75 max-w-full p-s2 gap-s2 work-card">
+        <div class="flex flex-col rounded-md min-w-75 max-w-full p-s2 gap-s1 work-card">
           <a
             href={work.links.filter((link) => link.primary)[0].url}
             class="hover:duration-150 rounded-md p-s1 work-link flex flex-col gap-s1"
@@ -108,7 +110,27 @@ const works = allWorks.data.map((work) => {
 </div>
 
 <style>
+  .work-grid {
+    container-name: work-grid;
+    container-type: inline-size;
+  }
+
   .work-card {
     transition: border-color 0.3s ease;
+  }
+
+  @container work-grid (max-width: 615px) {
+    .work-card {
+      position: relative;
+    }
+
+    .work-card:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: -13px;
+      left: 0;
+      border-bottom: 1px dotted var(--color-secondary);
+    }
   }
 </style>

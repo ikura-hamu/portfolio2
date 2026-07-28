@@ -125,16 +125,16 @@ h4:first-child {
 }
 h5 {
   font-size: 1em;
-  margin-top: 16px;
-  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 h5:first-child {
   margin-top: 0;
 }
 h6 {
   font-size: 1em;
-  margin-top: 16px;
-  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
 }
 h6:first-child {
   margin-top: 0;

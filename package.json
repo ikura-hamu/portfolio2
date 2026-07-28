@@ -12,6 +12,7 @@
     "astro": "astro",
     "new": "tsx scripts/new_post.ts"
   },
+  "packageManager": "pnpm@10.34.5",
   "pnpm": {
     "executionEnv": {
       "nodeVersion": "24.13.0"

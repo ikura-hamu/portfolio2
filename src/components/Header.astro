@@ -36,8 +36,12 @@ import ThemeToggle from "./ThemeToggle.astro";
   header {
     margin: 0;
     padding: 0 1em;
-    background: var(--header-bg);
-    box-shadow: 0 2px 8px rgba(var(--black), 5%);
+    background: color-mix(
+      in srgb,
+      var(--color-secondary) 12%,
+      var(--color-background)
+    );
+    box-shadow: 0 2px 8px rgb(13 13 13 / 5%);
     transition: background-color 0.3s ease;
   }
   h2 {
@@ -49,11 +53,11 @@ import ThemeToggle from "./ThemeToggle.astro";
   h2 a,
   h2 a.active {
     text-decoration: none;
-    color: var(--text-color);
+    color: inherit;
   }
 
   h2 a span {
-    border-bottom: var(--accent) 2px dotted;
+    border-bottom: var(--color-primary) 2px dotted;
   }
 
   nav {
@@ -72,13 +76,13 @@ import ThemeToggle from "./ThemeToggle.astro";
 
   nav a {
     padding: 1em 0.5em;
-    color: var(--text-color);
+    color: inherit;
     border-bottom: 4px solid transparent;
     text-decoration: none;
   }
   nav a.active {
     text-decoration: none;
-    border-bottom-color: var(--accent);
+    border-bottom-color: var(--color-primary);
   }
   .social-links,
   .social-links a {
@@ -87,7 +91,7 @@ import ThemeToggle from "./ThemeToggle.astro";
     gap: 0.5em;
   }
   .social-links a {
-    color: var(--text-color);
+    color: inherit;
   }
   .social-icons {
     display: flex;

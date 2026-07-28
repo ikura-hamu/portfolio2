@@ -57,7 +57,7 @@ const metaData = await fetchOgp(url);
 
 <a href={url} target="_blank" rel="noopener noreferrer">
   <div
-    class="max-w-full border-2 border-primary rounded-lg hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden my-s4 bg-[var(--card-bg)]"
+    class="max-w-full border-2 border-primary rounded-lg hover:shadow-lg transition-all duration-300 ease-in-out overflow-hidden my-s4 bg-background"
   >
     {
       metaData.image && (
@@ -68,7 +68,7 @@ const metaData = await fetchOgp(url);
             class="max-h-full w-auto object-center object-cover"
           />
           <div class="px-s2">
-            <h5 class="truncate text-[var(--text-color)]">{metaData.title}</h5>
+            <h5 class="truncate">{metaData.title}</h5>
             <div class="text-xs">{url}</div>
           </div>
         </div>
@@ -78,7 +78,7 @@ const metaData = await fetchOgp(url);
       !metaData.image && (
         <div class="grid h-28 content-center items-center">
           <div class="px-s2">
-            <h5 class="truncate text-[var(--text-color)]">{metaData.title}</h5>
+            <h5 class="truncate">{metaData.title}</h5>
             <div class="text-xs">{url}</div>
             <div class="text-ellipsis text-sm">{metaData.description}</div>
           </div>

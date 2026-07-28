@@ -23,7 +23,7 @@ const sortedCareers = allCareers
     sortedCareers.map((career) => (
       <div class="flex flex-col gap-s2">
         <h4>{career.organization}</h4>
-        <div class="text-base text-gray-400">
+        <div class="text-base opacity-60">
           {career.start.toLocaleDateString("ja-jp")} -{" "}
           {career.end ? career.end.toLocaleDateString("ja-jp") : "現在"}
         </div>

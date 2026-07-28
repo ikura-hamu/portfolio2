@@ -141,14 +141,14 @@ import { Icon } from "astro-icon/components";
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-color);
+    color: inherit;
     transition:
       background-color 0.2s ease,
       transform 0.1s ease;
   }
 
   .theme-toggle:hover {
-    background: var(--hover-bg);
+    background: color-mix(in srgb, var(--color-secondary) 24%, transparent);
     transform: scale(1.05);
   }
 

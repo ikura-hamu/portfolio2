@@ -43,7 +43,7 @@ const works = allWorks.data.map((work) => {
         <div class="flex flex-col rounded-md min-w-75 max-w-full p-s2 gap-s1 work-card">
           <a
             href={work.links.filter((link) => link.primary)[0].url}
-            class="hover:duration-150 rounded-md p-s1 work-link flex flex-col gap-s1"
+            class="hover:duration-150 rounded-md p-s1 work-link flex flex-col gap-s1 work-link"
           >
             <div class="flex justify-center h-32 overflow-hidden">
               {work.heroImageContent ? (
@@ -117,6 +117,14 @@ const works = allWorks.data.map((work) => {
 
   .work-card {
     transition: border-color 0.3s ease;
+  }
+
+  .work-link :global(img) {
+    transition: transform 0.2s ease;
+  }
+
+  .work-link:hover :global(img) {
+    transform: scale(1.05);
   }
 
   @container work-grid (max-width: 615px) {

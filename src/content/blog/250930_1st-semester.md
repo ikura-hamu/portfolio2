@@ -7,9 +7,6 @@ heroImageContent: "./250930_1st-semester.webp" # optional
 heroImage: "/250930_1st-semester.webp" # optional
 ---
 
-import OGPCard from "@/components/OGPCard.astro";
-import { Image } from "astro:assets";
-
 2025 年度前期(学士 4 年生の 4 月から 9 月)を振り返ります。
 
 ## ぱそかた
@@ -21,7 +18,7 @@ traP で作られたゲームを管理するアプリ。自分は 1 年生のこ
 自分は前期はコードをあまり書かずに環境整える部分を多くやっていたが、後期はコードも書きたい。
 ただ、マネジメントの方もやる必要があるのでうまくバランスを取りたい。
 
-<OGPCard url="https://github.com/traPtitech/trap-collection-server" showURL />
+https://github.com/traPtitech/trap-collection-server
 
 #### 宣伝
 
@@ -29,21 +26,20 @@ traP で作られたゲームを管理するアプリ。自分は 1 年生のこ
 
 ### hasTEN (春ハッカソン)
 
-
 traP の春ハッカソンで作ったブラウザで動くオンライン対戦ゲーム。リーダーとサーバーサイドの実装をした。
 ゲームの内容としては 2人対戦型 make 10 パズルみたいな感じで、より長い式で 10 を作ると得点が高くなる。
 実装の難しかった点としては、リアルタイムに通信させる点。WebSocket を使っていい感じにできたと思う。
 発表の直前までバグが直らず、最後に入れた PR が動くか分からないまま発表を始めたが、一発勝負でちゃんと動いてくれたので嬉しかった。
 一部の部員にめっちゃ刺さっていたのでよかった。
 
-<OGPCard url="https://trap.jp/post/2617/" showURL />
+https://trap.jp/post/2617/
 
 ### PISCON Portal v2
 
 部内 ISUCON 用のポータルを作っている。アプリ部分はほぼできて、あとはインフラ周りをいじるくらい。
 AWS は慣れてないので難しかった。今年の PISCON には間に合いそうでよかった。
 
-<OGPCard url="https://github.com/traPtitech/piscon-portal-v2" showURL />
+https://github.com/traPtitech/piscon-portal-v2
 
 ### NIGHT DESIRE
 
@@ -62,7 +58,7 @@ Unity でプログラムを書いている。
 MCP サーバーが話題になり始めたくらいになんか面白いのできないかなと思って作った。
 最近 `shorten_japan_summer` ツールも追加した。
 
-<OGPCard showURL url="https://github.com/ikura-hamu/summer-in-japan-is-too-hot-mcp" />
+https://github.com/ikura-hamu/summer-in-japan-is-too-hot-mcp
 
 僕のリポジトリの中で、現時点(2025/9/30)では一番スターが多い。もっとまともなリポジトリにスターがついてほしい。
 
@@ -81,11 +77,9 @@ go run go.ikura-hamu.work/card@latest
 
 こういう感じで動く。
 
-import card from "../../images/250930_1st-semester/card.gif";
+![自己紹介 TUI のスクリーンショット](../../images/250930_1st-semester/card.gif)
 
-<Image src={card}  alt="自己紹介 TUI のスクリーンショット" />
-
-<OGPCard showURL url="https://github.com/ikura-hamu/card" />
+https://github.com/ikura-hamu/card
 
 ### go-import-pages
 
@@ -94,11 +88,11 @@ Go で、github.com 以外のモジュール・パッケージパスを使える
 Go がリポジトリを見に行く仕組みに従った HTML をいい感じに生成してくれる。
 初めて GitHub Actions の Action を作ったが、思ったより簡単にできた。
 
-<OGPCard showURL url="https://github.com/ikura-hamu/go-import-pages" />
+https://github.com/ikura-hamu/go-import-pages
 
 これで traP の夏のブログリレーも書いた。
 
-<OGPCard showURL url="https://trap.jp/post/2668/" />
+https://trap.jp/post/2668/
 
 ### Go Conference 2025
 
@@ -122,9 +116,7 @@ Optim さんのブースの Go Package Guesser で結構上位の得点を取れ
 京都は高校の修学旅行で行くはずだったがコロナで無くなってしまって行ったことがなかったので、行けてよかった。
 観光はそんなにしなかったが、京都にいる高校の友達と会った。
 
-import miru from "../../images/250930_1st-semester/miru.webp";
-
-<Image height={500} src={miru} alt="MIRUの看板" />
+![MIRUの看板](../../images/250930_1st-semester/miru.webp)
 
 このブログのサムネイル画像は会場の京都国際会館の庭から撮った写真。
 
@@ -136,9 +128,7 @@ import miru from "../../images/250930_1st-semester/miru.webp";
 
 お盆の時期に帰省した。お墓参りに行ったりサッカーを観に行ったり家族と外食に行ったりした。
 
-import seaFoodParfait from "../../images/250930_1st-semester/sea_food_parfait.webp";
-
-<Image width={500} src={seaFoodParfait} alt="海鮮パフェ" />
+![海鮮パフェ](../../images/250930_1st-semester/sea_food_parfait.webp)
 
 海鮮パフェを食らえ！
 
@@ -146,13 +136,11 @@ import seaFoodParfait from "../../images/250930_1st-semester/sea_food_parfait.we
 
 traP の合宿は越後湯沢に行った。巨大ロープウェイで山の上に登ったり、1 個 1 合の爆弾おにぎりを食べたりした。
 
-import ropeway from "../../images/250930_1st-semester/ropeway.webp";
-import riceball from "../../images/250930_1st-semester/riceball.webp";
-import view from "../../images/250930_1st-semester/view.webp";
+![ロープウェイ](../../images/250930_1st-semester/ropeway.webp)
 
-<Image height={500} src={ropeway} class="mb-2" alt="ロープウェイ" />
-<Image width={500} src={view} class="mb-2" alt="越後湯沢の景色" />
-<Image width={500} src={riceball} alt="爆弾おにぎり" />
+![越後湯沢の景色](../../images/250930_1st-semester/view.webp)
+
+![爆弾おにぎり](../../images/250930_1st-semester/riceball.webp)
 
 ### 就活・インターン
 
@@ -163,9 +151,7 @@ import view from "../../images/250930_1st-semester/view.webp";
 これに付随して、2 年の 11 月からお世話になっていた日経の長期インターンをやめた。
 自分の守備範囲がかなり広がったし。社員の方にも優しくしてもらって、いろいろな経験ができた。ありがとうございました。
 
-import nikkei from "../../images/250930_1st-semester/nikkei.webp";
-
-<Image height={500} src={nikkei} alt="日経ビルの入り口" />
+![日経ビルの入り口](../../images/250930_1st-semester/nikkei.webp)
 
 収入が無くなったので、ぱそかたではないバイトを始めた。
 

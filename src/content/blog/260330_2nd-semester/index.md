@@ -6,8 +6,6 @@ tags: ["振り返り"]
 heroImageContent: "./taiwan.webp" # optional
 heroImage: "/260330_2nd-semester.webp" # optional
 ---
-import OGPCard from "@/components/OGPCard.astro";
-import { Image } from "astro:assets";
 
 2025 年度後期 (学士 4 年生の 10 月から 3 月) を振り返ります。
 
@@ -19,7 +17,7 @@ import { Image } from "astro:assets";
 
 traP で作られたゲームを管理するアプリ。自分は 1 年生のころから関わっている。後期は主に traPavilion (traP の 10 周年記念イベント) と工大祭、彩燕祭での展示に使われた。
 
-<OGPCard url="https://github.com/traPtitech/trap-collection-server" showURL />
+https://github.com/traPtitech/trap-collection-server
 
 traPavilion の直前は、サイズが大きいゲームファイルがアップロードできない問題が発生して、てんやわんやした。手元ではなかなか再現せず困ったが、コードを追っていくと、OpenAPI のライブラリの中でリクエストボディを全部メモリに載せている箇所があり、そこで割り当てられたメモリを使い切ってしまったようであることが分かった。アプリケーションの実装上は大きなファイルがメモリに載らないよう工夫されていたが、ライブラリの中身は盲点だった。
 工大祭前に、ランチャーからゲームのプレイ時間の統計を取得できる機能を実装した。traP Collection を通して、traP のゲームを作る人のモチベの一つを提供したいと思っているので、遊んだ人の反応が得られるようなものがあるといいと思い実装した。部員の反応は良かったので、この方向で機能を追加していきたい。
@@ -45,7 +43,7 @@ traP の冬ハッカソンは Unity で「Trillあん♡ BunnyS」というゲ�
 
 10/13 にあった、traP の 10 周年記念イベント。スタッフとして参加して、会場の監視とか準備とか片付けとかした。引退した先輩とかと会って話ができたのが良かった。
 
-<OGPCard showURL url="https://trapavilion.trap.show" />
+https://trapavilion.trap.show
 
 ### 工大祭
 
@@ -56,27 +54,21 @@ traP Collection が毎年使われているので、ユーザー調査的な意�
 
 12 月に IEEE GLOBECOM 2025 で発表しに台湾に行った。初海外だった。
 
-<OGPCard showURL url="https://globecom2025.ieee-globecom.org/" />
+https://globecom2025.ieee-globecom.org/
 
-import globecom from "./globecom.webp"; 
-
-<Image src={globecom} height={400} alt="GLOBECOM 2025" />
+![GLOBECOM 2025](./globecom.webp)
 
 発表はめちゃくちゃに緊張して予定より 1 分くらい短くなってしまった上に、質問が全く出なかったので、とても悲しかった。発表がうまくいかなかったのがとても悔しいので、いつかリベンジしたい。
 他の人の発表を聴いたときは、最初は何言ってるのか全然わかんなくてやばいと思ったが、自分の研究に近い分野の発表を聴いたらそれなりに理解できたので、ただ知識が足りなかっただけと分かって安心した。
 台湾でいろいろ観光にも行った。食べ物がとてもおいしかった。一番おいしかったのは「胡椒餅」というもので、堅めのパン生地で作った肉まんみたいな料理だった。屋台で買って食べた。
 観光地では、中正紀念堂が印象に残っている。大きな建物と広い庭があった。衛兵交代式もあるらしいが、時間が合わなくて見られなかった。
 
-import memorial from "./中正紀念堂.webp";
-
-<Image src={memorial} height={300} alt="中正紀念堂" />
+![中正紀念堂](./中正紀念堂.webp)
 中正紀念堂
 
 街並みはかなり日本と似ている感じがした。ファミマとかセブンとかスシローとかもあったし、マツモトキヨシでキムタクが何かの宣伝をしてる看板もあった。ただ、文字が繁体字だったり車が右側通行だったりちょっとずつ違うので違和感があった。
 
-import ice from "./かき氷.webp"
-
-<Image src={ice} height={300} alt="かき氷" />
+![かき氷](./かき氷.webp)
 マンゴーかき氷の看板。「き」がノットイコールを傾けたやつになっている。
 
 日本人が 1 人で歩いてると台湾人と見分けがつかないので、お店とかでは中国語で話しかけられて、申し訳なく思いながら「I can't speak Chinese.」と答えていた。
@@ -102,14 +94,10 @@ traP の合宿で草津温泉に行った。しかし、1 日目の夜から体�
 
 3/11-13 で traP の卒業旅行で函館に行った。羽田空港に集合して飛行機で函館空港まで行った。海鮮がめちゃくちゃおいしかった。函館山のロープウェイに乗って夜景を見ようと思っていたが、強風で運航中止になってしまって見られなかったのが残念だった。代わりに温泉に行った。五稜郭にも行って五稜郭タワーに登った。上から見た形が思ったよりきれいな形ですごいと思った。
 
-import goryokaku from "./五稜郭.webp";
-
-<Image src={goryokaku} height={300} alt="五稜郭" />
+![五稜郭](./五稜郭.webp)
 五稜郭タワーから見た図。
 
-import breakfast from "./函館朝食.webp";
-
-<Image src={breakfast} height={300} alt="函館の朝食" />
+![函館の朝食](./函館朝食.webp)
 函館の朝食。朝から海鮮丼。
 
 ### 帰省

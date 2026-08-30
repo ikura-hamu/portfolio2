@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
-import mdx from "@astrojs/mdx";
+import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
+import rehypeOGCard from "rehype-og-card";
 import remarkBreaks from "remark-breaks";
 import remarkToc from "remark-toc";
 
@@ -10,25 +11,42 @@ import { SHIKI_THEME } from "./src/consts";
 import vercel from "@astrojs/vercel";
 
 import tailwindcss from "@tailwindcss/vite";
+import rehypeOGCardShowURL from "./src/plugins/rehype-og-card-show-url.mjs";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://ikura-hamu.work",
-  integrations: [mdx(), sitemap(), icon()],
+  integrations: [sitemap(), icon()],
 
   markdown: {
-    remarkPlugins: [
-      remarkBreaks,
-      [
-        remarkToc,
-        {
-          heading: "目次",
-          maxDepth: 3,
-          tight: true,
-          skip: "目次",
-        },
+    processor: unified({
+      rehypePlugins: [
+        [
+          rehypeOGCard,
+          {
+            buildCache: true,
+            buildCachePath: "./node_modules/.astro",
+            openInNewTab: true,
+            serverCache: true,
+            serverCachePath: "./public",
+            shortenURL: true,
+          },
+        ],
+        rehypeOGCardShowURL,
       ],
-    ],
+      remarkPlugins: [
+        remarkBreaks,
+        [
+          remarkToc,
+          {
+            heading: "目次",
+            maxDepth: 3,
+            tight: true,
+            skip: "目次",
+          },
+        ],
+      ],
+    }),
     shikiConfig: {
       theme: SHIKI_THEME,
     },

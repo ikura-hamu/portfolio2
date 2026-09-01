@@ -26,6 +26,7 @@ export default defineConfig({
           {
             buildCache: true,
             buildCachePath: "./node_modules/.astro",
+            enableSameTextURLConversion: true,
             openInNewTab: true,
             serverCache: true,
             serverCachePath: "./public",

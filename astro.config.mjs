@@ -1,8 +1,8 @@
 import { defineConfig } from "astro/config";
 import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
-import rehypeOGCard from "rehype-og-card";
 import remarkBreaks from "remark-breaks";
+import remarkLinkCard from "remark-link-card-plus";
 import remarkToc from "remark-toc";
 
 import icon from "astro-icon";
@@ -11,7 +11,7 @@ import { SHIKI_THEME } from "./src/consts";
 import vercel from "@astrojs/vercel";
 
 import tailwindcss from "@tailwindcss/vite";
-import rehypeOGCardShowURL from "./src/plugins/rehype-og-card-show-url.mjs";
+import remarkLinkCardShowURL from "./src/plugins/remark-link-card-show-url.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,22 +20,16 @@ export default defineConfig({
 
   markdown: {
     processor: unified({
-      rehypePlugins: [
+      remarkPlugins: [
+        remarkLinkCardShowURL,
         [
-          rehypeOGCard,
+          remarkLinkCard,
           {
-            buildCache: true,
-            buildCachePath: "./node_modules/.astro",
-            enableSameTextURLConversion: true,
-            openInNewTab: true,
-            serverCache: true,
-            serverCachePath: "./public",
-            shortenURL: true,
+            cache: true,
+            shortenUrl: true,
+            thumbnailPosition: "right",
           },
         ],
-        rehypeOGCardShowURL,
-      ],
-      remarkPlugins: [
         remarkBreaks,
         [
           remarkToc,

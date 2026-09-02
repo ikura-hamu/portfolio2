@@ -203,6 +203,103 @@ p {
 .prose hr {
   margin: 24px 0;
 }
+.prose img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 500px;
+  border-radius: 8px;
+}
+
+.remark-link-card-plus__container {
+  max-width: 100%;
+  overflow: hidden;
+  border: 2px solid var(--color-primary);
+  border-radius: 8px;
+  background: var(--color-background);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+.remark-link-card-plus__container:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+}
+
+.remark-link-card-plus__card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 112px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.remark-link-card-plus__card:has(.remark-link-card-plus__thumbnail) {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 30%);
+}
+
+.remark-link-card-plus__main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+}
+
+.remark-link-card-plus__title,
+.remark-link-card-plus__description,
+.remark-link-card-plus__url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remark-link-card-plus__title {
+  display: -webkit-box;
+  font-weight: 700;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.remark-link-card-plus__description {
+  display: -webkit-box;
+  font-size: 0.875rem;
+  opacity: 0.8;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.remark-link-card-plus__meta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+}
+
+.remark-link-card-plus__favicon {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.remark-link-card-plus__url {
+  white-space: nowrap;
+}
+
+.remark-link-card-plus__thumbnail {
+  overflow: hidden;
+}
+
+.remark-link-card-plus__thumbnail .remark-link-card-plus__image {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border-radius: 0;
+  object-fit: cover;
+}
 textarea {
   width: 100%;
   font-size: 16px;
@@ -258,6 +355,14 @@ ul {
 	} */
   main {
     padding: 1em;
+  }
+
+  .remark-link-card-plus__card:has(.remark-link-card-plus__thumbnail) {
+    grid-template-columns: minmax(0, 1fr) 32%;
+  }
+
+  .remark-link-card-plus__description {
+    display: none;
   }
 }
 

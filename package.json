@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
-    "@astrojs/mdx": "^7.0.0",
+    "@astrojs/markdown-remark": "^7.2.4",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/vercel": "^11.0.3",
@@ -35,6 +35,7 @@
     "astro": "^7.1.0",
     "jsdom": "^29.1.1",
     "remark-breaks": "^4.0.0",
+    "remark-link-card-plus": "^0.8.0",
     "remark-toc": "^9.0.0",
     "sharp": "^0.35.2",
     "tailwindcss": "^4.3.2",

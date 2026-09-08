@@ -1,0 +1,340 @@
+---
+import { authenticated } from "../../lib/editor/server";
+import "../../components/editor/editor.css";
+let ready = true;
+let signedIn = false;
+try {
+  signedIn = authenticated(Astro);
+} catch {
+  ready = false;
+  Astro.response.status = 503;
+}
+export const prerender = false;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, interactive-widget=resizes-content"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>ブログエディタ | いくら・はむ</title>
+  </head>
+  <body>
+    {
+      signedIn ? (
+        <div id="editor-app">
+          <header class="app-header">
+            <a href="/" class="brand">
+              いくら・はむ <span> / ブログ</span>
+            </a>
+            <form
+              action="/api/editor/auth/logout"
+              method="post"
+              id="logout-form"
+            >
+              <button class="quiet" type="submit">
+                ログアウト
+              </button>
+            </form>
+          </header>
+          <p
+            id="message"
+            class="message"
+            role="status"
+            aria-live="polite"
+            hidden
+          />
+          <a
+            id="login-again"
+            href="/api/editor/auth/login"
+            target="_blank"
+            rel="noopener"
+            hidden
+          >
+            別タブで再ログイン
+          </a>
+          <main id="library" class="library">
+            <div class="section-heading">
+              <>
+                <h1>記事を書く</h1>
+                <span id="connection" />
+              </>
+            </div>
+            <section class="new-article" aria-labelledby="new-heading">
+              <h2 id="new-heading">新しい記事</h2>
+              <form id="new-form">
+                <label>
+                  タイトル
+                  <input
+                    id="new-title"
+                    required
+                    maxlength="300"
+                    placeholder="何について書きますか？"
+                  />
+                </label>
+                <label>
+                  slug
+                  <>
+                    <input
+                      id="new-slug"
+                      required
+                      pattern="[a-zA-Z0-9][a-zA-Z0-9_-]{0,119}"
+                      maxlength="120"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      placeholder="260908-new-post"
+                    />
+                    <small>
+                      英数字・ハイフン・アンダースコア。保存先は slug/index.md
+                      です。
+                    </small>
+                  </>
+                </label>
+                <button type="submit" class="primary">
+                  書き始める
+                </button>
+              </form>
+            </section>
+            <section aria-labelledby="draft-heading">
+              <>
+                <h2 id="draft-heading">この端末の原稿</h2>
+                <ul id="draft-list" class="article-list" />
+              </>
+            </section>
+            <section aria-labelledby="remote-heading">
+              <div class="section-heading">
+                <>
+                  <h2 id="remote-heading">GitHubの記事</h2>
+                  <button id="refresh" type="button">
+                    再取得
+                  </button>
+                </>
+              </div>
+              <label>
+                読み込み元
+                <select id="branch-select">
+                  <option value="main">main（公開用）</option>
+                </select>
+              </label>
+              <ul id="article-list" class="article-list" />
+            </section>
+          </main>
+          <main id="workspace" class="workspace" hidden>
+            <div class="document-header">
+              <button id="back" type="button" class="quiet">
+                記事一覧
+              </button>
+              <span id="document-name" />
+              <button id="save" type="button" class="primary">
+                ブランチに保存
+              </button>
+            </div>
+            <div class="save-state">
+              <>
+                <span id="local-status" aria-live="polite" />
+                <span id="remote-status" aria-live="polite" />
+              </>
+            </div>
+            <div class="tabs" role="tablist" aria-label="記事の編集">
+              <button
+                id="tab-source"
+                role="tab"
+                aria-selected="true"
+                aria-controls="panel-source"
+                data-tab="source"
+              >
+                Markdown
+              </button>
+              <button
+                id="tab-settings"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-settings"
+                tabindex="-1"
+                data-tab="settings"
+              >
+                記事設定
+              </button>
+              <button
+                id="tab-preview"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-preview"
+                tabindex="-1"
+                data-tab="preview"
+              >
+                プレビュー
+              </button>
+            </div>
+            <section
+              id="panel-source"
+              role="tabpanel"
+              aria-labelledby="tab-source"
+              class="source-panel"
+            >
+              <div class="toolbar" role="toolbar" aria-label="Markdown入力補助">
+                <button
+                  type="button"
+                  data-insert="heading"
+                  aria-label="見出しを挿入"
+                >
+                  見出し
+                </button>
+                <button
+                  type="button"
+                  data-insert="bold"
+                  aria-label="太字を挿入"
+                >
+                  <strong>B</strong>
+                </button>
+                <button type="button" data-insert="link">
+                  リンク
+                </button>
+                <button type="button" data-insert="list">
+                  リスト
+                </button>
+                <button type="button" data-insert="code">
+                  コード
+                </button>
+                <button type="button" id="undo">
+                  元に戻す
+                </button>
+                <button type="button" id="redo">
+                  やり直す
+                </button>
+              </div>
+              <div id="markdown-editor" />
+            </section>
+            <section
+              id="panel-settings"
+              role="tabpanel"
+              aria-labelledby="tab-settings"
+              class="settings-panel"
+              hidden
+            >
+              <form id="settings-form">
+                <label>
+                  タイトル
+                  <input id="meta-title" required />
+                </label>
+                <label>
+                  説明
+                  <textarea id="meta-description" rows="3" />
+                </label>
+                <label>
+                  公開日
+                  <input
+                    id="meta-pubDate"
+                    placeholder="2026-09-08 または ISO日時"
+                  />
+                </label>
+                <label>
+                  更新日
+                  <input id="meta-updatedDate" placeholder="任意" />
+                </label>
+                <label>
+                  タグ（カンマ区切り）
+                  <input id="meta-tags" />
+                </label>
+                <label>
+                  OG画像（heroImage）
+                  <input id="meta-heroImage" />
+                </label>
+                <label>
+                  記事画像（heroImageContent）
+                  <input id="meta-heroImageContent" />
+                </label>
+                <button class="primary" type="submit">
+                  Markdownに反映
+                </button>
+              </form>
+            </section>
+            <section
+              id="panel-preview"
+              role="tabpanel"
+              aria-labelledby="tab-preview"
+              class="preview-panel"
+              hidden
+            >
+              <p class="preview-note">
+                簡易プレビューです。リンクカード・外部埋め込み・コードの色付けは本番と異なります。
+              </p>
+              <article id="preview-content" />
+            </section>
+            <footer class="document-footer">
+              <>
+                <span id="character-count" />
+                <button id="download" type="button" class="quiet">
+                  .mdをダウンロード
+                </button>
+                <a id="github-link" target="_blank" rel="noopener noreferrer">
+                  GitHubで開く
+                </a>
+              </>
+            </footer>
+          </main>
+          <dialog id="conflict-dialog">
+            <h2>GitHub側に別の変更があります</h2>
+            <p>
+              現在の原稿は保持しています。両方の内容を確認し、必要な変更をMarkdownに取り込んでください。
+            </p>
+            <div class="conflict-columns">
+              <>
+                <section>
+                  <>
+                    <h3>この端末</h3>
+                    <pre id="conflict-local" />
+                  </>
+                </section>
+                <section>
+                  <>
+                    <h3>GitHubの最新</h3>
+                    <pre id="conflict-remote" />
+                  </>
+                </section>
+              </>
+            </div>
+            <div class="dialog-actions">
+              <>
+                <button id="conflict-close" type="button">
+                  閉じて編集を続ける
+                </button>
+                <button id="conflict-resolve" type="button">
+                  現在の本文を解決結果にする
+                </button>
+              </>
+            </div>
+            <small>
+              解決結果にした後、内容を確認して「ブランチに保存」を押してください。
+            </small>
+          </dialog>
+        </div>
+      ) : (
+        <main class="login-card">
+          <>
+            <p>いくら・はむ / ブログ</p>
+            <h1>ブログエディタ</h1>
+          </>
+          {ready ? (
+            <>
+              <p>GitHubでログインして、記事の続きを書きましょう。</p>
+              <a class="button primary" href="/api/editor/auth/login">
+                GitHubでログイン
+              </a>
+            </>
+          ) : (
+            <p>エディタの認証設定がまだ完了していません。</p>
+          )}
+        </main>
+      )
+    }
+    <script>
+      import { startEditor } from "../../components/editor/editor";
+      if (document.getElementById("editor-app")) startEditor();
+    </script>
+  </body>
+</html>

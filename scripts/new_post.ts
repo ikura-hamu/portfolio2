@@ -1,4 +1,4 @@
-import { writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import { createInterface } from "readline/promises";
 import { stdin as input, stdout as output } from "process";
 
@@ -42,19 +42,16 @@ async function main() {
 
     // Generate frontmatter
     let frontmatter = `---
-title: "${title}"
+title: ${JSON.stringify(title)}
 pubDate: ${pubDate}`;
 
     if (description.trim()) {
-      frontmatter += `\ndescription: "${description}"`;
+      frontmatter += `\ndescription: ${JSON.stringify(description)}`;
     }
 
     if (tags.length > 0) {
-      frontmatter += `\ntags: [${tags.map((tag) => `"${tag}"`).join(", ")}]`;
+      frontmatter += `\ntags: [${tags.map((tag) => JSON.stringify(tag)).join(", ")}]`;
     }
-
-    frontmatter += `\nheroImageContent: "./${slug}.png" # optional`;
-    frontmatter += `\nheroImage: "./${slug}.png" # optional`;
 
     frontmatter += "\n---\n\n";
 
@@ -64,8 +61,9 @@ pubDate: ${pubDate}`;
 `;
 
     // Write to file
-    const filename = `src/content/blog/${slug}.md`;
-    writeFileSync(filename, content);
+    const directory = `src/content/blog/${slug}`;
+    mkdirSync(directory);
+    writeFileSync(`${directory}/index.md`, content, { flag: "wx" });
   } catch (error) {
     console.error("エラーが発生しました:", error);
   } finally {

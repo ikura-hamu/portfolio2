@@ -4,6 +4,7 @@ import sitemap from "@astrojs/sitemap";
 import remarkBreaks from "remark-breaks";
 import remarkLinkCard from "remark-link-card-plus";
 import remarkToc from "remark-toc";
+import { tocOptions } from "./src/lib/markdown-options";
 
 import icon from "astro-icon";
 import { SHIKI_THEME } from "./src/consts";
@@ -31,15 +32,7 @@ export default defineConfig({
           },
         ],
         remarkBreaks,
-        [
-          remarkToc,
-          {
-            heading: "目次",
-            maxDepth: 3,
-            tight: true,
-            skip: "目次",
-          },
-        ],
+        [remarkToc, tocOptions],
       ],
     }),
     shikiConfig: {

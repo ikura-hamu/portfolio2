@@ -203,10 +203,11 @@ p {
 .prose hr {
   margin: 24px 0;
 }
-.prose img {
+.prose img:where(:not(.remark-link-card-plus__container img)) {
   display: block;
   width: auto;
-  max-width: 100%;
+  height: auto;
+  max-width: min(100%, 500px);
   max-height: 500px;
   border-radius: 8px;
 }

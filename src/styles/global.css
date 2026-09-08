@@ -165,6 +165,16 @@ p {
 .prose p {
   margin-bottom: 0;
 }
+.prose p:has(> img) {
+  margin-bottom: 8px;
+}
+.prose p > img {
+  margin-bottom: 8px;
+}
+/* The block image already starts a new line for its caption. */
+.prose p > img + br {
+  display: none;
+}
 .prose h2 {
   margin-top: 32px;
 }

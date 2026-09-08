@@ -7,8 +7,6 @@ tags:
   - traP
 ---
 
-import OGPCard from "@/components/OGPCard.astro";
-
 ## 目次
 
 ## traPでのブログ
@@ -19,17 +17,17 @@ traPではブログをそこそこ書いています。いい感じのもの、�
 
 traPの「Webエンジニアになろう講習会」を受けたときに書いたブログです。
 
-<OGPCard url="https://trap.jp/post/1624/" />
+https://trap.jp/post/1624/
 
 ### なろう講習会講師記
 
 上のブログから1年たって講師側に回ったときの記事です。
 
-<OGPCard url="https://trap.jp/post/1969/" />
+https://trap.jp/post/1969/
 
 ### isu-isu-hを作った話
 
-<OGPCard url="https://trap.jp/post/2047/" />
+https://trap.jp/post/2047/
 
 ISUCONの改善速度を速くするためのツール群を作ったときの記事です。
 
@@ -38,18 +36,18 @@ ISUCONの改善速度を速くするためのツール群を作ったときの�
 CPCTFは、traPで毎年新入生を迎える時期に開催する競技プログラミングとCTFの大会です。
 2024年度の大会のスコアサーバーを担当したのですが、当日にサーバーを落としてしまったときに書いた原因を説明する記事です。
 
-<OGPCard url="https://trap.jp/post/2235/" />
+https://trap.jp/post/2235/
 
 ### ハッカソン記事
 
 traPで定期的に開催されているハッカソンの参加記たちです。
 
-<OGPCard url="https://trap.jp/post/1617/" />
+https://trap.jp/post/1617/
 
-<OGPCard url="https://trap.jp/post/1746/" />
+https://trap.jp/post/1746/
 
-<OGPCard url="https://trap.jp/post/1899/" />
+https://trap.jp/post/1899/
 
-<OGPCard url="https://trap.jp/post/2117/" />
+https://trap.jp/post/2117/
 
-<OGPCard url="https://trap.jp/post/2255" />
+https://trap.jp/post/2255

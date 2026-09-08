@@ -64,7 +64,7 @@ pubDate: ${pubDate}`;
 `;
 
     // Write to file
-    const filename = `src/content/blog/${slug}.mdx`;
+    const filename = `src/content/blog/${slug}.md`;
     writeFileSync(filename, content);
   } catch (error) {
     console.error("エラーが発生しました:", error);

@@ -7,11 +7,9 @@ tags:
   - フロントエンド
 ---
 
-import OGPCard from "@/components/OGPCard.astro";
-
 ポートフォリオを新しくしました。
 
-<OGPCard url="https://github.com/ikura-hamu/portfolio2" />
+https://github.com/ikura-hamu/portfolio2
 
 ## 目次
 
@@ -35,7 +33,7 @@ traPの先輩のmazreanさんがポートフォリオで使っていたのを見
 
 実際に使ってみて、コンテンツコレクションが便利だと感じました。
 
-<OGPCard url="https://docs.astro.build/ja/guides/content-collections/" />
+https://docs.astro.build/ja/guides/content-collections/
 
 コンテンツコレクションは、markdownやyamlなどのドキュメントやデータを、TypeScriptの型の恩恵を受けながら管理して扱うことができる仕組みです。このブログの内容や[aboutページ](/about)の技術とかのやつはコンテンツコレクションで管理しています。
 
@@ -80,13 +78,13 @@ const allSkills = await getEntry("skill", "skills");
 
 また、テンプレートも充実していて、何もしなくてもちゃんとスタイルのついた状態から始められるので、とても楽でした。
 
-<OGPCard url="https://astro.build/themes/" />
+https://astro.build/themes/
 
 ### [tailwind css](https://tailwindcss.com/)
 
 自分はスタイリング(というよりcss)があまり好きではないのですが、去年の年末の冬ハッカソンでNext.jsでフロントを書いたときにtailwindを使って、結構楽しかったので今回も使いました。astroのテンプレートは普通のCSSで書かれているので、すべてを移行したわけではなく普通のとtailwindがどっちも入っているのですが、それでも動いているので楽でいいです。
 
-<OGPCard url="https://tailwindcss.com/" />
+https://tailwindcss.com/
 
 ### [Vercel](https://vercel.com)
 
@@ -97,7 +95,7 @@ const allSkills = await getEntry("skill", "skills");
 特に強くこだわったところがあるわけではないのですが、いい感じにできたと思うのはOGPのカードです。
 ↓こんな感じです。
 
-<OGPCard url="https://github.com" />
+https://github.com
 
 URLを指定するとカードを表示してくれます。
 使用技術によってはCORSとかで面倒なことがありますが、Astroはビルド時に原則すべてのJavaScriptを実行してブラウザ上での実行が無いので、CORSの問題が発生しません。下のようなコンポーネントを用意して、mdxファイルでインポートしてブログを書いています。
@@ -176,10 +174,10 @@ const metaData = await fetchOgp(url);
 
 実装するときにはこの記事を参考にしました。ありがとうございました。
 
-<OGPCard url="https://zenn.dev/tomi/articles/2021-03-22-blog-card" />
+https://zenn.dev/tomi/articles/2021-03-22-blog-card
 
 ## おわり
 
 おわりです。自分専用のブログが欲しいと思っていてついに念願かなったわけですが、当面はtraPのブログに書く気がします。こっちには何を書くんだろう。自慢のOGPカードを置いて終わりにします。
 
-<OGPCard url="https://trap.jp/author/ikura-hamu" />
+https://trap.jp/author/ikura-hamu

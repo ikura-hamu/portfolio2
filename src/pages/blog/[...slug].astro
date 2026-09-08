@@ -26,7 +26,9 @@ const { Content } = await render(post);
 <style></style>
 
 <BlogPost {...post.data}>
-  <Content />
+  <div class="prose">
+    <Content />
+  </div>
 
   <div class="mt-10">
     <hr class="border-4 border-primary" />

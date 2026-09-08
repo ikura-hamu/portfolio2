@@ -6,7 +6,7 @@ import { post } from "./content/blog/_schema";
 
 const blog = defineCollection({
   loader: glob({
-    pattern: ["**/*.{md,mdx}", "!**/_*.*"],
+    pattern: ["**/*.md", "!**/_*.*"],
     base: "./src/content/blog",
   }),
   schema: post,

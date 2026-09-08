@@ -4,6 +4,7 @@
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
 @import "tailwindcss";
+@import "./link-card.css";
 
 @theme {
   --color-primary: #0f71f2;
@@ -165,6 +166,16 @@ p {
 .prose p {
   margin-bottom: 0;
 }
+.prose p:has(> img) {
+  margin-bottom: 8px;
+}
+.prose p > img {
+  margin-bottom: 8px;
+}
+/* The block image already starts a new line for its caption. */
+.prose p > img + br {
+  display: none;
+}
 .prose h2 {
   margin-top: 32px;
 }
@@ -203,6 +214,15 @@ p {
 .prose hr {
   margin: 24px 0;
 }
+.prose img:where(:not(.remark-link-card-plus__container img)) {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 500px);
+  max-height: 500px;
+  border-radius: 8px;
+}
+
 textarea {
   width: 100%;
   font-size: 16px;

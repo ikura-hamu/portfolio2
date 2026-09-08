@@ -6,5 +6,3 @@ heroImage: "" # optional
 tags:
   -
 ---
-
-import OGPCard from "@/components/OGPCard.astro";

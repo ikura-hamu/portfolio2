@@ -23,19 +23,46 @@ export function config() {
   const values = Object.fromEntries(
     names.map((name) => [name, process.env[name]?.trim()]),
   );
+  const missing = names.filter((name) => !values[name]);
+  const invalid: { name: (typeof names)[number]; reason: string }[] = [];
   if (
-    names.some((name) => !values[name]) ||
-    values.EDITOR_SESSION_SECRET!.length < 32
+    values.EDITOR_SESSION_SECRET &&
+    values.EDITOR_SESSION_SECRET.length < 32
   ) {
-    throw new EditorError(503, "エディタの認証設定がまだ完了していません。");
+    invalid.push({
+      name: "EDITOR_SESSION_SECRET",
+      reason: "must contain at least 32 characters",
+    });
   }
-  const origin = new URL(values.EDITOR_ORIGIN!);
-  if (
-    origin.origin !== values.EDITOR_ORIGIN ||
-    (origin.protocol !== "https:" &&
-      !(origin.protocol === "http:" && origin.hostname === "localhost"))
-  ) {
-    throw new EditorError(503, "EDITOR_ORIGINの設定を確認してください。");
+  if (values.EDITOR_ORIGIN) {
+    try {
+      const origin = new URL(values.EDITOR_ORIGIN);
+      if (
+        origin.origin !== values.EDITOR_ORIGIN ||
+        (origin.protocol !== "https:" &&
+          !(origin.protocol === "http:" && origin.hostname === "localhost"))
+      ) {
+        invalid.push({
+          name: "EDITOR_ORIGIN",
+          reason:
+            "must be an HTTPS origin without a path or trailing slash (HTTP localhost is allowed)",
+        });
+      }
+    } catch {
+      invalid.push({
+        name: "EDITOR_ORIGIN",
+        reason: "must be a valid URL origin",
+      });
+    }
+  }
+  if (missing.length || invalid.length) {
+    // Server logs only: never include values or URL parser errors, which may
+    // contain the original input. Keep client-facing errors generic.
+    console.error("[blog-editor] Invalid authentication configuration", {
+      missing,
+      invalid,
+    });
+    throw new EditorError(503, "エディタの認証設定がまだ完了していません。");
   }
   return values as Record<(typeof names)[number], string>;
 }

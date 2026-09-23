@@ -1,3 +1,4 @@
+import { config } from "../src/lib/editor/security";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
@@ -189,4 +190,76 @@ test("preview sanitizes executable HTML and resolves both image layouts", async 
     `https://raw.githubusercontent.com/ikura-hamu/portfolio2/${encodeURIComponent(branch)}/public/a.jpg`,
   );
   assert.equal(imageURL("javascript:alert(1)", path, branch), undefined);
+});
+
+test("configuration logs missing/invalid names without exposing values", (t) => {
+  const fixture = {
+    EDITOR_ORIGIN: "https://preview.example.com",
+    EDITOR_SESSION_SECRET: "test-session-secret-".repeat(3),
+    GITHUB_APP_ID: "test-app-id",
+    GITHUB_APP_CLIENT_ID: "test-client-id",
+    GITHUB_APP_CLIENT_SECRET: "test-client-secret",
+    GITHUB_APP_PRIVATE_KEY: "test-private-key",
+    GITHUB_APP_INSTALLATION_ID: "test-installation-id",
+    EDITOR_GITHUB_USER_ID: "test-user-id",
+  };
+  const previous = Object.fromEntries(
+    Object.keys(fixture).map((name) => [name, process.env[name]]),
+  );
+  const log = t.mock.method(console, "error", () => {});
+  try {
+    Object.assign(process.env, fixture);
+    assert.equal(config().EDITOR_ORIGIN, fixture.EDITOR_ORIGIN);
+    assert.equal(log.mock.callCount(), 0);
+
+    delete process.env.GITHUB_APP_CLIENT_SECRET;
+    process.env.GITHUB_APP_PRIVATE_KEY = "  ";
+    process.env.EDITOR_SESSION_SECRET = "short-secret";
+    process.env.EDITOR_ORIGIN = "not-a-url-sensitive-marker";
+    const genericError = (error: unknown) =>
+      error instanceof EditorError &&
+      error.status === 503 &&
+      error.message === "エディタの認証設定がまだ完了していません。";
+    assert.throws(config, genericError);
+    const details = log.mock.calls[0].arguments[1] as {
+      missing: string[];
+      invalid: { name: string; reason: string }[];
+    };
+    assert.deepEqual(details.missing, [
+      "GITHUB_APP_CLIENT_SECRET",
+      "GITHUB_APP_PRIVATE_KEY",
+    ]);
+    assert.deepEqual(
+      details.invalid.map((item) => item.name),
+      ["EDITOR_SESSION_SECRET", "EDITOR_ORIGIN"],
+    );
+    const output = JSON.stringify(log.mock.calls[0].arguments);
+    for (const value of [
+      ...Object.values(fixture),
+      "short-secret",
+      "not-a-url-sensitive-marker",
+    ])
+      assert.equal(output.includes(value), false);
+
+    Object.assign(process.env, fixture);
+    for (const origin of [
+      "https://preview.example.com/path",
+      "https://preview.example.com/",
+      "http://preview.example.com",
+    ]) {
+      process.env.EDITOR_ORIGIN = origin;
+      assert.throws(config, genericError);
+      assert.equal(
+        JSON.stringify(log.mock.calls.at(-1)!.arguments).includes(origin),
+        false,
+      );
+    }
+    process.env.EDITOR_ORIGIN = "http://localhost:4321";
+    assert.equal(config().EDITOR_ORIGIN, "http://localhost:4321");
+  } finally {
+    for (const [name, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+  }
 });

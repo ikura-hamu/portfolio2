@@ -33,6 +33,34 @@ export async function drafts(): Promise<Draft[]> {
   });
 }
 
+export async function removeDraft(draft: Draft): Promise<void> {
+  const db = await database();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("drafts", "readwrite");
+    const store = transaction.objectStore("drafts");
+    const request = store.get(draft.branch);
+    let conflict = false;
+    request.onsuccess = () => {
+      const current = request.result as Draft | undefined;
+      if (current && current.updatedAt !== draft.updatedAt) {
+        conflict = true;
+        transaction.abort();
+        return;
+      }
+      store.delete(draft.branch);
+    };
+    transaction.oncomplete = () => resolve();
+    transaction.onabort = transaction.onerror = () =>
+      reject(
+        new Error(
+          conflict
+            ? "別のタブで原稿が更新されています。一覧を再取得してから削除してください。"
+            : "端末の原稿を削除できませんでした。",
+        ),
+      );
+  });
+}
+
 // Compare the previous timestamp in the same transaction, so another tab cannot
 // silently replace a newer local draft. Callers serialize writes per document.
 export async function persist(

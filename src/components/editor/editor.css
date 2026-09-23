@@ -420,3 +420,33 @@ dialog::backdrop {
     flex-wrap: nowrap;
   }
 }
+
+#draft-list > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+#draft-list > li > button:first-child {
+  grid-column: 1;
+}
+#draft-list .draft-remote-status {
+  grid-column: 1;
+  padding: 0 1rem;
+}
+#draft-list .delete-draft {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  width: auto;
+  color: #9b2631;
+}
+@media (max-width: 400px) {
+  #draft-list > li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #draft-list .delete-draft {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: end;
+  }
+}

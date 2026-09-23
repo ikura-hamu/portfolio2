@@ -1,3 +1,4 @@
+import { readCache } from "../src/lib/editor/cache";
 import { config } from "../src/lib/editor/security";
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -262,4 +263,35 @@ test("configuration logs missing/invalid names without exposing values", (t) => 
       else process.env[name] = value;
     }
   }
+});
+
+test("remote status cache expires, can be refreshed and does not hide failures", async () => {
+  let now = 0;
+  let source = "saved";
+  let fail = false;
+  let calls = 0;
+  const cache = readCache(
+    async () => {
+      calls++;
+      if (fail) throw new Error("offline");
+      return source;
+    },
+    () => now,
+  );
+  assert.equal(await cache.get("branch"), "saved");
+  source = "deleted";
+  now = 59_999;
+  assert.equal(await cache.get("branch"), "saved");
+  assert.equal(calls, 1);
+  now = 60_000;
+  assert.equal(await cache.get("branch"), "deleted");
+  source = "changed";
+  cache.clear();
+  assert.equal(await cache.get("branch"), "changed");
+  cache.clear();
+  fail = true;
+  await assert.rejects(cache.get("branch"));
+  fail = false;
+  source = "restored";
+  assert.equal(await cache.get("branch"), "restored");
 });

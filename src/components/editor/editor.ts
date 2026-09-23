@@ -21,7 +21,8 @@ import {
   validSlug,
   type Draft,
 } from "../../lib/editor/document";
-import { drafts, persist } from "../../lib/editor/storage";
+import { drafts, persist, removeDraft } from "../../lib/editor/storage";
+import { readCache } from "../../lib/editor/cache";
 
 const element = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -55,6 +56,45 @@ async function api<T>(action: string, body?: unknown): Promise<T> {
 }
 
 export function startEditor() {
+  const branchCache = readCache(() => api<{ branches: string[] }>("branches"));
+  const fileCache = readCache((query: string) =>
+    api<{ source: string; sha: string } | null>(query),
+  );
+  let localEntries: { draft: Draft; status: HTMLElement }[] = [];
+  let checkingStatus = false;
+  async function updateLocalStatuses() {
+    if (checkingStatus) return;
+    checkingStatus = true;
+    const entries = localEntries;
+    try {
+      const { branches } = await branchCache.get("branches");
+      for (const entry of entries) {
+        if (!entry.status.isConnected) continue;
+        try {
+          if (!branches.includes(entry.draft.branch)) {
+            entry.status.textContent = "GitHubのブランチはありません";
+            continue;
+          }
+          const remote = await fileCache.get(
+            `read?path=${encodeURIComponent(entry.draft.path)}&branch=${encodeURIComponent(entry.draft.branch)}`,
+          );
+          entry.status.textContent = !remote
+            ? "GitHubに記事はありません"
+            : remote.source === entry.draft.source
+              ? "GitHubの内容と一致"
+              : "GitHubの内容と差分あり";
+        } catch {
+          entry.status.textContent = "GitHubの状態は未確認（取得失敗）";
+        }
+      }
+    } catch {
+      for (const entry of entries)
+        entry.status.textContent = "GitHubの状態は未確認（取得失敗）";
+    } finally {
+      checkingStatus = false;
+      if (entries !== localEntries) void updateLocalStatuses();
+    }
+  }
   let draft: Draft | undefined;
   let view: EditorView | undefined;
   let localTimestamp: number | null = null;
@@ -211,6 +251,8 @@ export function startEditor() {
       applySettings();
       await storeLocal();
     }
+    branchCache.clear();
+    fileCache.clear();
     draft = next;
     localTimestamp = existingLocal ? next.updatedAt : null;
     view?.destroy();
@@ -276,11 +318,13 @@ export function startEditor() {
     li.append(item);
     list.append(li);
     item.addEventListener("click", () => void run(action));
+    return li;
   }
   async function localList() {
     const items = await drafts();
     const list = element("draft-list");
     list.replaceChildren();
+    localEntries = [];
     if (!items.length)
       list.textContent = "この端末に保存した原稿はありません。";
     for (const item of items) {
@@ -290,13 +334,39 @@ export function startEditor() {
       } catch {
         /* A malformed draft must still be recoverable. */
       }
-      listButton(
+      const row = listButton(
         list,
         title,
-        `${item.source === item.savedSource ? "GitHubに保存済み" : "GitHubに未保存"} · ${new Date(item.updatedAt).toLocaleString("ja-JP")}`,
+        new Date(item.updatedAt).toLocaleString("ja-JP"),
         async () => activate(item, true),
       );
+      const remoteStatus = document.createElement("span");
+      remoteStatus.textContent = "GitHubの状態を確認中…";
+      remoteStatus.className = "draft-remote-status";
+      row.append(remoteStatus);
+      localEntries.push({ draft: item, status: remoteStatus });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "delete-draft";
+      remove.textContent = "端末から削除";
+      remove.setAttribute("aria-label", `${title}をこの端末から削除`);
+      remove.addEventListener(
+        "click",
+        () =>
+          void run(async () => {
+            if (
+              !window.confirm(
+                `「${title}」をこの端末から削除しますか？\nGitHubに未保存の変更は失われます。GitHub上の記事やブランチは削除しません。`,
+              )
+            )
+              return;
+            await removeDraft(item);
+            await localList();
+          }),
+      );
+      row.append(remove);
     }
+    void updateLocalStatuses();
   }
   async function remoteList() {
     const select = element<HTMLSelectElement>("branch-select");
@@ -363,7 +433,7 @@ export function startEditor() {
   }
   async function refresh() {
     await localList();
-    const { branches } = await api<{ branches: string[] }>("branches");
+    const { branches } = await branchCache.get("branches");
     const select = element<HTMLSelectElement>("branch-select");
     const current = select.value;
     select.replaceChildren(
@@ -415,6 +485,7 @@ export function startEditor() {
       });
       draft.sha = result.sha;
       draft.savedSource = snapshot.source;
+      fileCache.clear();
       await storeLocal();
       message("作業ブランチに保存しました。");
     } catch (error) {
@@ -548,7 +619,15 @@ export function startEditor() {
         await refresh();
       }),
   );
-  button("refresh").addEventListener("click", () => void run(refresh));
+  button("refresh").addEventListener(
+    "click",
+    () =>
+      void run(async () => {
+        branchCache.clear();
+        fileCache.clear();
+        await refresh();
+      }),
+  );
   element("branch-select").addEventListener(
     "change",
     () => void run(remoteList),
@@ -652,4 +731,8 @@ export function startEditor() {
   window.addEventListener("resize", resize);
   resize();
   void run(refresh);
+  setInterval(() => {
+    if (!document.hidden && !element("library").hidden && !busy)
+      void updateLocalStatuses();
+  }, 60_000);
 }

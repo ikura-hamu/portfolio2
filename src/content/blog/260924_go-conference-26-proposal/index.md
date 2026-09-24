@@ -1,7 +1,7 @@
 ---
 title: "【Go Conference 2026 プロポーザル】 Goコンパイラを作ってGoをもっと理解する"
 description: "Go Conference 2026で採択されたプロポーザル" # optional
-pubDate: "2026-09-24T15:00:00+09:00"
+pubDate: 2026-09-24T15:00:00+09:00
 # heroImage: ""
 tags:
   - Go

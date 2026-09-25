@@ -1,0 +1,53 @@
+/*
+  Admin-only styles.
+
+  Two things global.css imposes that the admin UI has to undo or work around:
+
+  - `main { width: 840px; padding; gap }` is meant for the public pages and
+    would squeeze the editor, so the admin shell opts out.
+  - The site switches themes with `html[data-theme="dark"]`, while Tailwind's
+    `dark:` variant follows `prefers-color-scheme`. Using `dark:` here would
+    ignore the site's toggle, so the admin surfaces key off `data-theme`
+    (or off `currentColor`, which already flips with the theme).
+*/
+
+.admin-main {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  gap: 0;
+}
+
+/** An opaque surface for sticky bars, matching the page background. */
+.admin-surface {
+  background-color: var(--color-background);
+}
+
+/** Borders and dividers that follow the theme without a dark: variant. */
+.admin-border {
+  border-color: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.admin-divide > * + * {
+  border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.admin-hover:hover {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/** Headings inside the admin UI should not get the public site's underline. */
+.admin-root h1,
+.admin-root h2,
+.admin-root h3 {
+  border-bottom: none;
+}
+
+.admin-root input,
+.admin-root textarea,
+.admin-root select {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
+  color: inherit;
+}

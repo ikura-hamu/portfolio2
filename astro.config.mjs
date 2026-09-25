@@ -1,22 +1,24 @@
 import { defineConfig, envField } from "astro/config";
 import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
-import remarkBreaks from "remark-breaks";
 import remarkLinkCard from "remark-link-card-plus";
-import remarkToc from "remark-toc";
 
 import icon from "astro-icon";
+import vue from "@astrojs/vue";
 import { SHIKI_THEME } from "./src/consts";
 
 import vercel from "@astrojs/vercel";
 
 import tailwindcss from "@tailwindcss/vite";
 import remarkLinkCardShowURL from "./src/plugins/remark-link-card-show-url.mjs";
+import { sharedRemarkPlugins } from "./src/lib/markdown/shared.mjs";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://ikura-hamu.work",
-  integrations: [sitemap(), icon()],
+  // The app entrypoint installs the admin router; without it RouterView has
+  // nothing to read and hydration fails.
+  integrations: [sitemap(), icon(), vue({ appEntrypoint: "/src/pages/_app" })],
 
   markdown: {
     processor: unified({
@@ -25,21 +27,14 @@ export default defineConfig({
         [
           remarkLinkCard,
           {
-            cache: true,
+            cache: false,
             shortenUrl: true,
             thumbnailPosition: "right",
           },
         ],
-        remarkBreaks,
-        [
-          remarkToc,
-          {
-            heading: "目次",
-            maxDepth: 3,
-            tight: true,
-            skip: "目次",
-          },
-        ],
+        // remark-breaks and remark-toc are shared with the admin preview so
+        // that both renderers stay in step. Their order must not change.
+        ...sharedRemarkPlugins,
       ],
     }),
     shikiConfig: {

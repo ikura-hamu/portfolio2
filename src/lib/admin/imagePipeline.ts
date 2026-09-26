@@ -18,18 +18,34 @@ export interface PreparedImage {
 
 /**
  * Names go through the same rules the server applies, so what the markdown
- * refers to is exactly what gets committed.
+ * refers to is exactly what gets committed. A name the rules reject falls back
+ * to `image` with the given extension, so the extension always matches the
+ * bytes that are committed.
  */
-function toWebpName(name: string): string {
-  const base = name.replace(/\.[^.]+$/, "") || "image";
+function sanitize(name: string, extension: string): string {
   try {
-    return sanitizeImageName(`${base}.webp`);
+    return sanitizeImageName(name);
   } catch {
-    return "image.webp";
+    return `image${extension}`;
   }
 }
 
-/** SVGs are left alone: rasterizing them would lose what makes them useful. */
+/**
+ * The extension an unconverted image is committed with, taken from its MIME
+ * type so that it describes the bytes rather than whatever the name says.
+ */
+function extensionFor(file: Blob, name: string): string {
+  const subtype = file.type.startsWith("image/")
+    ? file.type.slice("image/".length).split("+")[0]
+    : "";
+  if (subtype !== "") return `.${subtype === "jpeg" ? "jpg" : subtype}`;
+  return /\.[^.]+$/.exec(name)?.[0].toLowerCase() ?? ".png";
+}
+
+/**
+ * SVGs and GIFs are left alone: rasterizing an SVG would lose what makes it
+ * useful, and drawing a GIF onto a canvas keeps only its first frame.
+ */
 function shouldPassThrough(file: Blob): boolean {
   return file.type === "image/svg+xml" || file.type === "image/gif";
 }
@@ -39,10 +55,12 @@ export async function prepareImage(
   fallbackName = "image",
 ): Promise<PreparedImage> {
   const originalName = file instanceof File ? file.name : fallbackName;
+  const unchanged = (): PreparedImage => ({
+    name: sanitize(originalName, extensionFor(file, originalName)),
+    blob: file,
+  });
 
-  if (shouldPassThrough(file)) {
-    return { name: sanitize(originalName), blob: file };
-  }
+  if (shouldPassThrough(file)) return unchanged();
 
   const bitmap = await createImageBitmap(file, {
     imageOrientation: "from-image",
@@ -57,7 +75,7 @@ export async function prepareImage(
   const context = canvas.getContext("2d");
   if (!context) {
     bitmap.close();
-    return { name: sanitize(originalName), blob: file };
+    return unchanged();
   }
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
@@ -65,17 +83,10 @@ export async function prepareImage(
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/webp", WEBP_QUALITY),
   );
-  if (!blob) return { name: sanitize(originalName), blob: file };
+  if (!blob) return unchanged();
 
-  return { name: toWebpName(originalName), blob };
-}
-
-function sanitize(name: string): string {
-  try {
-    return sanitizeImageName(name);
-  } catch {
-    return "image.webp";
-  }
+  const stem = originalName.replace(/\.[^.]+$/, "") || "image";
+  return { name: sanitize(`${stem}.webp`, ".webp"), blob };
 }
 
 export async function blobToBase64(blob: Blob): Promise<string> {

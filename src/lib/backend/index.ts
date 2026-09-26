@@ -20,16 +20,15 @@ if (import.meta.env.PROD && BACKEND_KIND === "local") {
   );
 }
 
-let instance: ContentBackend | undefined;
-
+/**
+ * Returns a new backend for the current request. The GitHub backend carries
+ * a token minted for this request only, so instances are never reused.
+ */
 export async function getBackend(): Promise<ContentBackend> {
-  if (instance) return instance;
   if (BACKEND_KIND === "local") {
     const { LocalBackend } = await import("./local");
-    instance = new LocalBackend();
-  } else {
-    const { GitHubBackend } = await import("./github");
-    instance = new GitHubBackend();
+    return new LocalBackend();
   }
-  return instance;
+  const { GitHubBackend } = await import("./github");
+  return new GitHubBackend();
 }

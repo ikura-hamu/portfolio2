@@ -5,7 +5,6 @@
  * its images and any deletions land in a single commit.
  */
 import * as env from "astro:env/server";
-import { getInstallationToken } from "./app-auth";
 
 export interface TreeEntry {
   path: string;
@@ -30,6 +29,11 @@ export function repoFromEnv(): RepoRef {
   return { owner, repo };
 }
 
+/** A repository together with the credential its API calls are made with. */
+export interface Repo extends RepoRef {
+  token: () => Promise<string>;
+}
+
 export function mainBranch(): string {
   return env.CONTENT_BRANCH ?? "main";
 }
@@ -48,8 +52,12 @@ export class GitHubApiError extends Error {
  * Calls the REST API and parses the JSON response. A response without a body
  * (`204 No Content`, e.g. a ref deletion) resolves to `undefined`.
  */
-async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = await getInstallationToken();
+async function api<T>(
+  repo: Repo,
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  const token = await repo.token();
   const response = await fetch(`https://api.github.com${path}`, {
     ...init,
     headers: {
@@ -75,11 +83,12 @@ async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 const base = (r: RepoRef) => `/repos/${r.owner}/${r.repo}`;
 
 export async function getRefSha(
-  repo: RepoRef,
+  repo: Repo,
   ref: string,
 ): Promise<string | undefined> {
   try {
     const data = await api<{ object: { sha: string } }>(
+      repo,
       `${base(repo)}/git/ref/${encodeURIComponent(ref)}`,
     );
     return data.object.sha;
@@ -91,11 +100,11 @@ export async function getRefSha(
 }
 
 export async function createRef(
-  repo: RepoRef,
+  repo: Repo,
   ref: string,
   sha: string,
 ): Promise<void> {
-  await api(`${base(repo)}/git/refs`, {
+  await api(repo, `${base(repo)}/git/refs`, {
     method: "POST",
     body: JSON.stringify({ ref: `refs/${ref}`, sha }),
   });
@@ -106,20 +115,20 @@ export async function createRef(
  * GitHub (422, not a fast-forward) and surfaces as a `GitHubApiError`.
  */
 export async function updateRef(
-  repo: RepoRef,
+  repo: Repo,
   ref: string,
   sha: string,
 ): Promise<void> {
-  await api(`${base(repo)}/git/refs/${encodeURIComponent(ref)}`, {
+  await api(repo, `${base(repo)}/git/refs/${encodeURIComponent(ref)}`, {
     method: "PATCH",
     body: JSON.stringify({ sha, force: false }),
   });
 }
 
 /** Deleting a ref that is already gone is not an error. */
-export async function deleteRef(repo: RepoRef, ref: string): Promise<void> {
+export async function deleteRef(repo: Repo, ref: string): Promise<void> {
   try {
-    await api(`${base(repo)}/git/refs/${encodeURIComponent(ref)}`, {
+    await api(repo, `${base(repo)}/git/refs/${encodeURIComponent(ref)}`, {
       method: "DELETE",
     });
   } catch (error) {
@@ -129,10 +138,11 @@ export async function deleteRef(repo: RepoRef, ref: string): Promise<void> {
 }
 
 export async function listBranches(
-  repo: RepoRef,
+  repo: Repo,
   prefix: string,
 ): Promise<{ name: string; sha: string }[]> {
   const refs = await api<{ ref: string; object: { sha: string } }[]>(
+    repo,
     `${base(repo)}/git/matching-refs/heads/${prefix}`,
   ).catch((error) => {
     if (error instanceof GitHubApiError && error.status === 404) return [];
@@ -145,10 +155,11 @@ export async function listBranches(
 }
 
 export async function getCommit(
-  repo: RepoRef,
+  repo: Repo,
   commitSha: string,
 ): Promise<{ treeSha: string }> {
   const data = await api<{ tree: { sha: string } }>(
+    repo,
     `${base(repo)}/git/commits/${commitSha}`,
   );
   return { treeSha: data.tree.sha };
@@ -167,10 +178,11 @@ export interface TreeItem {
  * flag the caller has to remember to check.
  */
 export async function getTree(
-  repo: RepoRef,
+  repo: Repo,
   treeSha: string,
 ): Promise<{ tree: TreeItem[] }> {
   const result = await api<{ tree: TreeItem[]; truncated?: boolean }>(
+    repo,
     `${base(repo)}/git/trees/${treeSha}?recursive=1`,
   );
   if (result.truncated) {
@@ -182,10 +194,11 @@ export async function getTree(
 }
 
 export async function getBlobText(
-  repo: RepoRef,
+  repo: Repo,
   blobSha: string,
 ): Promise<string> {
   const data = await api<{ content: string; encoding: string }>(
+    repo,
     `${base(repo)}/git/blobs/${blobSha}`,
   );
   return data.encoding === "base64"
@@ -194,10 +207,10 @@ export async function getBlobText(
 }
 
 export async function createBlob(
-  repo: RepoRef,
+  repo: Repo,
   contentBase64: string,
 ): Promise<string> {
-  const data = await api<{ sha: string }>(`${base(repo)}/git/blobs`, {
+  const data = await api<{ sha: string }>(repo, `${base(repo)}/git/blobs`, {
     method: "POST",
     body: JSON.stringify({ content: contentBase64, encoding: "base64" }),
   });
@@ -205,11 +218,11 @@ export async function createBlob(
 }
 
 export async function createTree(
-  repo: RepoRef,
+  repo: Repo,
   baseTreeSha: string,
   entries: TreeEntry[],
 ): Promise<string> {
-  const data = await api<{ sha: string }>(`${base(repo)}/git/trees`, {
+  const data = await api<{ sha: string }>(repo, `${base(repo)}/git/trees`, {
     method: "POST",
     body: JSON.stringify({ base_tree: baseTreeSha, tree: entries }),
   });
@@ -217,12 +230,12 @@ export async function createTree(
 }
 
 export async function createCommit(
-  repo: RepoRef,
+  repo: Repo,
   message: string,
   treeSha: string,
   parents: string[],
 ): Promise<string> {
-  const data = await api<{ sha: string }>(`${base(repo)}/git/commits`, {
+  const data = await api<{ sha: string }>(repo, `${base(repo)}/git/commits`, {
     method: "POST",
     body: JSON.stringify({ message, tree: treeSha, parents }),
   });
@@ -230,11 +243,12 @@ export async function createCommit(
 }
 
 export async function compare(
-  repo: RepoRef,
+  repo: Repo,
   base_: string,
   head: string,
 ): Promise<{ ahead_by: number; behind_by: number }> {
   return api(
+    repo,
     `${base(repo)}/compare/${encodeURIComponent(base_)}...${encodeURIComponent(head)}`,
   );
 }

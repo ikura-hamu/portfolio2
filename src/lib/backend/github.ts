@@ -23,6 +23,7 @@ import {
   slugFromMarkdownPath,
 } from "../post";
 import type { PostLayout } from "../post";
+import { installationTokenForRequest } from "../github/app-auth";
 import * as git from "../github/git";
 import type { TreeItem } from "../github/git";
 import { compareForListing, paginate } from "./ordering";
@@ -82,8 +83,15 @@ function collectImages(
     }));
 }
 
+/**
+ * Holds a request-scoped installation token, so an instance must not be
+ * shared across requests; `getBackend` creates one per call.
+ */
 export class GitHubBackend implements ContentBackend {
-  private repo = git.repoFromEnv();
+  private repo: git.Repo = {
+    ...git.repoFromEnv(),
+    token: installationTokenForRequest(),
+  };
   private main = git.mainBranch();
 
   private async treeOf(commitSha: string): Promise<TreeItem[]> {

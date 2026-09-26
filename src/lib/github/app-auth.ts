@@ -9,22 +9,6 @@ import { createSign } from "node:crypto";
 import * as env from "astro:env/server";
 import { repoFromEnv } from "./git";
 
-interface CachedToken {
-  token: string;
-  expiresAt: number;
-}
-
-/** Re-mint this long before expiry so a request never carries a dying token. */
-const EXPIRY_MARGIN_MS = 60_000;
-
-/**
- * `cached` is the last minted token; `inflight` is a mint in progress. Both are
- * read and written synchronously in `getInstallationToken`, before its first
- * `await`, so concurrent callers that find no usable token share one mint.
- */
-let cached: CachedToken | undefined;
-let inflight: Promise<CachedToken> | undefined;
-
 function require_(name: string, value: string | undefined): string {
   if (!value) throw new Error(`Missing environment variable: ${name}`);
   return value;
@@ -54,28 +38,18 @@ function createAppJWT(): string {
   return `${header}.${payload}.${signature}`;
 }
 
-export async function getInstallationToken(): Promise<string> {
-  if (cached && cached.expiresAt > Date.now() + EXPIRY_MARGIN_MS) {
-    return cached.token;
-  }
-  if (!inflight) {
-    const pending = mintInstallationToken().then((token) => {
-      cached = token;
-      return token;
-    });
-    inflight = pending;
-    // Cleared whether the mint succeeds or fails: a failure must not be
-    // reused by later calls, and a success lives on in `cached`.
-    pending
-      .finally(() => {
-        if (inflight === pending) inflight = undefined;
-      })
-      .catch(() => undefined);
-  }
-  return (await inflight).token;
+/**
+ * A token getter meant to live for a single request: the first call mints an
+ * installation token and every later call, including concurrent ones, shares
+ * that same promise. Nothing outlives the request, so there is no expiry to
+ * track; a token is valid for an hour, far longer than any request.
+ */
+export function installationTokenForRequest(): () => Promise<string> {
+  let token: Promise<string> | undefined;
+  return () => (token ??= mintInstallationToken());
 }
 
-async function mintInstallationToken(): Promise<CachedToken> {
+async function mintInstallationToken(): Promise<string> {
   const installationId = require_(
     "GITHUB_APP_INSTALLATION_ID",
     env.GITHUB_APP_INSTALLATION_ID,
@@ -107,6 +81,6 @@ async function mintInstallationToken(): Promise<CachedToken> {
     );
   }
 
-  const data = (await response.json()) as { token: string; expires_at: string };
-  return { token: data.token, expiresAt: new Date(data.expires_at).getTime() };
+  const data = (await response.json()) as { token: string };
+  return data.token;
 }

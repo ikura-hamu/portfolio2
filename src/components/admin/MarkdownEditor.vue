@@ -88,6 +88,11 @@ function insertImage(reference: string, alt: string) {
 }
 defineExpose({ insertImage });
 
+/** The image files among those pasted or dropped; anything else is ignored. */
+function imageFiles(list: FileList | undefined): File[] {
+  return [...(list ?? [])].filter((file) => file.type.startsWith("image/"));
+}
+
 function baseExtensions(): Extension[] {
   return [
     lineNumbers(),
@@ -113,20 +118,15 @@ function baseExtensions(): Extension[] {
       },
     }),
     EditorView.domEventHandlers({
-      paste(event, editor) {
-        const files = [...(event.clipboardData?.files ?? [])].filter((file) =>
-          file.type.startsWith("image/"),
-        );
+      paste(event) {
+        const files = imageFiles(event.clipboardData?.files);
         if (files.length === 0) return false;
         event.preventDefault();
-        void editor;
         emit("files", files);
         return true;
       },
       drop(event) {
-        const files = [...(event.dataTransfer?.files ?? [])].filter((file) =>
-          file.type.startsWith("image/"),
-        );
+        const files = imageFiles(event.dataTransfer?.files);
         dragging.value = false;
         if (files.length === 0) return false;
         event.preventDefault();

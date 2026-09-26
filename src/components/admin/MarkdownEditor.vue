@@ -206,7 +206,7 @@ watch(
     >
       <button
         type="button"
-        class="tb"
+        class="tb admin-hover"
         title="見出し2"
         @click="prefixLines('## ')"
       >
@@ -214,7 +214,7 @@ watch(
       </button>
       <button
         type="button"
-        class="tb"
+        class="tb admin-hover"
         title="見出し3"
         @click="prefixLines('### ')"
       >
@@ -222,7 +222,7 @@ watch(
       </button>
       <button
         type="button"
-        class="tb font-bold"
+        class="tb admin-hover font-bold"
         title="太字"
         @click="surround('**')"
       >
@@ -230,7 +230,7 @@ watch(
       </button>
       <button
         type="button"
-        class="tb italic"
+        class="tb admin-hover italic"
         title="斜体"
         @click="surround('*')"
       >
@@ -238,7 +238,7 @@ watch(
       </button>
       <button
         type="button"
-        class="tb"
+        class="tb admin-hover"
         title="リンク"
         @click="surround('[', '](url)')"
       >
@@ -246,7 +246,7 @@ watch(
       </button>
       <button
         type="button"
-        class="tb"
+        class="tb admin-hover"
         title="インラインコード"
         @click="surround('`')"
       >
@@ -254,7 +254,7 @@ watch(
       </button>
       <button
         type="button"
-        class="tb"
+        class="tb admin-hover"
         title="コードブロック"
         @click="insert('\n```\n\n```\n')"
       >
@@ -262,18 +262,23 @@ watch(
       </button>
       <button
         type="button"
-        class="tb"
+        class="tb admin-hover"
         title="箇条書き"
         @click="prefixLines('- ')"
       >
         •
       </button>
-      <button type="button" class="tb" title="引用" @click="prefixLines('> ')">
+      <button
+        type="button"
+        class="tb admin-hover"
+        title="引用"
+        @click="prefixLines('> ')"
+      >
         ❝
       </button>
       <button
         type="button"
-        class="tb"
+        class="tb admin-hover"
         title="画像を追加"
         @click="emit('request-image')"
       >
@@ -293,9 +298,6 @@ watch(
   font-size: 0.85rem;
   line-height: 1;
   border: 1px solid transparent;
-}
-.tb:hover {
-  background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
 .tb:active {
   background-color: color-mix(in srgb, currentColor 20%, transparent);

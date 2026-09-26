@@ -6,7 +6,7 @@
  * draft written on another device is visible here. Offline, the local drafts
  * are authoritative and the last fetched list is shown as a cached reference.
  */
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { api, errorMessage } from "@/lib/admin/api";
 import {
@@ -148,14 +148,6 @@ async function discard(row: Row) {
     return;
   }
 
-  if (row.onMain) {
-    emit(
-      "toast",
-      "この記事は main に公開済みです。公開済み記事の削除は管理画面では行えません。",
-      "error",
-    );
-    return;
-  }
   if (!confirm(`下書き「${row.title}」を破棄しますか？`)) return;
 
   try {
@@ -188,7 +180,27 @@ function formatDate(value?: string): string {
       });
 }
 
-onMounted(load);
+/** The row menu closes on a press anywhere outside it, or on Escape. */
+function closeMenuOnOutsidePress(event: PointerEvent) {
+  if (menuFor.value === null) return;
+  const target = event.target as Element | null;
+  if (!target?.closest("[data-row-menu]")) menuFor.value = null;
+}
+
+function closeMenuOnEscape(event: KeyboardEvent) {
+  if (event.key === "Escape") menuFor.value = null;
+}
+
+onMounted(() => {
+  document.addEventListener("pointerdown", closeMenuOnOutsidePress);
+  document.addEventListener("keydown", closeMenuOnEscape);
+  void load();
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("pointerdown", closeMenuOnOutsidePress);
+  document.removeEventListener("keydown", closeMenuOnEscape);
+});
 </script>
 
 <template>
@@ -274,7 +286,7 @@ onMounted(load);
           </span>
         </div>
 
-        <div class="relative shrink-0">
+        <div class="relative shrink-0" data-row-menu>
           <button
             type="button"
             class="rounded px-2 py-1 text-sm"
@@ -295,12 +307,9 @@ onMounted(load);
               編集
             </button>
             <button
+              v-if="!row.onMain"
               type="button"
-              class="admin-hover w-full rounded px-2 py-1 text-left text-sm text-red-700 disabled:opacity-40"
-              :disabled="row.onMain"
-              :title="
-                row.onMain ? '公開済み記事は管理画面から削除できません' : ''
-              "
+              class="admin-hover w-full rounded px-2 py-1 text-left text-sm text-red-700"
               @click="discard(row)"
             >
               下書きを破棄

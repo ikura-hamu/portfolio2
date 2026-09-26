@@ -34,8 +34,30 @@
   border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
 }
 
+/**
+ * An extra background tint on hover for borderless buttons such as menu
+ * items and the editor toolbar, on top of the fade every button gets.
+ */
 .admin-hover:hover {
   background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/*
+  Every admin button fades slightly on hover. Tailwind's preflight
+  gives buttons the default cursor, so the pointer is restored here too.
+  This sits in the `base` layer so a utility such as `disabled:opacity-50`
+  still wins, and the hover is limited to devices that can hover so a tap
+  does not leave a button faded.
+*/
+@layer base {
+  .admin-root button:not(:disabled) {
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .admin-root button:not(:disabled):hover {
+      opacity: 0.8;
+    }
+  }
 }
 
 /*

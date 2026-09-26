@@ -23,3 +23,7 @@ pnpm-debug.log*
 .vscode/
 .tool-versions
 .vercel
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+.agents
+.claude

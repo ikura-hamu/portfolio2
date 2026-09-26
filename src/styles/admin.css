@@ -1,0 +1,92 @@
+/*
+  Admin-only styles.
+
+  Things global.css imposes that the admin UI has to undo or work around:
+
+  - `main { width: 840px; padding; gap }` is meant for the public pages and
+    would squeeze the editor, so the admin shell opts out.
+  - The site switches themes with `html[data-theme="dark"]`, while Tailwind's
+    `dark:` variant follows `prefers-color-scheme`. Using `dark:` here would
+    ignore the site's toggle, so the admin surfaces key off `data-theme`
+    (or off `currentColor`, which already flips with the theme).
+*/
+
+.admin-main {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  gap: 0;
+}
+
+/** An opaque surface for sticky bars, matching the page background. */
+.admin-surface {
+  background-color: var(--color-background);
+}
+
+/** Borders and dividers that follow the theme without a dark: variant. */
+.admin-border {
+  border-color: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.admin-divide > * + * {
+  border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/**
+ * An extra background tint on hover for borderless buttons such as menu
+ * items and the editor toolbar, on top of the fade every button gets.
+ */
+.admin-hover:hover {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/*
+  Every admin button fades slightly on hover. Tailwind's preflight
+  gives buttons the default cursor, so the pointer is restored here too.
+  This sits in the `base` layer so a utility such as `disabled:opacity-50`
+  still wins, and the hover is limited to devices that can hover so a tap
+  does not leave a button faded.
+*/
+@layer base {
+  .admin-root button:not(:disabled) {
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .admin-root button:not(:disabled):hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+/*
+  global.css styles headings, lists and links with element selectors outside
+  any cascade layer, and unlayered rules beat Tailwind's layered utilities, so
+  `text-lg` on an admin `<h1>` would lose to `h1 { font-size: 3em }`.
+  `revert-layer` hands these properties back to the layers - the utility if
+  there is one, otherwise Tailwind's preflight. The preview is excluded: it
+  is meant to look like the public site.
+*/
+.admin-root :is(h1, h2, h3, h4, h5, h6, ul):not(.admin-preview *) {
+  font-size: revert-layer;
+  margin: revert-layer;
+  padding: revert-layer;
+  border: revert-layer;
+  list-style: revert-layer;
+}
+
+/* Likewise for the site's bold, underlined, primary-colored links. */
+.admin-root a:not(.admin-preview *),
+.admin-root a:not(.admin-preview *):hover {
+  color: revert-layer;
+  font-weight: revert-layer;
+  text-decoration: revert-layer;
+}
+
+.admin-root input,
+.admin-root textarea,
+.admin-root select {
+  background-color: color-mix(in srgb, currentColor 6%, transparent);
+  color: inherit;
+}

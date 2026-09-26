@@ -1,6 +1,6 @@
 /** Exchanges the OAuth code for an identity and issues the session cookie. */
 import type { APIRoute } from "astro";
-import { env } from "@/lib/env";
+import * as env from "astro:env/server";
 import {
   STATE_COOKIE,
   isAllowed,

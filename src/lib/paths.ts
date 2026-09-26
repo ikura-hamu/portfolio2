@@ -12,7 +12,7 @@ export const WRITABLE_PREFIXES = ["src/content/blog/", "src/images/"] as const;
 export const BLOG_DIR = "src/content/blog";
 export const IMAGES_DIR = "src/images";
 
-const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/;
+const SLUG_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 
 export class UnsafePathError extends Error {
   constructor(path: string, reason: string) {
@@ -21,14 +21,17 @@ export class UnsafePathError extends Error {
   }
 }
 
-/** Slugs map straight onto file names, so they are restricted to what `post.id` can be. */
+/**
+ * Slugs map straight onto file names and keep their case, so an existing file
+ * such as `240302_traP-blog.md` is written back to the same path.
+ */
 export function isValidSlug(slug: string): boolean {
   return SLUG_PATTERN.test(slug) && slug.length <= 100;
 }
 
 export function assertValidSlug(slug: string): string {
   if (!isValidSlug(slug)) {
-    throw new UnsafePathError(slug, "not a valid slug ([a-z0-9_-], lowercase)");
+    throw new UnsafePathError(slug, "not a valid slug ([A-Za-z0-9_-])");
   }
   return slug;
 }
@@ -72,7 +75,7 @@ export function assertWritablePath(path: string): string {
   return normalized;
 }
 
-/** Extensions an uploaded file may have. Uploads are images, nothing else. */
+/** Extensions an image file may have. Uploads are images, nothing else. */
 const IMAGE_EXTENSIONS = [
   ".png",
   ".jpg",
@@ -82,6 +85,12 @@ const IMAGE_EXTENSIONS = [
   ".avif",
   ".svg",
 ];
+
+/** Whether a file name or path has one of the image extensions. */
+export function isImagePath(path: string): boolean {
+  const lower = path.toLowerCase();
+  return IMAGE_EXTENSIONS.some((extension) => lower.endsWith(extension));
+}
 
 /**
  * Characters removed from an asset name: path separators, characters that are
@@ -109,8 +118,7 @@ export function sanitizeImageName(name: string): string {
   if (cleaned === "" || cleaned === "." || cleaned === "..") {
     throw new UnsafePathError(name, "image name reduces to nothing usable");
   }
-  const lower = cleaned.toLowerCase();
-  if (!IMAGE_EXTENSIONS.some((extension) => lower.endsWith(extension))) {
+  if (!isImagePath(cleaned)) {
     throw new UnsafePathError(
       name,
       `not an image file name (allowed: ${IMAGE_EXTENSIONS.join(", ")})`,

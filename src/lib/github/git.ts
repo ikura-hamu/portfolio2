@@ -4,7 +4,7 @@
  * Every save goes blob -> tree -> commit -> update ref so that the markdown,
  * its images and any deletions land in a single commit.
  */
-import { env } from "../env";
+import * as env from "astro:env/server";
 import { getInstallationToken } from "./app-auth";
 
 export interface TreeEntry {
@@ -44,10 +44,11 @@ export class GitHubApiError extends Error {
   }
 }
 
-async function api<T>(
-  path: string,
-  init: RequestInit & { raw?: boolean } = {},
-): Promise<T> {
+/**
+ * Calls the REST API and parses the JSON response. A response without a body
+ * (`204 No Content`, e.g. a ref deletion) resolves to `undefined`.
+ */
+async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = await getInstallationToken();
   const response = await fetch(`https://api.github.com${path}`, {
     ...init,
@@ -66,7 +67,9 @@ async function api<T>(
       `${init.method ?? "GET"} ${path} -> ${response.status} ${await response.text()}`,
     );
   }
-  return (await response.json()) as T;
+  if (response.status === 204) return undefined as T;
+  const text = await response.text();
+  return (text === "" ? undefined : JSON.parse(text)) as T;
 }
 
 const base = (r: RepoRef) => `/repos/${r.owner}/${r.repo}`;
@@ -98,6 +101,10 @@ export async function createRef(
   });
 }
 
+/**
+ * Never forced: a ref that moved since `sha`'s parent was read is rejected by
+ * GitHub (422, not a fast-forward) and surfaces as a `GitHubApiError`.
+ */
 export async function updateRef(
   repo: RepoRef,
   ref: string,
@@ -109,21 +116,15 @@ export async function updateRef(
   });
 }
 
+/** Deleting a ref that is already gone is not an error. */
 export async function deleteRef(repo: RepoRef, ref: string): Promise<void> {
-  const token = await getInstallationToken();
-  const response = await fetch(
-    `https://api.github.com${base(repo)}/git/refs/${encodeURIComponent(ref)}`,
-    {
+  try {
+    await api(`${base(repo)}/git/refs/${encodeURIComponent(ref)}`, {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    },
-  );
-  if (!response.ok && response.status !== 404) {
-    throw new GitHubApiError(response.status, await response.text());
+    });
+  } catch (error) {
+    if (error instanceof GitHubApiError && error.status === 404) return;
+    throw error;
   }
 }
 
@@ -220,18 +221,10 @@ export async function createCommit(
   message: string,
   treeSha: string,
   parents: string[],
-  author?: { name: string; email: string },
 ): Promise<string> {
   const data = await api<{ sha: string }>(`${base(repo)}/git/commits`, {
     method: "POST",
-    body: JSON.stringify({
-      message,
-      tree: treeSha,
-      parents,
-      ...(author
-        ? { author: { ...author, date: new Date().toISOString() } }
-        : {}),
-    }),
+    body: JSON.stringify({ message, tree: treeSha, parents }),
   });
   return data.sha;
 }

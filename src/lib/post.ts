@@ -49,25 +49,36 @@ export function markdownPath(slug: string, layout: PostLayout): string {
 }
 
 /**
- * Where a newly added image goes, and how the markdown refers to it.
+ * The directory a post's images live in, without a trailing slash.
  * Directory posts keep images next to `index.md`; flat posts follow the
  * existing `src/images/<slug>/` convention so no file has to move.
  */
+export function imageDir(slug: string, layout: PostLayout): string {
+  assertValidSlug(slug);
+  return layout === "directory"
+    ? `${BLOG_DIR}/${slug}`
+    : `${IMAGES_DIR}/${slug}`;
+}
+
+/** Where a newly added image goes, and how the markdown refers to it. */
 export function imageTarget(
   slug: string,
   layout: PostLayout,
   fileName: string,
 ): { path: string; reference: string } {
-  assertValidSlug(slug);
-  return layout === "directory"
-    ? { path: `${BLOG_DIR}/${slug}/${fileName}`, reference: `./${fileName}` }
-    : {
-        path: `${IMAGES_DIR}/${slug}/${fileName}`,
-        reference: `../../images/${slug}/${fileName}`,
-      };
+  return {
+    path: `${imageDir(slug, layout)}/${fileName}`,
+    reference:
+      layout === "directory"
+        ? `./${fileName}`
+        : `../../images/${slug}/${fileName}`,
+  };
 }
 
-/** Derives the slug the glob loader would produce for a markdown path. */
+/**
+ * Derives a post's slug from its markdown path. The case is kept as-is, so the
+ * slug always maps back to the file it came from.
+ */
 export function slugFromMarkdownPath(path: string): string | undefined {
   const rest = path.startsWith(`${BLOG_DIR}/`)
     ? path.slice(BLOG_DIR.length + 1)
@@ -78,9 +89,9 @@ export function slugFromMarkdownPath(path: string): string | undefined {
   }
   const withoutExt = rest.slice(0, -3);
   const segments = withoutExt.split("/");
-  if (segments.length === 1) return segments[0].toLowerCase();
+  if (segments.length === 1) return segments[0];
   if (segments.length === 2 && segments[1] === "index") {
-    return segments[0].toLowerCase();
+    return segments[0];
   }
   return undefined;
 }
@@ -91,46 +102,29 @@ export function layoutFromMarkdownPath(path: string): PostLayout {
 
 export interface ParsedPost {
   frontmatter: Frontmatter;
-  /** The frontmatter block exactly as it appeared, for the raw YAML editor. */
-  rawFrontmatter: string;
   body: string;
 }
 
 export function parsePost(source: string): ParsedPost {
   const match = FRONTMATTER_RE.exec(source);
   if (!match) {
-    return { frontmatter: { title: "" }, rawFrontmatter: "", body: source };
+    return { frontmatter: { title: "" }, body: source };
   }
-  const rawFrontmatter = match[1];
   let data: unknown;
   try {
-    data = parseYAML(rawFrontmatter);
+    data = parseYAML(match[1]);
   } catch {
     data = undefined;
   }
+  // yaml's default (core) schema has no timestamp type, so dates stay strings.
   const frontmatter =
     data && typeof data === "object" && !Array.isArray(data)
-      ? normalizeDates(data as Record<string, unknown>)
+      ? data
       : { title: "" };
   return {
     frontmatter: frontmatter as Frontmatter,
-    rawFrontmatter,
     body: source.slice(match[0].length),
   };
-}
-
-/**
- * The YAML parser turns unquoted timestamps into Date objects. The editor
- * works with strings, so dates are converted back to ISO-with-offset form.
- */
-function normalizeDates(
-  data: Record<string, unknown>,
-): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(data)) {
-    out[key] = value instanceof Date ? value.toISOString() : value;
-  }
-  return out;
 }
 
 /**
@@ -182,10 +176,9 @@ export function assertOwnedByPost(
 
   if (normalized === markdownPath(slug, layout)) return normalized;
 
-  const imageDir =
-    layout === "directory" ? `${BLOG_DIR}/${slug}/` : `${IMAGES_DIR}/${slug}/`;
-  const rest = normalized.startsWith(imageDir)
-    ? normalized.slice(imageDir.length)
+  const dir = `${imageDir(slug, layout)}/`;
+  const rest = normalized.startsWith(dir)
+    ? normalized.slice(dir.length)
     : undefined;
   if (rest === undefined || rest === "" || rest.includes("/")) {
     throw new UnsafePathError(path, `does not belong to the post "${slug}"`);

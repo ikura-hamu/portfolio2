@@ -11,10 +11,12 @@ import {
   BLOG_DIR,
   assertValidSlug,
   assertWritablePath,
+  isImagePath,
   sanitizeImageName,
 } from "../paths";
 import {
   assertOwnedByPost,
+  imageDir,
   imageTarget,
   layoutFromMarkdownPath,
   markdownPath,
@@ -32,16 +34,6 @@ import type {
   SaveInput,
   SaveResult,
 } from "./types";
-
-const IMAGE_EXTENSIONS = new Set([
-  ".png",
-  ".jpg",
-  ".jpeg",
-  ".webp",
-  ".gif",
-  ".avif",
-  ".svg",
-]);
 
 const root = process.cwd();
 
@@ -88,8 +80,7 @@ async function listImages(
   slug: string,
   layout: "flat" | "directory",
 ): Promise<PostImage[]> {
-  const dir =
-    layout === "directory" ? `${BLOG_DIR}/${slug}` : `src/images/${slug}`;
+  const dir = imageDir(slug, layout);
   let entries: string[];
   try {
     entries = await fs.readdir(absolute(dir));
@@ -97,7 +88,7 @@ async function listImages(
     return [];
   }
   return entries
-    .filter((name) => IMAGE_EXTENSIONS.has(path.extname(name).toLowerCase()))
+    .filter(isImagePath)
     .sort()
     .map((name) => ({
       path: `${dir}/${name}`,
@@ -106,8 +97,6 @@ async function listImages(
 }
 
 export class LocalBackend implements ContentBackend {
-  readonly kind = "local" as const;
-
   /**
    * Ordered like the GitHub backend, minus the draft group: there are no
    * working branches locally, so every post counts as published. Only the

@@ -33,7 +33,12 @@ export interface PostDetail {
   frontmatter: Frontmatter;
   body: string;
   images: PostImage[];
-  /** Tip commit the edit is based on; echoed back on save for conflict detection. */
+  /**
+   * Opaque, backend-defined version token for the content the edit is based
+   * on; echoed back on save for conflict detection. The GitHub backend uses
+   * the working branch's tip commit when a branch exists, and the markdown
+   * file's blob SHA on `main` otherwise.
+   */
   baseSha: string;
   branchState: BranchState;
   aheadBy: number;
@@ -56,7 +61,10 @@ export interface SaveInput {
   images: NewImage[];
   /** Repository-relative paths to remove in the same commit. */
   deletions: string[];
-  /** Tip SHA the edit started from; empty for a brand new post. */
+  /**
+   * The `PostDetail.baseSha` the edit started from, passed back unchanged.
+   * Empty for a brand new post; required for an update.
+   */
   baseSha: string;
   message?: string;
 }
@@ -74,9 +82,8 @@ export interface ListOptions {
 }
 
 export interface ContentBackend {
-  readonly kind: "github" | "local";
   listPosts(options?: ListOptions): Promise<PostSummary[]>;
-  getPost(slug: string, ref?: string): Promise<PostDetail | undefined>;
+  getPost(slug: string): Promise<PostDetail | undefined>;
   savePost(input: SaveInput, isNew: boolean): Promise<SaveResult>;
   /** Discards an unpublished draft. Refuses when the post exists on `main`. */
   discardDraft(slug: string): Promise<{ ok: boolean; reason?: string }>;

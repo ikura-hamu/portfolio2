@@ -1,16 +1,19 @@
 /**
- * Gates `/admin/**`. Actions re-check authorization independently, so this is
- * a first line of defence rather than the only one.
+ * Resolves the user for admin pages and actions and stores it in
+ * `locals.user`. Admin pages without a user are redirected to sign-in; actions
+ * are let through and reject the call themselves when `locals.user` is absent.
  */
 import { defineMiddleware } from "astro:middleware";
 import { resolveUser } from "./lib/session";
+import { getActionContext } from "astro:actions";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Matching the segment, not the prefix: /admin-sw.js and
   // /admin-manifest.webmanifest are public files, not admin pages.
   const path = context.url.pathname;
   const isAdminPage = path === "/admin" || path.startsWith("/admin/");
-  const isAction = path.startsWith("/_actions/");
+  const actionContext = getActionContext(context);
+  const isAction = actionContext.action !== undefined;
 
   if (!isAdminPage && !isAction) return next();
 

@@ -6,14 +6,15 @@
  * Merging back is deliberately out of scope for the admin UI.
  */
 import {
-  BLOG_DIR,
   assertValidSlug,
   isValidSlug,
+  isImagePath,
   assertWritablePath,
   sanitizeImageName,
 } from "../paths";
 import {
   assertOwnedByPost,
+  imageDir,
   imageTarget,
   layoutFromMarkdownPath,
   markdownPath,
@@ -34,8 +35,6 @@ import type {
   SaveInput,
   SaveResult,
 } from "./types";
-
-const IMAGE_EXTENSIONS = /\.(png|jpe?g|webp|gif|avif|svg)$/i;
 
 function branchFor(slug: string): string {
   return `post/${assertValidSlug(slug)}`;
@@ -64,15 +63,14 @@ function collectImages(
   slug: string,
   layout: PostLayout,
 ): PostImage[] {
-  const dir =
-    layout === "directory" ? `${BLOG_DIR}/${slug}/` : `src/images/${slug}/`;
+  const dir = `${imageDir(slug, layout)}/`;
   return tree
     .filter(
       (item) =>
         item.type === "blob" &&
         item.path.startsWith(dir) &&
         !item.path.slice(dir.length).includes("/") &&
-        IMAGE_EXTENSIONS.test(item.path),
+        isImagePath(item.path),
     )
     .map((item) => ({
       path: item.path,
@@ -82,7 +80,6 @@ function collectImages(
 }
 
 export class GitHubBackend implements ContentBackend {
-  readonly kind = "github" as const;
   private repo = git.repoFromEnv();
   private main = git.mainBranch();
 
@@ -189,8 +186,7 @@ export class GitHubBackend implements ContentBackend {
     const mainSha = await git.getRefSha(this.repo, headRef(this.main));
     if (!mainSha) throw new Error(`Branch not found: ${this.main}`);
 
-    const tipSha = branchSha ?? mainSha;
-    const tree = await this.treeOf(tipSha);
+    const tree = await this.treeOf(branchSha ?? mainSha);
     const entry = collectPosts(tree).get(slug);
     if (!entry) return undefined;
 
@@ -214,7 +210,10 @@ export class GitHubBackend implements ContentBackend {
       frontmatter,
       body,
       images: collectImages(tree, slug, layout),
-      baseSha: tipSha,
+      // With a working branch, the edit is based on the branch tip commit.
+      // Without one it is based on the markdown blob on `main`, so unrelated
+      // commits to `main` do not count as a conflict. See `savePost`.
+      baseSha: branchSha ?? entry.sha,
       branchState: !branchSha
         ? "main-only"
         : onMain
@@ -233,18 +232,26 @@ export class GitHubBackend implements ContentBackend {
     const mainSha = await git.getRefSha(this.repo, headRef(this.main));
     if (!mainSha) throw new Error(`Branch not found: ${this.main}`);
 
-    let branchSha = await git.getRefSha(this.repo, headRef(branch));
+    const branchSha = await git.getRefSha(this.repo, headRef(branch));
     const tipSha = branchSha ?? mainSha;
-
-    // The tip must still be what the edit started from, or a concurrent save
-    // from another device would be silently overwritten.
-    if (input.baseSha && input.baseSha !== tipSha) {
-      return { ok: false, reason: "conflict", remoteSha: tipSha };
-    }
 
     const tree = await this.treeOf(tipSha);
     const existing = collectPosts(tree).get(input.slug);
     if (isNew && existing) return { ok: false, reason: "exists" };
+
+    // An update must still start from what the edit was loaded from, or a
+    // concurrent save from another device would be silently overwritten. With
+    // a working branch that is the branch tip commit; without one it is the
+    // markdown blob on `main` (see `getPost`), so a merge of some other change
+    // into `main` is not a conflict. A branch created elsewhere in between
+    // also conflicts, because its commit SHA never equals a blob SHA. A new
+    // post has nothing to compare against; the "exists" check covers it.
+    if (!isNew) {
+      const remoteSha = branchSha ?? existing?.sha ?? "";
+      if (input.baseSha === "" || input.baseSha !== remoteSha) {
+        return { ok: false, reason: "conflict", remoteSha };
+      }
+    }
 
     const layout: PostLayout = existing
       ? layoutFromMarkdownPath(existing.path)
@@ -298,11 +305,21 @@ export class GitHubBackend implements ContentBackend {
       tipSha,
     ]);
 
-    if (branchSha) {
-      await git.updateRef(this.repo, headRef(branch), commitSha);
-    } else {
-      await git.createRef(this.repo, headRef(branch), commitSha);
-      branchSha = commitSha;
+    try {
+      if (branchSha) {
+        await git.updateRef(this.repo, headRef(branch), commitSha);
+      } else {
+        await git.createRef(this.repo, headRef(branch), commitSha);
+      }
+    } catch (error) {
+      // The branch moved (update is not a fast-forward) or was created
+      // (ref already exists) after it was read above: another save won the
+      // race. The commit just made is left unreferenced.
+      if (error instanceof git.GitHubApiError && error.status === 422) {
+        const remoteSha = await git.getRefSha(this.repo, headRef(branch));
+        return { ok: false, reason: "conflict", remoteSha: remoteSha ?? "" };
+      }
+      throw error;
     }
 
     return { ok: true, commitSha, branch, images: written };

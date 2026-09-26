@@ -1,21 +1,21 @@
 /**
  * Server actions for the admin UI.
  *
- * Every action re-checks authorization rather than trusting the middleware,
- * and no action accepts a repository or a free-form path: callers supply a
- * slug and the backend derives every write target from it.
+ * Authorization is resolved once, by the middleware, which runs for every
+ * `/_actions/` request and stores the user in `locals.user`; each action
+ * rejects the call when it is absent. No action accepts a repository or a
+ * free-form path: callers supply a slug and the backend derives every write
+ * target from it.
  */
 import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro/zod";
-import { AUTH_MODE, BACKEND_KIND, getBackend } from "@/lib/backend";
+import { BACKEND_KIND, getBackend } from "@/lib/backend";
 import { UnsafePathError, isValidSlug } from "@/lib/paths";
-import { resolveUser } from "@/lib/session";
+import { AUTH_MODE } from "@/lib/session";
 import type { APIContext } from "astro";
 
-type ActionContext = Pick<APIContext, "cookies" | "url" | "locals">;
-
-async function requireUser(context: ActionContext) {
-  const user = context.locals.user ?? (await resolveUser(context));
+function requireUser(context: Pick<APIContext, "locals">) {
+  const user = context.locals.user;
   if (!user) {
     throw new ActionError({
       code: "UNAUTHORIZED",
@@ -30,9 +30,12 @@ function toActionError(error: unknown): never {
   if (error instanceof UnsafePathError) {
     throw new ActionError({ code: "BAD_REQUEST", message: error.message });
   }
+  // The message can carry GitHub API response bodies, so it stays in the
+  // server log and the client only gets a fixed message.
+  console.error("[admin action]", error);
   throw new ActionError({
     code: "INTERNAL_SERVER_ERROR",
-    message: error instanceof Error ? error.message : String(error),
+    message: "サーバーでエラーが発生しました。",
   });
 }
 
@@ -40,7 +43,7 @@ const slugSchema = z
   .string()
   .min(1)
   .max(100)
-  .refine(isValidSlug, "slug は [a-z0-9_-] の小文字のみ使用できます。");
+  .refine(isValidSlug, "slug は [A-Za-z0-9_-] のみ使用できます。");
 
 const frontmatterSchema = z
   .object({
@@ -59,22 +62,27 @@ const imageSchema = z.object({
   contentBase64: z.string().min(1),
 });
 
-const saveSchema = z.object({
+const saveFields = {
   slug: slugSchema,
   layout: z.enum(["flat", "directory"]),
   frontmatter: frontmatterSchema,
   body: z.string(),
   images: z.array(imageSchema).max(50).default([]),
   deletions: z.array(z.string()).max(50).default([]),
-  baseSha: z.string().default(""),
   message: z.string().max(200).optional(),
-});
+};
+
+/** A new post has no prior version to conflict with. */
+const createSchema = z.object(saveFields);
+
+/** Required, so an update can never skip the conflict check by omitting it. */
+const updateSchema = z.object({ ...saveFields, baseSha: z.string().min(1) });
 
 export const server = {
   /** Environment info the UI needs to decide what to show. */
   getEnvironment: defineAction({
     handler: async (_input, context) => {
-      const user = await requireUser(context);
+      const user = requireUser(context);
       return {
         backend: BACKEND_KIND,
         authMode: AUTH_MODE,
@@ -92,7 +100,7 @@ export const server = {
       })
       .default({}),
     handler: async (input, context) => {
-      await requireUser(context);
+      requireUser(context);
       try {
         return await (await getBackend()).listPosts(input);
       } catch (error) {
@@ -104,7 +112,7 @@ export const server = {
   getPost: defineAction({
     input: z.object({ slug: slugSchema }),
     handler: async ({ slug }, context) => {
-      await requireUser(context);
+      requireUser(context);
       try {
         const post = await (await getBackend()).getPost(slug);
         if (!post) {
@@ -121,11 +129,13 @@ export const server = {
   }),
 
   createPost: defineAction({
-    input: saveSchema,
+    input: createSchema,
     handler: async (input, context) => {
-      await requireUser(context);
+      requireUser(context);
       try {
-        return await (await getBackend()).savePost(input, true);
+        return await (
+          await getBackend()
+        ).savePost({ ...input, baseSha: "" }, true);
       } catch (error) {
         toActionError(error);
       }
@@ -133,9 +143,9 @@ export const server = {
   }),
 
   updatePost: defineAction({
-    input: saveSchema,
+    input: updateSchema,
     handler: async (input, context) => {
-      await requireUser(context);
+      requireUser(context);
       try {
         return await (await getBackend()).savePost(input, false);
       } catch (error) {
@@ -148,7 +158,7 @@ export const server = {
   discardDraft: defineAction({
     input: z.object({ slug: slugSchema }),
     handler: async ({ slug }, context) => {
-      await requireUser(context);
+      requireUser(context);
       try {
         return await (await getBackend()).discardDraft(slug);
       } catch (error) {

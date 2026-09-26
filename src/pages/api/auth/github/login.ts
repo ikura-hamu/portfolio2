@@ -5,15 +5,14 @@
  * is scoped to `/admin/`, so it can never interfere with the auth redirects.
  */
 import type { APIRoute } from "astro";
-import { AUTH_MODE } from "@/lib/backend";
-import { env } from "@/lib/env";
-import { STATE_COOKIE, seal, setSessionCookie, DEV_USER } from "@/lib/session";
+import * as env from "astro:env/server";
+import { AUTH_MODE, STATE_COOKIE } from "@/lib/session";
 
 export const prerender = false;
 
-export const GET: APIRoute = async (context) => {
+export const GET: APIRoute = (context) => {
+  // The bypass needs no cookie: resolveUser grants it per loopback request.
   if (AUTH_MODE === "bypass") {
-    setSessionCookie(context.cookies, await seal(DEV_USER));
     return context.redirect("/admin/", 302);
   }
 

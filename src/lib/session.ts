@@ -1,21 +1,36 @@
 /**
- * Stateless session cookie.
+ * Authentication: auth mode, allowlist and the stateless session cookie.
  *
  * The session is sealed with AES-GCM using a key derived from SESSION_SECRET
  * and lives in an HttpOnly cookie. Nothing sensitive is ever handed to the
  * browser: the GitHub credentials stay on the server.
+ *
+ * There is no per-session revocation: rotating SESSION_SECRET invalidates
+ * every issued session at once.
  */
 import type { APIContext, AstroCookies } from "astro";
-import { AUTH_MODE } from "./backend";
-import { env } from "./env";
-import { isAllowed } from "./allowlist";
+import * as env from "astro:env/server";
 
-export { isAllowed } from "./allowlist";
+export type AuthMode = "oauth" | "bypass";
+
+/**
+ * `ADMIN_AUTH=bypass` skips GitHub sign-in for local development. Refused in a
+ * production build: a misconfigured deploy must fail loudly rather than
+ * quietly skip authentication.
+ */
+export const AUTH_MODE: AuthMode =
+  env.ADMIN_AUTH === "bypass" ? "bypass" : "oauth";
+
+if (import.meta.env.PROD && AUTH_MODE === "bypass") {
+  throw new Error(
+    "ADMIN_AUTH=bypass is a development-only setting and must not be used in a production build.",
+  );
+}
 
 export const SESSION_COOKIE = "admin_session";
 export const STATE_COOKIE = "admin_oauth_state";
 
-const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 export interface SessionUser {
   id: number;
@@ -28,10 +43,34 @@ interface SessionPayload extends SessionUser {
 }
 
 /** Dummy identity used when ADMIN_AUTH=bypass (localhost development only). */
-export const DEV_USER: SessionUser = {
+const DEV_USER: SessionUser = {
   id: 0,
   login: "local-dev",
 };
+
+/**
+ * The single GitHub account allowed to use the admin UI, as a numeric user id.
+ *
+ * An id rather than a login name: a login can be changed, and the freed name
+ * can then be registered by someone else.
+ */
+function allowedUserId(): number {
+  // The schema in astro.config.mjs only admits a positive integer.
+  const id = env.ALLOWED_GITHUB_USER_ID;
+  if (id === undefined) {
+    // Failing loudly: a missing allowlist is a misconfiguration, and silently
+    // denying everyone would look like a redirect loop instead.
+    throw new Error(
+      "ALLOWED_GITHUB_USER_ID is not set; the admin UI has no allowlist to check against.",
+    );
+  }
+  return id;
+}
+
+/** Whether this account may use the admin UI. Compared by numeric id. */
+export function isAllowed(user: SessionUser): boolean {
+  return user.id === allowedUserId();
+}
 
 async function key(): Promise<CryptoKey> {
   const secret = env.SESSION_SECRET;
@@ -48,14 +87,6 @@ async function key(): Promise<CryptoKey> {
     "encrypt",
     "decrypt",
   ]);
-}
-
-function toBase64url(bytes: Uint8Array): string {
-  return Buffer.from(bytes)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
 }
 
 /** Returns a standalone ArrayBuffer so it satisfies the WebCrypto signatures. */
@@ -77,7 +108,7 @@ export async function seal(user: SessionUser): Promise<string> {
       new TextEncoder().encode(JSON.stringify(payload)),
     ),
   );
-  return `${toBase64url(iv)}.${toBase64url(cipher)}`;
+  return `${Buffer.from(iv).toString("base64url")}.${Buffer.from(cipher).toString("base64url")}`;
 }
 
 export async function unseal(
@@ -122,20 +153,35 @@ export function clearSessionCookie(cookies: AstroCookies): void {
   cookies.delete(SESSION_COOKIE, { path: "/" });
 }
 
-function isLocalhost(context: Pick<APIContext, "url">): boolean {
-  const host = context.url.hostname;
-  return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+/**
+ * Whether the connection itself comes from the loopback interface. The Host
+ * header is not consulted: it is client-controlled, so with `astro dev --host`
+ * anyone on the network could claim to be `localhost`.
+ */
+function isLoopbackClient(context: Pick<APIContext, "clientAddress">): boolean {
+  let address: string;
+  try {
+    address = context.clientAddress;
+  } catch {
+    // Some adapters and prerendered contexts cannot tell; treat as remote.
+    return false;
+  }
+  return (
+    address === "127.0.0.1" ||
+    address === "::1" ||
+    address === "::ffff:127.0.0.1"
+  );
 }
 
 /**
  * Resolves the current user, or `undefined` when the request is not authorized.
- * The auth bypass only ever applies to a dev build served over localhost.
+ * The auth bypass only ever applies to a dev build reached over loopback.
  */
 export async function resolveUser(
-  context: Pick<APIContext, "cookies" | "url">,
+  context: Pick<APIContext, "cookies" | "clientAddress">,
 ): Promise<SessionUser | undefined> {
   if (AUTH_MODE === "bypass") {
-    if (import.meta.env.PROD || !isLocalhost(context)) return undefined;
+    if (import.meta.env.PROD || !isLoopbackClient(context)) return undefined;
     return DEV_USER;
   }
   const user = await unseal(context.cookies.get(SESSION_COOKIE)?.value);

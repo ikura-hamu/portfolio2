@@ -6,7 +6,7 @@
  * draft written on another device is visible here. Offline, the local drafts
  * are authoritative and the last fetched list is shown as a cached reference.
  */
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { api, errorMessage } from "@/lib/admin/api";
 import {
@@ -34,6 +34,8 @@ const draftStorageOk = ref(true);
 const newDraft = ref<Draft | undefined>();
 const error = ref("");
 const menuFor = ref<string | null>(null);
+/** Whether the open row menu drops upward, set when it is opened. */
+const menuAbove = ref(false);
 
 interface Row {
   /**
@@ -184,6 +186,29 @@ function formatDate(value?: string): string {
       });
 }
 
+/**
+ * Opens or closes a row's menu. The menu drops below its button unless that
+ * would run past the bottom of the viewport, as it does for the last rows,
+ * and there is room above. It is measured after rendering but before the
+ * browser paints, so it never shows in the wrong place first.
+ */
+async function toggleMenu(row: Row, event: MouseEvent) {
+  if (menuFor.value === row.key) {
+    menuFor.value = null;
+    return;
+  }
+  const trigger = event.currentTarget as HTMLElement;
+  menuAbove.value = false;
+  menuFor.value = row.key;
+  await nextTick();
+  const panel = trigger.nextElementSibling;
+  if (!(panel instanceof HTMLElement)) return;
+  const { bottom, height } = panel.getBoundingClientRect();
+  menuAbove.value =
+    bottom > window.innerHeight &&
+    trigger.getBoundingClientRect().top - height >= 0;
+}
+
 /** The row menu closes on a press anywhere outside it, or on Escape. */
 function closeMenuOnOutsidePress(event: PointerEvent) {
   if (menuFor.value === null) return;
@@ -295,13 +320,15 @@ onBeforeUnmount(() => {
             type="button"
             class="rounded px-2 py-1 text-sm"
             aria-label="操作"
-            @click="menuFor = menuFor === row.key ? null : row.key"
+            :aria-expanded="menuFor === row.key"
+            @click="toggleMenu(row, $event)"
           >
             …
           </button>
           <div
             v-if="menuFor === row.key"
-            class="admin-surface admin-border absolute right-0 z-20 mt-1 w-48 rounded border p-1 shadow-lg"
+            class="admin-surface admin-border absolute right-0 z-20 w-48 rounded border p-1 shadow-lg"
+            :class="menuAbove ? 'bottom-full mb-1' : 'top-full mt-1'"
           >
             <button
               type="button"

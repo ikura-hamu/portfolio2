@@ -8,13 +8,18 @@
 import { parse as parseYAML, stringify as stringifyYAML } from "yaml";
 import {
   BLOG_DIR,
-  IMAGES_DIR,
-  UnsafePathError,
-  assertValidSlug,
-  assertWritablePath,
-} from "./paths";
+  imageDir,
+  markdownPath,
+  type PostLayout,
+} from "./contentPaths";
+import { UnsafePathError, assertValidSlug, assertWritablePath } from "./paths";
 
-export type PostLayout = "flat" | "directory";
+export {
+  imageDir,
+  imageTarget,
+  markdownPath,
+  type PostLayout,
+} from "./contentPaths";
 
 export interface Frontmatter {
   title: string;
@@ -40,40 +45,6 @@ const KEY_ORDER = [
 ];
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
-
-export function markdownPath(slug: string, layout: PostLayout): string {
-  assertValidSlug(slug);
-  return layout === "directory"
-    ? `${BLOG_DIR}/${slug}/index.md`
-    : `${BLOG_DIR}/${slug}.md`;
-}
-
-/**
- * The directory a post's images live in, without a trailing slash.
- * Directory posts keep images next to `index.md`; flat posts follow the
- * existing `src/images/<slug>/` convention so no file has to move.
- */
-export function imageDir(slug: string, layout: PostLayout): string {
-  assertValidSlug(slug);
-  return layout === "directory"
-    ? `${BLOG_DIR}/${slug}`
-    : `${IMAGES_DIR}/${slug}`;
-}
-
-/** Where a newly added image goes, and how the markdown refers to it. */
-export function imageTarget(
-  slug: string,
-  layout: PostLayout,
-  fileName: string,
-): { path: string; reference: string } {
-  return {
-    path: `${imageDir(slug, layout)}/${fileName}`,
-    reference:
-      layout === "directory"
-        ? `./${fileName}`
-        : `../../images/${slug}/${fileName}`,
-  };
-}
 
 /**
  * Derives a post's slug from its markdown path. The case is kept as-is, so the

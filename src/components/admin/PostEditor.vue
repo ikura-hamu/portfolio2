@@ -20,8 +20,8 @@ import {
   type PendingImage,
 } from "@/lib/admin/draftStore";
 import { blobToBase64, prepareImage } from "@/lib/admin/imagePipeline";
-import { imageTarget, type Frontmatter, type PostLayout } from "@/lib/post";
-import { isValidSlug } from "@/lib/paths";
+import type { Frontmatter, PostLayout } from "@/lib/post";
+import { imageTarget, isValidSlug } from "@/lib/contentPaths";
 
 const props = defineProps<{ isLocal: boolean; online: boolean }>();
 const emit = defineEmits<{

@@ -6,7 +6,7 @@
  * to keep the repository small. `imageOrientation: "from-image"` applies the
  * EXIF rotation, which canvas would otherwise ignore.
  */
-import { sanitizeImageName } from "../paths";
+import { sanitizeImageName } from "../contentPaths";
 
 const MAX_EDGE = 1600;
 const WEBP_QUALITY = 0.85;

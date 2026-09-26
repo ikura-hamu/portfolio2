@@ -17,9 +17,14 @@ export interface PendingImage {
 }
 
 export interface Draft {
+  /**
+   * What the draft is stored under: the post's slug, or `NEW_DRAFT_KEY` for a
+   * post that has not been created yet.
+   */
+  key: string;
+  /** The post's slug as entered; may be empty or unfinished for a new post. */
   slug: string;
   layout: PostLayout;
-  isNew: boolean;
   frontmatter: Frontmatter;
   body: string;
   pendingImages: PendingImage[];
@@ -44,7 +49,7 @@ interface AdminDB extends DBSchema {
 export const NEW_DRAFT_KEY = "__new__";
 
 const DB_NAME = "blog-admin";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const POST_LIST_KEY = "post-list-cache";
 
 let dbPromise: Promise<IDBPDatabase<AdminDB> | undefined> | undefined;
@@ -63,9 +68,13 @@ function db(): Promise<IDBPDatabase<AdminDB> | undefined> {
       if (typeof indexedDB === "undefined")
         throw new Error("IndexedDB is unavailable");
       return await openDB<AdminDB>(DB_NAME, DB_VERSION, {
-        upgrade(database) {
-          database.createObjectStore("drafts", { keyPath: "slug" });
-          database.createObjectStore("meta");
+        upgrade(database, oldVersion) {
+          // Version 1 keyed drafts by `slug`, which overwrote a new post's
+          // slug with the fixed key. Those drafts are dropped rather than
+          // migrated.
+          if (oldVersion >= 1) database.deleteObjectStore("drafts");
+          database.createObjectStore("drafts", { keyPath: "key" });
+          if (oldVersion < 1) database.createObjectStore("meta");
         },
       });
     } catch (error) {
@@ -87,16 +96,16 @@ export async function isDraftStorageAvailable(): Promise<boolean> {
   return (await db()) !== undefined;
 }
 
-export async function getDraft(slug: string): Promise<Draft | undefined> {
-  return (await db())?.get("drafts", slug);
+export async function getDraft(key: string): Promise<Draft | undefined> {
+  return (await db())?.get("drafts", key);
 }
 
 export async function putDraft(draft: Draft): Promise<void> {
   await (await db())?.put("drafts", { ...draft, updatedAt: Date.now() });
 }
 
-export async function deleteDraft(slug: string): Promise<void> {
-  await (await db())?.delete("drafts", slug);
+export async function deleteDraft(key: string): Promise<void> {
+  await (await db())?.delete("drafts", key);
 }
 
 export async function listDrafts(): Promise<Draft[]> {

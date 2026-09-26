@@ -69,7 +69,7 @@ const rows = computed<Row[]>(() => {
   for (const draft of drafts.value) {
     if (merged.some((row) => row.slug === draft.slug)) continue;
     merged.push({
-      key: draft.slug,
+      key: draft.key,
       slug: draft.slug,
       title: draft.frontmatter.title || draft.slug,
       pubDate: draft.frontmatter.pubDate,
@@ -108,8 +108,8 @@ async function load() {
   loading.value = true;
   error.value = "";
   const allDrafts = await listDrafts();
-  newDraft.value = allDrafts.find((draft) => draft.slug === NEW_DRAFT_KEY);
-  drafts.value = allDrafts.filter((draft) => draft.slug !== NEW_DRAFT_KEY);
+  newDraft.value = allDrafts.find((draft) => draft.key === NEW_DRAFT_KEY);
+  drafts.value = allDrafts.filter((draft) => draft.key !== NEW_DRAFT_KEY);
   draftStorageOk.value = await isDraftStorageAvailable();
 
   try {
@@ -160,7 +160,7 @@ async function discard(row: Row) {
         return;
       }
     }
-    await deleteDraft(row.slug);
+    await deleteDraft(row.key);
     emit("toast", "下書きを破棄しました。");
     await load();
   } catch (caught) {

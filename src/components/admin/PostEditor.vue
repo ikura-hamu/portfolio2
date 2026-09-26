@@ -154,9 +154,9 @@ function plain<T>(value: T): T {
 
 function toDraft(key: string): Draft {
   return plain({
-    slug: key,
+    key,
+    slug: slug.value,
     layout: layout.value,
-    isNew: key === NEW_DRAFT_KEY,
     frontmatter: frontmatter.value,
     body: body.value,
     pendingImages: pendingImages.value,

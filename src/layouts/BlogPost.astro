@@ -23,7 +23,8 @@ const {
 const ogImage =
   heroImage ??
   (heroImageContent
-    ? (await getImage({ src: heroImageContent, format: "webp", width: 1200 })).src
+    ? (await getImage({ src: heroImageContent, format: "webp", width: 1200 }))
+        .src
     : "/favicon.png");
 ---
 

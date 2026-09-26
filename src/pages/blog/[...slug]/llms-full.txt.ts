@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ params }) => {
   if (!params.slug) {
     return new Response("Blog post not found", { status: 404 });
   }
-  
+
   const post = await getEntry("blog", params.slug as string);
 
   if (!post) {

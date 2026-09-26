@@ -47,7 +47,11 @@ interface Row {
   state: "main-only" | "branch-ahead" | "draft-only" | "local-only" | "new";
   aheadBy: number;
   behindBy: number;
-  hasLocalDraft: boolean;
+  /**
+   * A post that has been saved at least once and has edits in this browser
+   * that are not saved yet. A new post is labelled by its state instead.
+   */
+  hasUnsavedEdits: boolean;
   onMain: boolean;
 }
 
@@ -61,7 +65,7 @@ const rows = computed<Row[]>(() => {
     state: post.branchState,
     aheadBy: post.aheadBy,
     behindBy: post.behindBy,
-    hasLocalDraft: localBySlug.has(post.slug),
+    hasUnsavedEdits: localBySlug.has(post.slug),
     onMain: post.onMain,
   }));
 
@@ -76,7 +80,7 @@ const rows = computed<Row[]>(() => {
       state: "local-only",
       aheadBy: 0,
       behindBy: 0,
-      hasLocalDraft: true,
+      hasUnsavedEdits: true,
       onMain: false,
     });
   }
@@ -84,12 +88,12 @@ const rows = computed<Row[]>(() => {
     merged.unshift({
       key: NEW_DRAFT_KEY,
       slug: newDraft.value.slug,
-      title: newDraft.value.frontmatter.title || "（無題の新規記事）",
+      title: newDraft.value.frontmatter.title || "（無題）",
       pubDate: newDraft.value.frontmatter.pubDate,
       state: "new",
       aheadBy: 0,
       behindBy: 0,
-      hasLocalDraft: true,
+      hasUnsavedEdits: false,
       onMain: false,
     });
   }
@@ -101,7 +105,7 @@ const STATE_LABEL: Record<Row["state"], string> = {
   "branch-ahead": "作業ブランチあり",
   "draft-only": "未公開の下書き",
   "local-only": "ローカル下書きのみ",
-  new: "作成中（未保存）",
+  new: "新規記事",
 };
 
 async function load() {
@@ -279,7 +283,7 @@ onBeforeUnmount(() => {
             main -{{ row.behindBy }}
           </span>
           <span
-            v-if="row.hasLocalDraft"
+            v-if="row.hasUnsavedEdits"
             class="rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-900"
           >
             未保存

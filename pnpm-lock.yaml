@@ -126,6 +126,9 @@ importers:
       '@iconify-json/ri':
         specifier: ^1.2.10
         version: 1.2.10
+      '@playwright/cli':
+        specifier: ^0.1.21
+        version: 0.1.21
       '@types/hast':
         specifier: ^3.0.5
         version: 3.0.5
@@ -159,6 +162,9 @@ importers:
       typescript-eslint:
         specifier: ^8.69.0
         version: 8.69.0(eslint@10.10.0(jiti@2.7.0))(typescript@6.0.3)
+      vue-tsc:
+        specifier: ^3.3.11
+        version: 3.3.11(typescript@6.0.3)
 
 packages:
 
@@ -1340,6 +1346,11 @@ packages:
   '@oxc-project/types@0.139.0':
     resolution: {integrity: sha512-r9gHphtCs+1M7J0pw6Sn/hh/Wpa/iQrOOkrNAlVLF/gHq+/CJmHIWKKUUhdWjcD6CIa8idarspCsASiXCXvFUw==}
 
+  '@playwright/cli@0.1.21':
+    resolution: {integrity: sha512-FfxmVJj2wJlsxPksUO+4N7gqimPEQPajpocl2Mk97ENIGfAVZ4aElzPb5sDdGXHI9J/3Y8EtUiUTas0VsTm/sg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
@@ -2118,6 +2129,9 @@ packages:
   '@vue/devtools-shared@8.2.1':
     resolution: {integrity: sha512-Fkac7lUdGReh6pVOi3AYPRGe82LQqRmAfThW7RRligOAP0ZA/Z1z9XLHDM9dv34pV2HRc79DK8uKPeG2fLnA/g==}
 
+  '@vue/language-core@3.3.11':
+    resolution: {integrity: sha512-QJmpliwAVpC/OxubIByPAhNzsQPRc8/gxlN2qnVzVfIMjMDz/9RnXRFoetjz5yEgXVXyp4LqhXq3V53PjmNzFw==}
+
   '@vue/reactivity@3.5.43':
     resolution: {integrity: sha512-G/c9GyOZNI2jVaaS6OX1EF1SSFSv7H0ERqNTl4+DTFMlZmB5eVAB53aLQNam/7NL2NPtaDD7RdVrzf8uJzMuOA==}
 
@@ -2169,6 +2183,9 @@ packages:
 
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
+
+  alien-signals@3.2.1:
+    resolution: {integrity: sha512-I8FjmltrfnDFoZedi5CG8DghVYNhzb/Ijluz7tCSJH0xpd0484Kowhbb1XDYOxfJpU1p5wnM2X54dA+IfGyD1g==}
 
   am-i-vibing@0.4.0:
     resolution: {integrity: sha512-MxT4XZL7pzLHpuvhDKdMaQHMGGkJDLluKBLsbstn+8wv9sWcFT6h+0ve9qkml95amVTZtZV83gQe2hY+ojgHLg==}
@@ -3503,6 +3520,16 @@ packages:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
 
+  playwright-core@1.64.0-alpha-1789764292000:
+    resolution: {integrity: sha512-ZgRaybFv4rRy7QMGnYprEGFdNJnvapNqcaER2w96bDQA+40BWIle1el1Yh9KHD3E6XYmieMB+r+UxFTCauTGGQ==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.64.0-alpha-1789764292000:
+    resolution: {integrity: sha512-3Ngs4ERGdC912uW3srEDtNVey4u1wSaQ/EFcKhxMpz0by0K6nidaJgM087pLpJc1osytiVnL7ack5gvgPArPNw==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   postcss-selector-parser@7.1.6:
     resolution: {integrity: sha512-7qASPzhKF2l2KLboRZux8CCTRMdGiV08vWmyKzPz22qZ7ZjQBOeY7rNzNoCLSUiftJ7HUq0GERHmxw/t0dCdMw==}
     engines: {node: '>=4'}
@@ -4225,6 +4252,12 @@ packages:
     resolution: {integrity: sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg==}
     peerDependencies:
       vue: ^3.5.0
+
+  vue-tsc@3.3.11:
+    resolution: {integrity: sha512-gOb0B9rtU2+f1dszwPqSH5kAieIF9ReeLhD3kSRNHv5WZZUQz/JdVXW0RTdqhNTMlQkqKzrTTviqKr/4FYZraQ==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=5.0.0'
 
   vue@3.5.43:
     resolution: {integrity: sha512-o5qZoksdnjIKvW1srZ3ab7pcDNYAerBjRe54D0LBLfRdCYFrSgBHVXokMas35czQc0//lmx4/tuY4ZNQ+Rf2Ng==}
@@ -5540,6 +5573,11 @@ snapshots:
 
   '@oxc-project/types@0.139.0': {}
 
+  '@playwright/cli@0.1.21':
+    dependencies:
+      playwright: 1.64.0-alpha-1789764292000
+      playwright-core: 1.64.0-alpha-1789764292000
+
   '@polka/url@1.0.0-next.29': {}
 
   '@rolldown/binding-android-arm64@1.1.5':
@@ -6277,6 +6315,16 @@ snapshots:
 
   '@vue/devtools-shared@8.2.1': {}
 
+  '@vue/language-core@3.3.11':
+    dependencies:
+      '@volar/language-core': 2.4.28
+      '@vue/compiler-dom': 3.5.43
+      '@vue/shared': 3.5.43
+      alien-signals: 3.2.1
+      muggle-string: 0.4.1
+      path-browserify: 1.0.1
+      picomatch: 4.0.5
+
   '@vue/reactivity@3.5.43':
     dependencies:
       '@vue/shared': 3.5.43
@@ -6332,6 +6380,8 @@ snapshots:
       fast-uri: 3.1.0
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
+
+  alien-signals@3.2.1: {}
 
   am-i-vibing@0.4.0:
     dependencies:
@@ -7967,6 +8017,12 @@ snapshots:
 
   picomatch@4.0.5: {}
 
+  playwright-core@1.64.0-alpha-1789764292000: {}
+
+  playwright@1.64.0-alpha-1789764292000:
+    dependencies:
+      playwright-core: 1.64.0-alpha-1789764292000
+
   postcss-selector-parser@7.1.6:
     dependencies:
       cssesc: 3.0.0
@@ -8781,6 +8837,12 @@ snapshots:
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.43(typescript@6.0.3)
+
+  vue-tsc@3.3.11(typescript@6.0.3):
+    dependencies:
+      '@volar/typescript': 2.4.28
+      '@vue/language-core': 3.3.11
+      typescript: 6.0.3
 
   vue@3.5.43(typescript@6.0.3):
     dependencies:

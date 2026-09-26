@@ -5,6 +5,7 @@
  * it supplies a slug, and everything below is derived from it. These helpers
  * are the single place that decides whether a path may be written.
  */
+import { posix } from "node:path";
 
 /** The only prefixes the admin UI is ever allowed to write to. */
 export const WRITABLE_PREFIXES = ["src/content/blog/", "src/images/"] as const;
@@ -44,7 +45,7 @@ export function assertWritablePath(path: string): string {
   if (typeof path !== "string" || path.length === 0) {
     throw new UnsafePathError(String(path), "empty path");
   }
-  if (path.startsWith("/") || /^[a-zA-Z]:/.test(path)) {
+  if (posix.isAbsolute(path) || /^[a-zA-Z]:/.test(path)) {
     throw new UnsafePathError(path, "absolute paths are not allowed");
   }
   if (path.includes("\0")) {
@@ -53,19 +54,15 @@ export function assertWritablePath(path: string): string {
   if (path.includes("\\")) {
     throw new UnsafePathError(path, "backslashes are not allowed");
   }
-
-  const segments: string[] = [];
-  for (const segment of path.split("/")) {
-    if (segment === "" || segment === ".") {
-      throw new UnsafePathError(path, "contains an empty or '.' segment");
-    }
-    if (segment === "..") {
-      throw new UnsafePathError(path, "contains a '..' segment");
-    }
-    segments.push(segment);
+  // A path that normalization would change has a `.`, `..` or empty segment.
+  // Such a path is refused rather than rewritten, so what is written is always
+  // exactly what was asked for. A trailing slash survives normalization, and a
+  // leading `..` is rejected by the prefix check below.
+  const normalized = posix.normalize(path);
+  if (normalized !== path || path.endsWith("/")) {
+    throw new UnsafePathError(path, "not a normalized path");
   }
 
-  const normalized = segments.join("/");
   if (!WRITABLE_PREFIXES.some((prefix) => normalized.startsWith(prefix))) {
     throw new UnsafePathError(
       path,

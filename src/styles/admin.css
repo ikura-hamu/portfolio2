@@ -61,8 +61,8 @@
 }
 
 /*
-  global.css styles headings and lists with element selectors outside any
-  cascade layer, and unlayered rules beat Tailwind's layered utilities, so
+  global.css styles headings, lists and links with element selectors outside
+  any cascade layer, and unlayered rules beat Tailwind's layered utilities, so
   `text-lg` on an admin `<h1>` would lose to `h1 { font-size: 3em }`.
   `revert-layer` hands these properties back to the layers - the utility if
   there is one, otherwise Tailwind's preflight. The preview is excluded: it
@@ -74,6 +74,14 @@
   padding: revert-layer;
   border: revert-layer;
   list-style: revert-layer;
+}
+
+/* Likewise for the site's bold, underlined, primary-colored links. */
+.admin-root a:not(.admin-preview *),
+.admin-root a:not(.admin-preview *):hover {
+  color: revert-layer;
+  font-weight: revert-layer;
+  text-decoration: revert-layer;
 }
 
 .admin-root input,

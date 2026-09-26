@@ -8,10 +8,12 @@
  */
 import { onMounted, ref } from "vue";
 import { RouterView } from "vue-router";
+import AdminHeader from "./AdminHeader.vue";
 import { api } from "@/lib/admin/api";
 
 const online = ref(true);
 const isLocal = ref(false);
+const repository = ref<string | null>(null);
 const toast = ref<{ message: string; kind: "error" | "info" } | null>(null);
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -29,6 +31,7 @@ onMounted(async () => {
   try {
     const environment = await api.getEnvironment();
     isLocal.value = environment.backend === "local";
+    repository.value = environment.repository;
   } catch {
     // Offline on first paint: the UI still works against local drafts.
   }
@@ -45,6 +48,7 @@ onMounted(async () => {
 
 <template>
   <div class="admin-root flex min-h-dvh flex-col">
+    <AdminHeader :repository="repository" />
     <div
       v-if="isLocal"
       class="shrink-0 bg-amber-300 px-3 py-1 text-center text-sm text-amber-950"

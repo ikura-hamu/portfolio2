@@ -12,6 +12,7 @@ import { z } from "astro/zod";
 import { BACKEND_KIND, getBackend } from "@/lib/backend";
 import { UnsafePathError, isValidSlug } from "@/lib/paths";
 import { AUTH_MODE } from "@/lib/session";
+import { CONTENT_REPO } from "astro:env/server";
 import type { APIContext } from "astro";
 
 function requireUser(context: Pick<APIContext, "locals">) {
@@ -86,6 +87,12 @@ export const server = {
       return {
         backend: BACKEND_KIND,
         authMode: AUTH_MODE,
+        // Linked from the admin header. Unset in local mode, where saves go
+        // to the working tree rather than to a repository.
+        repository:
+          CONTENT_REPO && /^[\w.-]+\/[\w.-]+$/.test(CONTENT_REPO)
+            ? CONTENT_REPO
+            : null,
         user: { id: user.id, login: user.login, avatarUrl: user.avatarUrl },
       };
     },

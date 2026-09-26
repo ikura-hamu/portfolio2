@@ -1,9 +1,10 @@
 /**
  * GitHub App authentication.
  *
- * The admin UI authenticates the person with an OAuth App (identity only) and
- * writes with a GitHub App installation token scoped to a single repository.
- * That keeps the write credential narrow and entirely server-side.
+ * One GitHub App does both jobs. Its user authorization flow identifies the
+ * person, and the user token is dropped once the profile is read. Writes use
+ * an installation token scoped to a single repository, which keeps the write
+ * credential narrow and entirely server-side.
  */
 import { createSign } from "node:crypto";
 import * as env from "astro:env/server";

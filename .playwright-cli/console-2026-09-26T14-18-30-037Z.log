@@ -1,0 +1,2 @@
+[     767ms] [LOG] %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit @ https://cdn.vercel-insights.com/v1/script.debug.js:0
+[     768ms] [LOG] %c[Vercel Web Analytics]%c [view] http://localhost:4321/admin/new color: rgb(120, 120, 120) color: inherit {o: http://localhost:4321/admin/new, sv: 0.1.3, sdkn: undefined, sdkv: undefined, ts: 1790432310804} /_vercel/insights/view @ https://cdn.vercel-insights.com/v1/script.debug.js:0

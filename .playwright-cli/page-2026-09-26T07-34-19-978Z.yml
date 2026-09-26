@@ -1,0 +1,55 @@
+- generic [ref=f2e1]:
+  - generic [ref=f2e3]:
+    - generic [ref=f2e4]: ローカルモード（GitHub 未接続）— 保存は作業ツリーのファイルに直接書き込まれます
+    - main [ref=f2e5]:
+      - generic [ref=f2e6]:
+        - generic [ref=f2e7]:
+          - generic [ref=f2e8]:
+            - button "← 一覧" [ref=f2e9]
+            - generic [ref=f2e10]: 2024年度 春休み振り返り
+            - button "再取得" [ref=f2e11]
+            - button "保存" [ref=f2e12]
+          - navigation [ref=f2e13]:
+            - button "本文" [ref=f2e14]
+            - button "メタデータ" [active] [ref=f2e15]
+        - complementary [ref=f2e17]:
+          - generic [ref=f2e19]:
+            - generic [ref=f2e20]:
+              - heading "frontmatter" [level=2] [ref=f2e21]
+              - button "raw YAML" [ref=f2e22]
+            - generic [ref=f2e23]:
+              - generic [ref=f2e24]: slug
+              - textbox "slug 作成後の slug は変更できません（URL と giscus のコメントが切れるため）。" [disabled] [ref=f2e25]:
+                - /placeholder: 260924_go-conference-26-proposal
+                - text: 250402_spring
+              - generic [ref=f2e26]: 作成後の slug は変更できません（URL と giscus のコメントが切れるため）。
+            - generic [ref=f2e27]:
+              - generic [ref=f2e28]: title *
+              - textbox "title *" [ref=f2e29]: 2024年度 春休み振り返り
+            - generic [ref=f2e30]:
+              - generic [ref=f2e31]: description
+              - textbox "description" [ref=f2e32]: 2025年(2024年度の春休みの振り返り)
+            - generic [ref=f2e33]:
+              - generic [ref=f2e34]:
+                - generic [ref=f2e35]: pubDate
+                - textbox "pubDate" [ref=f2e36]: 2025-04-06T00:00
+              - generic [ref=f2e37]:
+                - generic [ref=f2e38]: updatedDate
+                - textbox "updatedDate" [ref=f2e39]
+            - generic [ref=f2e40]:
+              - generic [ref=f2e41]: tags
+              - generic [ref=f2e43]:
+                - text: "#振り返り"
+                - button "×" [ref=f2e44]
+              - textbox "タグを入力して Enter" [ref=f2e45]
+            - generic [ref=f2e46]:
+              - generic [ref=f2e47]: heroImageContent（アイキャッチ）
+              - textbox "heroImageContent（アイキャッチ） 記事からの相対パス。OGP 画像にもこれが使われます。" [ref=f2e48]:
+                - /placeholder: ./hero.webp
+                - text: ./250406_spring.jpg
+              - generic [ref=f2e49]: 記事からの相対パス。OGP 画像にもこれが使われます。
+  - generic [ref=f2e52]:
+    - button [ref=f2e53]
+    - button [ref=f2e59]
+    - button [ref=f2e63]
+    - button [ref=f2e71]

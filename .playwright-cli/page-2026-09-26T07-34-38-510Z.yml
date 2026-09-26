@@ -1,0 +1,130 @@
+- generic [ref=f2e1]:
+  - generic [ref=f2e3]:
+    - generic [ref=f2e4]: ローカルモード（GitHub 未接続）— 保存は作業ツリーのファイルに直接書き込まれます
+    - main [ref=f2e5]:
+      - generic [ref=f2e6]:
+        - generic [ref=f2e7]:
+          - generic [ref=f2e8]:
+            - button "← 一覧" [ref=f2e9]
+            - generic [ref=f2e10]: 2024年度 春休み振り返り
+            - button "再取得" [ref=f2e11]
+            - button "保存" [ref=f2e12]
+          - navigation [ref=f2e13]:
+            - button "本文" [ref=f2e14]
+            - button "プレビュー" [active] [ref=f2e223]
+            - button "メタデータ" [ref=f2e15]
+        - generic [ref=f2e137]:
+          - paragraph [ref=f2e138]: 2024年度(2025年)の春休みを振り返りたいと思います。4月から授業があるわけではないので春休みかどうか怪しいですが、なんとなくで。
+          - heading "ぱそかた" [level=2] [ref=f2e139]
+          - heading "piscon-portal-v2" [level=3] [ref=f2e140]
+          - paragraph [ref=f2e141]: traPの部内ISUCON「PISCON」で使うポータルを作り直すプロジェクト。リーダー的な仕事とバックエンド書くのをやってます。楽しい。頑張って今年のISUCON練習に間に合わせたい。PLAYWRIGHT_TESTSECOND
+          - heading [level=4] [ref=f2e142]:
+            - code [ref=f2e143]: io.LimitReader
+          - paragraph [ref=f2e144]:
+            - code [ref=f2e145]: io.LimitReader
+            - text: を使う機会があってびっくりした。
+          - generic [ref=f2e146]:
+            - generic [ref=f2e147]: リンクカード（本番で展開されます）
+            - link "https://github.com/traPtitech/piscon-portal-v2/commit/67db3f8cca28c8f25ab64e25fc7d8605f9d62246#diff-20e6696d056b9497806d8852a99dad01af18dab2c3378ebf73dee3ccbea93f45R81" [ref=f2e148] [cursor=pointer]:
+              - /url: https://github.com/traPtitech/piscon-portal-v2/commit/67db3f8cca28c8f25ab64e25fc7d8605f9d62246#diff-20e6696d056b9497806d8852a99dad01af18dab2c3378ebf73dee3ccbea93f45R81
+          - paragraph [ref=f2e149]:
+            - text: ざっくり使いどころを話すと、継続的にデータが書き込まれている
+            - code [ref=f2e150]: io.Reader
+            - text: から定期的にデータを読み取りたくて、普通にやると
+            - code [ref=f2e151]: EOF
+            - text: が来るまで待ってしまうが
+            - code [ref=f2e152]: io.LimitReader
+            - text: を使うと途中まで読んで処理してまた続きを読む、ということができる。
+          - heading "ブログのコメント機能" [level=3] [ref=f2e153]
+          - paragraph [ref=f2e154]:
+            - text: このブログにコメント機能がついた。GitHubのDiscussionを使って簡単に埋め込める
+            - link "giscus" [ref=f2e155] [cursor=pointer]:
+              - /url: https://giscus.app/ja
+            - text: を使った。とても簡単にできたのでおすすめです。
+          - generic [ref=f2e156]:
+            - generic [ref=f2e157]: リンクカード（本番で展開されます）
+            - link "https://giscus.app/ja" [ref=f2e158] [cursor=pointer]:
+              - /url: https://giscus.app/ja
+          - heading [level=3] [ref=f2e159]:
+            - text: Go1.24
+            - code [ref=f2e160]: testing/synctest
+          - paragraph [ref=f2e161]: PISCON Portal で使いたくてrelease candidateの段階から使ってたら、穴にはまった。当然あまり資料が出回ってないので、issueをあさったりしていい経験になった。ブログも書いた。
+          - paragraph [ref=f2e162]:
+            - link "Go1.24 の testing/synctest で time.Ticker 使うなら (*time.Ticker).Stop しないと、異世界から抜け出せなくなる。| https://trap.jp/post/2485/" [ref=f2e163] [cursor=pointer]:
+              - /url: https://trap.jp/post/2485/
+          - generic [ref=f2e164]:
+            - generic [ref=f2e165]: リンクカード（本番で展開されます）
+            - link "https://trap.jp/post/2485/" [ref=f2e166] [cursor=pointer]:
+              - /url: https://trap.jp/post/2485/
+          - heading "データコンペ" [level=3] [ref=f2e167]
+          - paragraph [ref=f2e168]: traPであったデータコンペに出た。普段やらないぱそかただったから難しかった。
+          - generic [ref=f2e169]:
+            - generic [ref=f2e170]: リンクカード（本番で展開されます）
+            - link "https://trap.jp/post/2518/" [ref=f2e171] [cursor=pointer]:
+              - /url: https://trap.jp/post/2518/
+          - heading [level=3] [ref=f2e172]:
+            - text: Go の静的解析ツール
+            - code [ref=f2e173]: c3
+          - paragraph [ref=f2e174]:
+            - strong [ref=f2e175]: C
+            - text: leanup
+            - strong [ref=f2e176]: C
+            - text: ontext
+            - strong [ref=f2e177]: C
+            - text: hecker なので
+            - code [ref=f2e178]: c3
+            - text: 。我ながらいい感じの命名を見つけたなと思う。 Go1.24で追加された
+            - code [ref=f2e179]: (*testing.common).Context()
+            - text: で得られる
+            - code [ref=f2e180]: context.Context
+            - text: を
+            - code [ref=f2e181]: (*testing.common).Cleanup
+            - text: で使うと、その前にキャンセルされてしまうので動かない。これを検知するツールを書いた。golangci-lintのmodule pluginとしても使えるようにしたのが推しポイント。もっといろんな人にmodule pluginを使ってほしい。
+          - code [ref=f2e183]: "func Test(t *testing.T) { t.Cleanup(func() { t.Context() // ←これで得られるcontext.ContextはCleanup前にcancelされている }) }"
+          - generic [ref=f2e184]:
+            - generic [ref=f2e185]: リンクカード（本番で展開されます）
+            - link "https://github.com/ikura-hamu/c3" [ref=f2e186] [cursor=pointer]:
+              - /url: https://github.com/ikura-hamu/c3
+          - generic [ref=f2e187]:
+            - generic [ref=f2e188]: リンクカード（本番で展開されます）
+            - link "https://github.com/ikura-hamu/c3" [ref=f2e189] [cursor=pointer]:
+              - /url: https://github.com/ikura-hamu/c3
+          - paragraph [ref=f2e190]: 静的解析は難しいが、ChatGPT君にとても助けてもらえた。今話題のagent的なやつを使った開発では静的解析が有利に働くと聞いたことがあるので、いい感じに活用して生きたい。
+          - heading "CPCTF" [level=3] [ref=f2e191]
+          - paragraph [ref=f2e192]: CPCTFは、traPが毎年春にやってる競プロとCTFの大会。今年もインフラ担当としていろいろやってる。2年目の経験を活かしていろんな作業の自動化を進めている。去年は競技終了直前にサーバーを落とすというスーパーミスをしたので、今年は絶対落とさないようにしたい。参加待ってます。
+          - paragraph [ref=f2e193]: 去年のブログ
+          - generic [ref=f2e194]:
+            - generic [ref=f2e195]: リンクカード（本番で展開されます）
+            - link "https://trap.jp/post/2235/" [ref=f2e196] [cursor=pointer]:
+              - /url: https://trap.jp/post/2235/
+          - heading "ぱそかた以外" [level=2] [ref=f2e197]
+          - heading "東京ディズニーシー" [level=3] [ref=f2e198]
+          - paragraph [ref=f2e199]: サークルの同期とディズニーシーに行った。ディズニーランドには中学の修学旅行とかで3回来たことがあったが、シーは初だった。新エリアがあったが、自分的には全て新エリアだったのでとても楽しめた。ソアリンというアトラクションとアナ雪のやつがお気に入りになった。
+          - paragraph [ref=f2e200]:
+            - img "夜ディズニーシー" [ref=f2e201]
+          - heading "草津" [level=3] [ref=f2e202]
+          - paragraph [ref=f2e203]: traPの合宿で草津に行った。スキーをしたり温泉に行ったりした。夜に宴会場でボードゲームをしたのが楽しかった。
+          - paragraph [ref=f2e204]:
+            - img "湯畑" [ref=f2e205]
+          - paragraph [ref=f2e206]: これは湯畑。このブログのサムネイルはスキー場のてっぺん。
+          - heading "帰省" [level=3] [ref=f2e207]
+          - paragraph [ref=f2e208]: 実家に帰省した。安心した。帰省中には湖に野鳥を見に行った。Jリーグの試合も2試合観に行ったが、どっちも引き分けだった。
+          - paragraph [ref=f2e209]:
+            - img "野鳥" [ref=f2e210]
+          - heading "伊東" [level=3] [ref=f2e211]
+          - paragraph [ref=f2e212]: サークルの同期と伊東に行った。バーベキューした。ピザ窯で焼いたピザが美味しかった。シャボテン公園にも行った。サボテンの公園かと思ったら動物がその辺にたくさんいてびっくりした。とても満足した。
+          - paragraph [ref=f2e213]:
+            - img "シャボテン公園にいたシロクジャク" [ref=f2e214]
+          - paragraph [ref=f2e215]: これはシャボテン公園にいたシロクジャク。とても近くにいたし人間を怖がるそぶりも無かったのですごかった。
+          - heading "研究" [level=3] [ref=f2e216]
+          - paragraph [ref=f2e217]: 情報通信系は3年の4Qから研究室に仮配属されるので、研究が始まっている。内容はぱそかたと言えばぱそかただが、ぱそかたが本質ではないのでこっちに書いた。「〇〇(任意)の研究をやってます」って名乗るのかっこいいと思っていたので、できるようになって嬉しい。
+          - heading "今後" [level=2] [ref=f2e218]
+          - paragraph [ref=f2e219]: 4年生になるので、授業はほぼ無い。研究をそれなりに頑張りたい。絶賛就活中なので、早く決まってほしい。就活がうまくいったら大学生活はあと1年なので、やった方がいいことをちゃんとやりたい。traP も技術的な面でなんか貢献したい。
+          - paragraph [ref=f2e220]:
+            - img "桜" [ref=f2e221]
+          - paragraph [ref=f2e222]: 大岡山の桜満開。
+  - generic [ref=f2e52]:
+    - button [ref=f2e53]
+    - button [ref=f2e59]
+    - button [ref=f2e63]
+    - button [ref=f2e71]

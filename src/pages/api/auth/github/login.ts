@@ -17,9 +17,9 @@ export const GET: APIRoute = (context) => {
     return context.redirect("/admin/", 302);
   }
 
-  const clientId = env.GITHUB_OAUTH_CLIENT_ID;
+  const clientId = env.GITHUB_APP_CLIENT_ID;
   if (!clientId) {
-    return new Response("GITHUB_OAUTH_CLIENT_ID is not configured.", {
+    return new Response("GITHUB_APP_CLIENT_ID is not configured.", {
       status: 500,
     });
   }
@@ -40,8 +40,7 @@ export const GET: APIRoute = (context) => {
     "redirect_uri",
     new URL("/api/auth/github/callback", context.url.origin).toString(),
   );
-  // Identity only: writes go through the GitHub App installation token.
-  authorize.searchParams.set("scope", "read:user");
+  // No scope: a GitHub App ignores it and grants its own permissions instead.
   authorize.searchParams.set("state", state);
   authorize.searchParams.set("allow_signup", "false");
 

@@ -21,10 +21,12 @@ export const GET: APIRoute = async (context) => {
     return new Response("Invalid OAuth state.", { status: 400 });
   }
 
-  const clientId = env.GITHUB_OAUTH_CLIENT_ID;
-  const clientSecret = env.GITHUB_OAUTH_CLIENT_SECRET;
+  const clientId = env.GITHUB_APP_CLIENT_ID;
+  const clientSecret = env.GITHUB_APP_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
-    return new Response("OAuth app is not configured.", { status: 500 });
+    return new Response("GitHub App user authorization is not configured.", {
+      status: 500,
+    });
   }
 
   const tokenResponse = await fetch(
@@ -74,7 +76,9 @@ export const GET: APIRoute = async (context) => {
     avatarUrl: profile.avatar_url,
   };
 
-  // The OAuth token itself is discarded here; it was only used to prove identity.
+  // The user token is discarded here; it was only used to prove identity.
+  // It carries the App's permissions intersected with the user's, so it is
+  // never stored or sent to the browser.
   if (!isAllowed(user)) {
     return new Response(
       "このアカウントには管理画面へのアクセス権がありません。",

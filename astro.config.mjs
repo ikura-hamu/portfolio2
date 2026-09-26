@@ -79,12 +79,12 @@ export default defineConfig({
         gt: 0,
         optional: true,
       }),
-      GITHUB_OAUTH_CLIENT_ID: envField.string({
+      GITHUB_APP_CLIENT_ID: envField.string({
         context: "server",
         access: "secret",
         optional: true,
       }),
-      GITHUB_OAUTH_CLIENT_SECRET: envField.string({
+      GITHUB_APP_CLIENT_SECRET: envField.string({
         context: "server",
         access: "secret",
         optional: true,

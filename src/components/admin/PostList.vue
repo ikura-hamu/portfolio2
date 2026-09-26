@@ -8,7 +8,7 @@
  */
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { api, ApiError } from "@/lib/admin/api";
+import { api, errorMessage } from "@/lib/admin/api";
 import {
   NEW_DRAFT_KEY,
   cachePostList,
@@ -119,12 +119,10 @@ async function load() {
   } catch (caught) {
     posts.value = await getCachedPostList();
     fromCache.value = true;
-    error.value =
-      caught instanceof ApiError && caught.code === "NETWORK"
-        ? "オフラインです。最後に取得した一覧を表示しています。"
-        : caught instanceof Error
-          ? caught.message
-          : String(caught);
+    error.value = errorMessage(
+      caught,
+      "オフラインです。最後に取得した一覧を表示しています。",
+    );
   } finally {
     loading.value = false;
   }
@@ -171,11 +169,7 @@ async function discard(row: Row) {
     emit("toast", "下書きを破棄しました。");
     await load();
   } catch (caught) {
-    emit(
-      "toast",
-      caught instanceof Error ? caught.message : String(caught),
-      "error",
-    );
+    emit("toast", errorMessage(caught), "error");
   }
 }
 

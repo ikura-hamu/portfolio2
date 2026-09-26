@@ -6,6 +6,7 @@
  */
 import { computed, ref, watch } from "vue";
 import { parse as parseYAML, stringify as stringifyYAML } from "yaml";
+import { errorMessage } from "@/lib/admin/api";
 import type { Frontmatter } from "@/lib/post";
 
 const props = defineProps<{
@@ -100,7 +101,7 @@ function applyRaw() {
     rawError.value = "";
     rawMode.value = false;
   } catch (error) {
-    rawError.value = error instanceof Error ? error.message : String(error);
+    rawError.value = errorMessage(error);
   }
 }
 

@@ -8,6 +8,7 @@
  * owner editing their own posts; nothing here renders third-party markdown.
  */
 import { ref, watch } from "vue";
+import { errorMessage } from "@/lib/admin/api";
 import {
   escapeHTML,
   renderPreview,
@@ -25,9 +26,8 @@ async function render() {
     if (current === token) html.value = result;
   } catch (error) {
     if (current === token) {
-      const message = error instanceof Error ? error.message : String(error);
       html.value = `<p class="admin-preview-error">プレビューを描画できませんでした: ${escapeHTML(
-        message,
+        errorMessage(error),
       )}</p>`;
     }
   }

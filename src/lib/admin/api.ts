@@ -14,6 +14,21 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * The message to show for a caught error. `offlineMessage` replaces the
+ * browser's own network error text, which says nothing useful to the user.
+ */
+export function errorMessage(error: unknown, offlineMessage?: string): string {
+  if (
+    offlineMessage !== undefined &&
+    error instanceof ApiError &&
+    error.code === "NETWORK"
+  ) {
+    return offlineMessage;
+  }
+  return error instanceof Error ? error.message : String(error);
+}
+
 /** The shape `astro:actions` reports failures with. */
 interface ActionFailure {
   message?: string;
@@ -28,10 +43,7 @@ async function unwrap<T>(
     result = await promise;
   } catch (error) {
     // Network failure: the caller decides whether to fall back to local data.
-    throw new ApiError(
-      error instanceof Error ? error.message : String(error),
-      "NETWORK",
-    );
+    throw new ApiError(errorMessage(error), "NETWORK");
   }
   if (result.error) {
     throw new ApiError(

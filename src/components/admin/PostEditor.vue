@@ -10,7 +10,7 @@ import { useRoute, useRouter } from "vue-router";
 import MarkdownEditor from "./MarkdownEditor.vue";
 import MarkdownPreview from "./MarkdownPreview.vue";
 import FrontmatterForm from "./FrontmatterForm.vue";
-import { api, ApiError } from "@/lib/admin/api";
+import { api, errorMessage } from "@/lib/admin/api";
 import {
   NEW_DRAFT_KEY,
   deleteDraft,
@@ -227,12 +227,10 @@ async function load() {
     baseSha.value = post.baseSha;
     originalTitle.value = post.frontmatter.title;
   } catch (error) {
-    loadError.value =
-      error instanceof ApiError && error.code === "NETWORK"
-        ? "オフラインのため、この記事はローカルに下書きがないと開けません。"
-        : error instanceof Error
-          ? error.message
-          : String(error);
+    loadError.value = errorMessage(
+      error,
+      "オフラインのため、この記事はローカルに下書きがないと開けません。",
+    );
   } finally {
     loading.value = false;
   }
@@ -262,11 +260,7 @@ async function refreshFromServer(silent = false) {
     await deleteDraft(slug.value);
     emit("toast", "GitHub の最新状態を取得しました。");
   } catch (error) {
-    emit(
-      "toast",
-      error instanceof Error ? error.message : String(error),
-      "error",
-    );
+    emit("toast", errorMessage(error), "error");
   }
 }
 
@@ -291,7 +285,7 @@ async function addFiles(files: File[]) {
     } catch (error) {
       emit(
         "toast",
-        `画像を処理できませんでした: ${error instanceof Error ? error.message : String(error)}`,
+        `画像を処理できませんでした: ${errorMessage(error)}`,
         "error",
       );
     }
@@ -384,11 +378,7 @@ async function save(force = false) {
       await router.replace({ name: "edit", params: { slug: slug.value } });
     }
   } catch (error) {
-    emit(
-      "toast",
-      error instanceof Error ? error.message : String(error),
-      "error",
-    );
+    emit("toast", errorMessage(error), "error");
   } finally {
     saving.value = false;
   }

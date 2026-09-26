@@ -430,10 +430,9 @@ onBeforeUnmount(() => {
         >
           ← 一覧
         </button>
-        <span class="truncate text-sm font-bold">
+        <span class="min-w-0 flex-1 truncate text-sm font-bold">
           {{ frontmatter.title || (isNew ? "新規記事" : slug) }}
         </span>
-        <span class="grow" />
         <button
           v-if="!isNew"
           type="button"
@@ -525,7 +524,7 @@ onBeforeUnmount(() => {
 
     <div v-else class="flex flex-col md:flex-row">
       <section
-        class="admin-border w-full flex-col md:flex md:w-1/2 md:border-r"
+        class="admin-border w-full flex-col md:w-1/2 md:border-r"
         :class="
           tab === 'body'
             ? 'flex'

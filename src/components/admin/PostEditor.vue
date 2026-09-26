@@ -5,7 +5,15 @@
  * Edits live in IndexedDB from the first keystroke; pushing them to GitHub is
  * an explicit action that creates or reuses the `post/<slug>` branch.
  */
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  toRaw,
+  watch,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MarkdownEditor from "./MarkdownEditor.vue";
 import MarkdownPreview from "./MarkdownPreview.vue";
@@ -125,11 +133,30 @@ function draftKey(): string {
   return isNew.value ? NEW_DRAFT_KEY : slug.value;
 }
 
-function toDraft(): Draft {
-  return {
-    slug: slug.value,
+/**
+ * A copy with Vue's reactive proxies stripped at every level. IndexedDB
+ * structured-clones what it stores and cannot clone a Proxy; Blobs and other
+ * non-plain objects are kept as they are.
+ */
+function plain<T>(value: T): T {
+  const raw = toRaw(value);
+  if (Array.isArray(raw)) return raw.map(plain) as T;
+  if (raw !== null && typeof raw === "object") {
+    const proto = Object.getPrototypeOf(raw);
+    if (proto === Object.prototype || proto === null) {
+      return Object.fromEntries(
+        Object.entries(raw).map(([key, item]) => [key, plain(item)]),
+      ) as T;
+    }
+  }
+  return raw;
+}
+
+function toDraft(key: string): Draft {
+  return plain({
+    slug: key,
     layout: layout.value,
-    isNew: isNew.value,
+    isNew: key === NEW_DRAFT_KEY,
     frontmatter: frontmatter.value,
     body: body.value,
     pendingImages: pendingImages.value,
@@ -137,7 +164,16 @@ function toDraft(): Draft {
     committedImages: committedImages.value,
     baseSha: baseSha.value,
     updatedAt: Date.now(),
-  };
+  });
+}
+
+function applyPost(post: Awaited<ReturnType<typeof api.getPost>>) {
+  layout.value = post.layout;
+  frontmatter.value = post.frontmatter;
+  body.value = post.body;
+  committedImages.value = post.images;
+  baseSha.value = post.baseSha;
+  originalTitle.value = post.frontmatter.title;
 }
 
 function applyDraft(draft: Draft) {
@@ -152,14 +188,69 @@ function applyDraft(draft: Draft) {
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
+/**
+ * The key the pending save belongs to, fixed when the edit is made. By the
+ * time the save runs the route may already point at another post.
+ */
+let pendingKey: string | undefined;
+/** Set while state is replaced programmatically, which is not an edit. */
+let suppressLocalSave = false;
+/** Reported once per run of failures rather than on every keystroke. */
+let localSaveFailed = false;
+/** Counts edits, so a save can tell whether any were made while it ran. */
+let editCount = 0;
 
 /** 500ms after the last keystroke the draft is written to IndexedDB. */
 function scheduleLocalSave() {
-  if (loading.value) return;
+  if (loading.value || suppressLocalSave) return;
+  editCount += 1;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    void putDraft({ ...toDraft(), slug: draftKey() });
-  }, 500);
+  pendingKey = draftKey();
+  saveTimer = setTimeout(() => void flushLocalSave(), 500);
+}
+
+function cancelLocalSave() {
+  clearTimeout(saveTimer);
+  pendingKey = undefined;
+}
+
+/**
+ * Writes the pending save now. The draft is built before the first `await`,
+ * so callers can reset the state right after calling this.
+ */
+async function flushLocalSave() {
+  const key = pendingKey;
+  cancelLocalSave();
+  if (key === undefined) return;
+  const draft = toDraft(key);
+  try {
+    await putDraft(draft);
+    localSaveFailed = false;
+  } catch (error) {
+    console.error(error);
+    if (!localSaveFailed) {
+      localSaveFailed = true;
+      emit(
+        "toast",
+        `下書きをこの端末に保存できませんでした: ${errorMessage(error)}`,
+        "error",
+      );
+    }
+  }
+}
+
+/**
+ * Replaces the state without it counting as an edit. The watcher below runs
+ * on the next flush, so the flag stays up until then.
+ */
+async function replaceState(apply: () => void) {
+  suppressLocalSave = true;
+  try {
+    apply();
+    await nextTick();
+  } finally {
+    suppressLocalSave = false;
+  }
 }
 
 watch([frontmatter, body, pendingImages, deletions, slug], scheduleLocalSave, {
@@ -189,9 +280,21 @@ function resetState() {
 }
 
 async function load() {
+  // An edit made just before leaving belongs to the post being left.
+  void flushLocalSave();
   loading.value = true;
   resetState();
+  try {
+    await loadContent();
+  } finally {
+    // The watcher sees the loaded state on the next flush; that is not an
+    // edit, so `loading` stays up until it has run.
+    await nextTick();
+    loading.value = false;
+  }
+}
 
+async function loadContent() {
   if (isNew.value) {
     const draft = await getDraft(NEW_DRAFT_KEY);
     if (draft) {
@@ -199,7 +302,6 @@ async function load() {
     } else {
       frontmatter.value = { title: "", pubDate: new Date().toISOString() };
     }
-    loading.value = false;
     return;
   }
 
@@ -211,28 +313,18 @@ async function load() {
   if (draft) {
     applyDraft(draft);
     originalTitle.value = draft.frontmatter.title;
-    loading.value = false;
     if (props.online) void refreshFromServer(true);
     return;
   }
 
   try {
     const post = await api.getPost(target);
-    layout.value = post.layout;
-    frontmatter.value = post.frontmatter;
-    body.value = post.body;
-    committedImages.value = post.images;
-    pendingImages.value = [];
-    deletions.value = [];
-    baseSha.value = post.baseSha;
-    originalTitle.value = post.frontmatter.title;
+    applyPost(post);
   } catch (error) {
     loadError.value = errorMessage(
       error,
       "オフラインのため、この記事はローカルに下書きがないと開けません。",
     );
-  } finally {
-    loading.value = false;
   }
 }
 
@@ -248,15 +340,13 @@ async function refreshFromServer(silent = false) {
       }
       return;
     }
-    layout.value = post.layout;
-    frontmatter.value = post.frontmatter;
-    body.value = post.body;
-    committedImages.value = post.images;
-    baseSha.value = post.baseSha;
-    originalTitle.value = post.frontmatter.title;
-    pendingImages.value = [];
-    deletions.value = [];
-    conflict.value = null;
+    cancelLocalSave();
+    await replaceState(() => {
+      applyPost(post);
+      pendingImages.value = [];
+      deletions.value = [];
+      conflict.value = null;
+    });
     await deleteDraft(slug.value);
     emit("toast", "GitHub の最新状態を取得しました。");
   } catch (error) {
@@ -320,6 +410,7 @@ async function save(force = false) {
   }
 
   saving.value = true;
+  const editsBefore = editCount;
   try {
     const images = await Promise.all(
       pendingImages.value.map(async (image) => ({
@@ -359,14 +450,26 @@ async function save(force = false) {
       return;
     }
 
-    baseSha.value = result.commitSha;
-    pendingImages.value = [];
-    deletions.value = [];
-    conflict.value = null;
-    committedImages.value = [...committedImages.value, ...result.images];
-    originalTitle.value = frontmatter.value.title;
+    // Edits made while the request was in flight are not in this commit, so
+    // their draft is kept; otherwise the saved state needs no draft.
+    const editedMeanwhile = editCount !== editsBefore;
+    await replaceState(() => {
+      baseSha.value = result.commitSha;
+      pendingImages.value = [];
+      deletions.value = [];
+      conflict.value = null;
+      committedImages.value = [...committedImages.value, ...result.images];
+      originalTitle.value = frontmatter.value.title;
+    });
 
-    await deleteDraft(draftKey());
+    if (isNew.value) {
+      // The post exists now, so the new-post slot is freed and edits made
+      // meanwhile are saved under the post's own key instead.
+      if (editedMeanwhile) pendingKey = slug.value;
+      await deleteDraft(NEW_DRAFT_KEY);
+    } else if (!editedMeanwhile) {
+      await deleteDraft(slug.value);
+    }
     emit(
       "toast",
       props.isLocal
@@ -407,7 +510,7 @@ watch(() => route.fullPath, load);
 
 onBeforeUnmount(() => {
   stickyObserver?.disconnect();
-  clearTimeout(saveTimer);
+  void flushLocalSave();
   for (const url of objectUrls.values()) URL.revokeObjectURL(url);
   objectUrls.clear();
 });

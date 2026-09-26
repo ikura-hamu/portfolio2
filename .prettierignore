@@ -1,0 +1,8 @@
+# Prettier also skips everything in .gitignore.
+pnpm-lock.yaml
+.vercel/
+.playwright/
+
+# Post bodies are written by hand or by the admin UI. remark-breaks makes
+# line breaks significant, so reformatting them could change rendered posts.
+src/content/

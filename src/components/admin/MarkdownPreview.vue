@@ -38,6 +38,7 @@ watch(() => props.resolveImage, render);
 </script>
 
 <template>
+  <!-- eslint-disable-next-line vue/no-v-html -- see the note at the top -->
   <div class="prose admin-preview" v-html="html" />
 </template>
 

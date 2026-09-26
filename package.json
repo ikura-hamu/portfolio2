@@ -41,7 +41,7 @@
     "@tailwindcss/vite": "^4.3.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
-    "astro": "^7.1.0",
+    "astro": "^7.2.8",
     "codemirror": "^6.0.2",
     "idb": "^8.0.3",
     "jose": "^6.2.12",

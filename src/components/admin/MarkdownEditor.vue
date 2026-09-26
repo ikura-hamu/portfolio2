@@ -7,7 +7,13 @@
  * from a phone.
  */
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
-import { EditorState, type Extension } from "@codemirror/state";
+import {
+  EditorSelection,
+  EditorState,
+  type ChangeSpec,
+  type Extension,
+  type SelectionRange,
+} from "@codemirror/state";
 import {
   EditorView,
   keymap,
@@ -39,47 +45,140 @@ const view = shallowRef<EditorView>();
 const isDark = ref(false);
 const dragging = ref(false);
 
-/** Wraps the selection, or inserts the markers at the cursor. */
-function surround(before: string, after = before) {
+/**
+ * Applies an edit to every selection range and focuses the editor.
+ * `changeByRange` takes each range's changes and its new selection in the
+ * range's own coordinates and maps them onto each other, so the cursor lands
+ * where the helper says instead of wherever position mapping leaves it.
+ */
+function edit(
+  apply: (
+    range: SelectionRange,
+    state: EditorState,
+  ) => {
+    changes: ChangeSpec;
+    range: SelectionRange;
+  },
+) {
   const editor = view.value;
   if (!editor) return;
-  const { from, to } = editor.state.selection.main;
-  const selected = editor.state.sliceDoc(from, to);
-  editor.dispatch({
-    changes: { from, to, insert: `${before}${selected}${after}` },
-    selection: {
-      anchor: from + before.length,
-      head: from + before.length + selected.length,
-    },
-  });
+  editor.dispatch(
+    editor.state.changeByRange((range) => apply(range, editor.state)),
+    { scrollIntoView: true, userEvent: "input" },
+  );
   editor.focus();
 }
 
-/** Applies a prefix to every line the selection touches. */
+/** Wraps the selection, or puts the cursor between the markers. */
+function surround(before: string, after = before) {
+  edit(({ from, to }) => ({
+    changes: [
+      { from, insert: before },
+      { from: to, insert: after },
+    ],
+    range: EditorSelection.range(from + before.length, to + before.length),
+  }));
+}
+
+/**
+ * Makes the selection a link and selects the `url` placeholder, so typing
+ * replaces it. With nothing selected, the cursor goes where the text goes.
+ */
+function insertLink() {
+  edit(({ from, to }) => {
+    const urlStart = to + "[](".length;
+    return {
+      changes: [
+        { from, insert: "[" },
+        { from: to, insert: "](url)" },
+      ],
+      range:
+        from === to
+          ? EditorSelection.cursor(from + 1)
+          : EditorSelection.range(urlStart, urlStart + "url".length),
+    };
+  });
+}
+
+/**
+ * Rewrites the start of every line the selection touches. Blank lines are
+ * left alone when several lines are selected. Positions are mapped with
+ * `assoc = 1`, so a cursor at the start of a line ends up after the new
+ * prefix rather than before it.
+ */
+function editLineStarts(
+  rewrite: (text: string) => { remove: number; insert: string },
+) {
+  edit((range, state) => {
+    const first = state.doc.lineAt(range.from).number;
+    const last = state.doc.lineAt(range.to).number;
+    const specs = [];
+    for (let number = first; number <= last; number += 1) {
+      const line = state.doc.line(number);
+      if (first !== last && line.text.trim() === "") continue;
+      const { remove, insert } = rewrite(line.text);
+      specs.push({ from: line.from, to: line.from + remove, insert });
+    }
+    const changes = state.changes(specs);
+    return {
+      changes,
+      range: EditorSelection.range(
+        changes.mapPos(range.anchor, 1),
+        changes.mapPos(range.head, 1),
+      ),
+    };
+  });
+}
+
+/** Adds a prefix such as `- ` or `> ` to each line. */
 function prefixLines(prefix: string) {
-  const editor = view.value;
-  if (!editor) return;
-  const { from, to } = editor.state.selection.main;
-  const first = editor.state.doc.lineAt(from).number;
-  const last = editor.state.doc.lineAt(to).number;
-  const changes = [];
-  for (let number = first; number <= last; number += 1) {
-    const line = editor.state.doc.line(number);
-    changes.push({ from: line.from, to: line.from, insert: prefix });
-  }
-  editor.dispatch({ changes });
-  editor.focus();
+  editLineStarts(() => ({ remove: 0, insert: prefix }));
+}
+
+/**
+ * Sets the heading level of each line, replacing any existing `#` prefix.
+ * A line already at that level goes back to plain text.
+ */
+function setHeading(level: number) {
+  const marker = `${"#".repeat(level)} `;
+  editLineStarts((text) => {
+    const current = /^#{1,6} /.exec(text)?.[0] ?? "";
+    return {
+      remove: current.length,
+      insert: current === marker ? "" : marker,
+    };
+  });
+}
+
+/**
+ * Fences the selected text, or inserts an empty fence with the cursor on
+ * its blank line. The fences always sit on lines of their own.
+ */
+function insertCodeBlock() {
+  edit(({ from, to }, state) => {
+    const lead = from === state.doc.lineAt(from).from ? "" : "\n";
+    const trail = to === state.doc.lineAt(to).to ? "" : "\n";
+    const selected = state.sliceDoc(from, to);
+    const opening = `${lead}\`\`\`\n`;
+    return {
+      changes: {
+        from,
+        to,
+        insert: `${opening}${selected}\n\`\`\`${trail}`,
+      },
+      range: EditorSelection.range(
+        from + opening.length,
+        from + opening.length + selected.length,
+      ),
+    };
+  });
 }
 
 function insert(text: string) {
-  const editor = view.value;
-  if (!editor) return;
-  const { from, to } = editor.state.selection.main;
-  editor.dispatch({
+  edit(({ from, to }) => ({
     changes: { from, to, insert: text },
-    selection: { anchor: from + text.length },
-  });
-  editor.focus();
+    range: EditorSelection.cursor(from + text.length),
+  }));
 }
 
 /** Inserts markdown image syntax at the cursor; used after an upload. */
@@ -208,7 +307,7 @@ watch(
         type="button"
         class="tb admin-hover"
         title="見出し2"
-        @click="prefixLines('## ')"
+        @click="setHeading(2)"
       >
         H2
       </button>
@@ -216,7 +315,7 @@ watch(
         type="button"
         class="tb admin-hover"
         title="見出し3"
-        @click="prefixLines('### ')"
+        @click="setHeading(3)"
       >
         H3
       </button>
@@ -240,7 +339,7 @@ watch(
         type="button"
         class="tb admin-hover"
         title="リンク"
-        @click="surround('[', '](url)')"
+        @click="insertLink"
       >
         🔗
       </button>
@@ -256,7 +355,7 @@ watch(
         type="button"
         class="tb admin-hover"
         title="コードブロック"
-        @click="insert('\n```\n\n```\n')"
+        @click="insertCodeBlock"
       >
         ```
       </button>
@@ -266,7 +365,7 @@ watch(
         title="箇条書き"
         @click="prefixLines('- ')"
       >
-        •
+        ・
       </button>
       <button
         type="button"

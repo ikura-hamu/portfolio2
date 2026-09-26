@@ -36,7 +36,10 @@ const error = ref("");
 const menuFor = ref<string | null>(null);
 
 interface Row {
-  /** Empty for the in-progress new post, which has no slug yet. */
+  /**
+   * Unique per row. The in-progress new post uses `NEW_DRAFT_KEY`, because its
+   * slug may still be empty or collide with an existing post's.
+   */
   key: string;
   slug: string;
   title: string;
@@ -64,9 +67,9 @@ const rows = computed<Row[]>(() => {
 
   // Drafts that only exist in this browser.
   for (const draft of drafts.value) {
-    if (draft.slug === "" || merged.some((row) => row.slug === draft.slug))
-      continue;
+    if (merged.some((row) => row.slug === draft.slug)) continue;
     merged.push({
+      key: draft.slug,
       slug: draft.slug,
       title: draft.frontmatter.title || draft.slug,
       pubDate: draft.frontmatter.pubDate,
@@ -106,9 +109,7 @@ async function load() {
   error.value = "";
   const allDrafts = await listDrafts();
   newDraft.value = allDrafts.find((draft) => draft.slug === NEW_DRAFT_KEY);
-  drafts.value = allDrafts.filter(
-    (draft) => draft.slug !== NEW_DRAFT_KEY && draft.slug !== "",
-  );
+  drafts.value = allDrafts.filter((draft) => draft.slug !== NEW_DRAFT_KEY);
   draftStorageOk.value = await isDraftStorageAvailable();
 
   try {
@@ -158,7 +159,8 @@ async function discard(row: Row) {
   if (!confirm(`下書き「${row.title}」を破棄しますか？`)) return;
 
   try {
-    await deleteDraft(row.slug);
+    // The working branch goes first: if discarding it fails, the local edits
+    // are still there to retry with.
     if (!props.isLocal && row.state !== "local-only") {
       const result = await api.discardDraft(row.slug);
       if (!result.ok) {
@@ -166,6 +168,7 @@ async function discard(row: Row) {
         return;
       }
     }
+    await deleteDraft(row.slug);
     emit("toast", "下書きを破棄しました。");
     await load();
   } catch (caught) {
@@ -227,7 +230,7 @@ onMounted(load);
     <ul v-else class="admin-divide flex flex-col">
       <li
         v-for="row in rows"
-        :key="row.slug"
+        :key="row.key"
         class="flex items-center gap-2 py-2"
       >
         <button
@@ -276,12 +279,12 @@ onMounted(load);
             type="button"
             class="rounded px-2 py-1 text-sm"
             aria-label="操作"
-            @click="menuFor = menuFor === row.slug ? null : row.slug"
+            @click="menuFor = menuFor === row.key ? null : row.key"
           >
             …
           </button>
           <div
-            v-if="menuFor === row.slug"
+            v-if="menuFor === row.key"
             class="admin-surface admin-border absolute right-0 z-20 mt-1 w-48 rounded border p-1 shadow-lg"
           >
             <button

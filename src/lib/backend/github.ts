@@ -36,8 +36,11 @@ import type {
   SaveResult,
 } from "./types";
 
+/** Every working branch is `<POST_BRANCH_PREFIX><slug>`. */
+const POST_BRANCH_PREFIX = "post/";
+
 function branchFor(slug: string): string {
-  return `post/${assertValidSlug(slug)}`;
+  return `${POST_BRANCH_PREFIX}${assertValidSlug(slug)}`;
 }
 
 function headRef(branch: string): string {
@@ -105,8 +108,11 @@ export class GitHubBackend implements ContentBackend {
     const mainPosts = collectPosts(mainTree);
 
     const branchBySlug = new Map<string, { name: string; sha: string }>();
-    for (const branch of await git.listBranches(this.repo, "post/")) {
-      const slug = branch.name.slice("post/".length);
+    for (const branch of await git.listBranches(
+      this.repo,
+      POST_BRANCH_PREFIX,
+    )) {
+      const slug = branch.name.slice(POST_BRANCH_PREFIX.length);
       // A ref such as `post/a/b` is not a post branch.
       if (isValidSlug(slug)) branchBySlug.set(slug, branch);
     }

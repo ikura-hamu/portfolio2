@@ -27,7 +27,11 @@ import {
   type Draft,
   type PendingImage,
 } from "@/lib/admin/draftStore";
-import { blobToBase64, prepareImage } from "@/lib/admin/imagePipeline";
+import {
+  blobToBase64,
+  prepareImage,
+  type PreparedImage,
+} from "@/lib/admin/imagePipeline";
 import type { Frontmatter, PostLayout } from "@/lib/post";
 import { imageTarget, isValidSlug } from "@/lib/contentPaths";
 
@@ -354,20 +358,42 @@ async function refreshFromServer(silent = false) {
   }
 }
 
+/**
+ * Queues an image for the next save and returns how the post refers to it.
+ * A new post may not have a slug yet; directory posts refer to images
+ * relative to themselves, so the placeholder never reaches the reference.
+ */
+function addPendingImage(name: string, blob: Blob): string {
+  const { reference } = imageTarget(slug.value || "draft", layout.value, name);
+  pendingImages.value = [...pendingImages.value, { name, reference, blob }];
+  return reference;
+}
+
+/** File names already used by this post's images, saved or not. */
+const takenImageNames = computed(
+  () =>
+    new Set([
+      ...pendingImages.value.map((image) => image.name),
+      ...committedImages.value.map(
+        (image) => image.path.split("/").pop() ?? "",
+      ),
+    ]),
+);
+
+/** The hero image form hands over an image it has already prepared. */
+function addHeroImage(image: PreparedImage) {
+  const reference = addPendingImage(image.name, image.blob);
+  frontmatter.value = { ...frontmatter.value, heroImageContent: reference };
+}
+
 async function addFiles(files: File[]) {
   for (const file of files) {
     try {
       const prepared = await prepareImage(file);
-      const name = uniqueName(prepared.name);
-      const { reference } = imageTarget(
-        slug.value || "draft",
-        layout.value,
-        name,
+      const reference = addPendingImage(
+        uniqueName(prepared.name),
+        prepared.blob,
       );
-      pendingImages.value = [
-        ...pendingImages.value,
-        { name, reference, blob: prepared.blob },
-      ];
       editorRef.value?.insertImage(
         reference,
         prepared.name.replace(/\.[^.]+$/, ""),
@@ -383,10 +409,7 @@ async function addFiles(files: File[]) {
 }
 
 function uniqueName(name: string): string {
-  const taken = new Set([
-    ...pendingImages.value.map((image) => image.name),
-    ...committedImages.value.map((image) => image.path.split("/").pop() ?? ""),
-  ]);
+  const taken = takenImageNames.value;
   if (!taken.has(name)) return name;
   const stem = name.replace(/\.[^.]+$/, "");
   const ext = name.slice(stem.length);
@@ -711,6 +734,8 @@ onBeforeUnmount(() => {
             v-model:slug="slug"
             :slug-editable="isNew"
             :title-warning="titleWarning"
+            :taken-image-names="takenImageNames"
+            @hero-image="addHeroImage"
           />
         </div>
       </aside>

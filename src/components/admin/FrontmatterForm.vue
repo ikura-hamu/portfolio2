@@ -4,9 +4,11 @@
  * form does not cover. Saving normalizes the YAML, so comments in existing
  * posts are lost on their first save through the admin UI.
  */
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { parse as parseYAML, stringify as stringifyYAML } from "yaml";
 import { errorMessage } from "@/lib/admin/api";
+import { prepareImage, type PreparedImage } from "@/lib/admin/imagePipeline";
+import { sanitizeImageName } from "@/lib/contentPaths";
 import type { Frontmatter } from "@/lib/post";
 
 const props = defineProps<{
@@ -14,10 +16,14 @@ const props = defineProps<{
   slug: string;
   slugEditable: boolean;
   titleWarning: boolean;
+  /** File names the post's images already use, so a new one cannot clash. */
+  takenImageNames: ReadonlySet<string>;
 }>();
 const emit = defineEmits<{
   (event: "update:modelValue", value: Frontmatter): void;
   (event: "update:slug", value: string): void;
+  /** A hero image to queue for the next save, named and ready to commit. */
+  (event: "hero-image", image: PreparedImage): void;
 }>();
 
 const rawMode = ref(false);
@@ -104,6 +110,84 @@ function applyRaw() {
     rawError.value = errorMessage(error);
   }
 }
+
+/**
+ * Uploading a hero image under a chosen name. The image goes through the same
+ * pipeline as the ones dropped into the body before the name is asked for,
+ * because conversion decides the extension; only the part before it is
+ * editable.
+ */
+const heroFileInput = ref<HTMLInputElement>();
+const heroUpload = ref<{
+  blob: Blob;
+  stem: string;
+  extension: string;
+  previewUrl: string;
+} | null>(null);
+const heroPreparing = ref(false);
+const heroUploadError = ref("");
+
+/** The name the image will be committed as, or null if it is unusable. */
+const heroSavedName = computed(() => {
+  const upload = heroUpload.value;
+  if (!upload || upload.stem.trim() === "") return null;
+  try {
+    return sanitizeImageName(`${upload.stem.trim()}${upload.extension}`);
+  } catch {
+    return null;
+  }
+});
+
+async function onHeroFile(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file) return;
+  cancelHeroUpload();
+  heroPreparing.value = true;
+  try {
+    const prepared = await prepareImage(file);
+    const extension = /\.[^.]+$/.exec(prepared.name)?.[0] ?? "";
+    heroUpload.value = {
+      blob: prepared.blob,
+      stem: prepared.name.slice(0, prepared.name.length - extension.length),
+      extension,
+      previewUrl: URL.createObjectURL(prepared.blob),
+    };
+  } catch (error) {
+    heroUploadError.value = `画像を処理できませんでした: ${errorMessage(error)}`;
+  } finally {
+    heroPreparing.value = false;
+  }
+}
+
+/**
+ * A clash is reported rather than renamed around: the author picked this
+ * name on purpose.
+ */
+function confirmHeroUpload() {
+  const upload = heroUpload.value;
+  const name = heroSavedName.value;
+  if (!upload) return;
+  if (!name) {
+    heroUploadError.value = "ファイル名が空か、使えない名前です。";
+    return;
+  }
+  if (props.takenImageNames.has(name)) {
+    heroUploadError.value = `「${name}」はこの記事の画像で使われています。別の名前にしてください。`;
+    return;
+  }
+  emit("hero-image", { name, blob: upload.blob });
+  cancelHeroUpload();
+}
+
+function cancelHeroUpload() {
+  if (heroUpload.value) URL.revokeObjectURL(heroUpload.value.previewUrl);
+  heroUpload.value = null;
+  heroUploadError.value = "";
+}
+
+onBeforeUnmount(cancelHeroUpload);
 
 watch(
   () => props.modelValue,
@@ -251,23 +335,86 @@ watch(
         />
       </div>
 
-      <label class="flex flex-col gap-1 text-sm">
-        <span class="font-medium">heroImageContent（アイキャッチ）</span>
-        <input
-          :value="modelValue.heroImageContent ?? ''"
-          placeholder="./hero.webp"
-          class="rounded border p-2 font-mono"
-          @input="
-            patch({
-              heroImageContent:
-                ($event.target as HTMLInputElement).value || undefined,
-            })
-          "
-        />
+      <div class="flex flex-col gap-1 text-sm">
+        <label class="flex flex-col gap-1">
+          <span class="font-medium">heroImageContent（アイキャッチ）</span>
+          <input
+            :value="modelValue.heroImageContent ?? ''"
+            placeholder="./hero.webp"
+            class="rounded border p-2 font-mono"
+            @input="
+              patch({
+                heroImageContent:
+                  ($event.target as HTMLInputElement).value || undefined,
+              })
+            "
+          />
+        </label>
         <span class="text-xs opacity-70">
           記事からの相対パス。OGP 画像にもこれが使われます。
         </span>
-      </label>
+
+        <input
+          ref="heroFileInput"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="onHeroFile"
+        />
+        <button
+          v-if="!heroUpload"
+          type="button"
+          class="self-start rounded border px-2 py-1 text-xs disabled:opacity-50"
+          :disabled="heroPreparing"
+          @click="heroFileInput?.click()"
+        >
+          {{ heroPreparing ? "画像を処理中…" : "画像をアップロード" }}
+        </button>
+
+        <div v-else class="admin-border flex flex-col gap-2 rounded border p-2">
+          <img
+            :src="heroUpload.previewUrl"
+            alt=""
+            class="max-h-40 self-start rounded object-contain"
+          />
+          <label class="flex flex-col gap-1">
+            <span class="font-medium">ファイル名</span>
+            <span class="flex items-center gap-1">
+              <input
+                v-model="heroUpload.stem"
+                class="min-w-0 flex-1 rounded border p-2 font-mono"
+                @keydown.enter.prevent="confirmHeroUpload"
+              />
+              <span class="font-mono opacity-70">{{
+                heroUpload.extension
+              }}</span>
+            </span>
+          </label>
+          <span v-if="heroSavedName" class="text-xs opacity-70">
+            保存名: <code>{{ heroSavedName }}</code
+            >（追加すると本文の画像と同じく次の保存で commit されます）
+          </span>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="rounded bg-primary px-3 py-1 text-xs text-white"
+              @click="confirmHeroUpload"
+            >
+              追加
+            </button>
+            <button
+              type="button"
+              class="rounded border px-2 py-1 text-xs"
+              @click="cancelHeroUpload"
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+        <p v-if="heroUploadError" class="text-xs text-red-600">
+          {{ heroUploadError }}
+        </p>
+      </div>
 
       <p v-if="extraKeys.length > 0" class="text-xs opacity-70">
         フォーム外のキー: {{ extraKeys.join(", ") }}（raw YAML で編集できます）

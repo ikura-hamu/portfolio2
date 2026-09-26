@@ -33,6 +33,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "astro": "^7.1.0",
+    "jose": "^6.2.12",
     "jsdom": "^29.1.1",
     "remark-breaks": "^4.0.0",
     "remark-link-card-plus": "^0.8.0",

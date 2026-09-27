@@ -61,8 +61,8 @@ function isAppAsset(url) {
   return (
     url.pathname.startsWith("/_astro/") ||
     url.pathname.startsWith("/fonts/") ||
-    url.pathname === "/admin-manifest.webmanifest" ||
-    url.pathname === "/favicon.png"
+    url.pathname.startsWith("/admin-icons/") ||
+    url.pathname === "/admin-manifest.webmanifest"
   );
 }
 

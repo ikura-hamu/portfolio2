@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "astro": "astro",
-    "new": "tsx scripts/new_post.ts"
+    "new": "tsx scripts/new_post.ts",
+    "icons:admin": "tsx scripts/generate_admin_icons.ts"
   },
   "packageManager": "pnpm@10.34.5",
   "pnpm": {

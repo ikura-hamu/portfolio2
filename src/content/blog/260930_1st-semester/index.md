@@ -1,6 +1,6 @@
 ---
 title: 2026年度前期の振り返り
-pubDate: 2026-09-30T06:00:00.000Z
+pubDate: 2026-09-30T22:30:00.000+09:00
 heroImageContent: ./sheep.webp
 tags:
   - 振り返り

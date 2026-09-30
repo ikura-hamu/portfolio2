@@ -59,6 +59,8 @@ export const api = {
   listPosts: (options: { offset?: number; limit?: number } = {}) =>
     unwrap(actions.listPosts(options)),
   getPost: (slug: string) => unwrap(actions.getPost({ slug })),
+  uploadImage: (contentBase64: string) =>
+    unwrap(actions.uploadImage({ contentBase64 })),
   createPost: (input: Parameters<typeof actions.createPost>[0]) =>
     unwrap(actions.createPost(input)),
   updatePost: (input: Parameters<typeof actions.updatePost>[0]) =>

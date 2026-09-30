@@ -26,6 +26,7 @@ import type { PostLayout } from "../post";
 import { installationTokenForRequest } from "../github/app-auth";
 import * as git from "../github/git";
 import type { TreeItem } from "../github/git";
+import { gitBlobSha } from "./blob";
 import { compareForListing, paginate } from "./ordering";
 import type {
   ContentBackend,
@@ -271,6 +272,9 @@ export class GitHubBackend implements ContentBackend {
       ? layoutFromMarkdownPath(existing.path)
       : input.layout;
 
+    // Paths whose content already matches are left out, so a save that
+    // changes nothing makes no commit.
+    const currentSha = new Map(tree.map((item) => [item.path, item.sha]));
     const entries: git.TreeEntry[] = [];
     const written: PostImage[] = [];
 
@@ -282,37 +286,68 @@ export class GitHubBackend implements ContentBackend {
         name,
       );
       const safePath = assertWritablePath(repoPath);
-      const sha = await git.createBlob(this.repo, image.contentBase64);
-      entries.push({ path: safePath, mode: "100644", type: "blob", sha });
+      if (currentSha.get(safePath) !== image.sha) {
+        entries.push({
+          path: safePath,
+          mode: "100644",
+          type: "blob",
+          sha: image.sha,
+        });
+      }
       written.push({ path: safePath, reference });
     }
 
     for (const deletion of input.deletions) {
-      entries.push({
-        path: assertOwnedByPost(deletion, input.slug, layout),
-        mode: "100644",
-        type: "blob",
-        sha: null,
-      });
+      const safePath = assertOwnedByPost(deletion, input.slug, layout);
+      if (!currentSha.has(safePath)) continue;
+      entries.push({ path: safePath, mode: "100644", type: "blob", sha: null });
     }
 
     const markdown = assertWritablePath(markdownPath(input.slug, layout));
-    const markdownSha = await git.createBlob(
-      this.repo,
-      Buffer.from(
-        serializePost(input.frontmatter, input.body),
-        "utf8",
-      ).toString("base64"),
+    const markdownContent = Buffer.from(
+      serializePost(input.frontmatter, input.body),
+      "utf8",
     );
-    entries.push({
-      path: markdown,
-      mode: "100644",
-      type: "blob",
-      sha: markdownSha,
-    });
+    if (currentSha.get(markdown) !== gitBlobSha(markdownContent)) {
+      const markdownSha = await git.createBlob(
+        this.repo,
+        markdownContent.toString("base64"),
+      );
+      entries.push({
+        path: markdown,
+        mode: "100644",
+        type: "blob",
+        sha: markdownSha,
+      });
+    }
+
+    if (entries.length === 0) {
+      return {
+        ok: true,
+        changed: false,
+        // Unchanged, so the version token the edit started from still holds.
+        baseSha: branchSha ?? existing?.sha ?? "",
+        branch,
+        images: written,
+      };
+    }
 
     const { treeSha: baseTreeSha } = await git.getCommit(this.repo, tipSha);
-    const newTreeSha = await git.createTree(this.repo, baseTreeSha, entries);
+    let newTreeSha: string;
+    try {
+      newTreeSha = await git.createTree(this.repo, baseTreeSha, entries);
+    } catch (error) {
+      // An uploaded blob nobody referenced can be garbage collected before
+      // the save that refers to it; GitHub then rejects the tree.
+      if (
+        error instanceof git.GitHubApiError &&
+        error.status === 422 &&
+        input.images.length > 0
+      ) {
+        return { ok: false, reason: "missing-image" };
+      }
+      throw error;
+    }
     const message =
       input.message ?? `${isNew ? "Add" : "Update"} ${input.slug}`;
     const commitSha = await git.createCommit(this.repo, message, newTreeSha, [
@@ -336,7 +371,21 @@ export class GitHubBackend implements ContentBackend {
       throw error;
     }
 
-    return { ok: true, commitSha, branch, images: written };
+    return {
+      ok: true,
+      changed: true,
+      baseSha: commitSha,
+      branch,
+      images: written,
+    };
+  }
+
+  /**
+   * The blob is created without being referenced; `savePost` puts it in a
+   * tree. One that never gets saved is left for GitHub to collect.
+   */
+  async uploadImage(contentBase64: string): Promise<string> {
+    return git.createBlob(this.repo, contentBase64);
   }
 
   async discardDraft(slug: string): Promise<{ ok: boolean; reason?: string }> {

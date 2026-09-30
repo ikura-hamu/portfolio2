@@ -49,8 +49,8 @@ export interface PostDetail {
 export interface NewImage {
   /** File name only; the backend decides the directory. */
   name: string;
-  /** base64-encoded contents (no data: prefix). */
-  contentBase64: string;
+  /** What `uploadImage` returned for the image's contents. */
+  sha: string;
 }
 
 export interface SaveInput {
@@ -70,9 +70,19 @@ export interface SaveInput {
 }
 
 export type SaveResult =
-  | { ok: true; commitSha: string; branch: string; images: PostImage[] }
+  | {
+      ok: true;
+      /** False when the content already matched and nothing was committed. */
+      changed: boolean;
+      /** The `PostDetail.baseSha` the next save starts from. */
+      baseSha: string;
+      branch: string;
+      images: PostImage[];
+    }
   | { ok: false; reason: "conflict"; remoteSha: string }
-  | { ok: false; reason: "exists" };
+  | { ok: false; reason: "exists" }
+  /** An uploaded image is gone (e.g. collected as unreferenced); upload it again. */
+  | { ok: false; reason: "missing-image" };
 
 export interface ListOptions {
   /** Number of entries to skip, after ordering. */
@@ -84,6 +94,12 @@ export interface ListOptions {
 export interface ContentBackend {
   listPosts(options?: ListOptions): Promise<PostSummary[]>;
   getPost(slug: string): Promise<PostDetail | undefined>;
+  /**
+   * Stores image contents ahead of a save and returns the SHA `savePost`
+   * refers to them by. Images go up one per request so that no request
+   * carries more than one of them.
+   */
+  uploadImage(contentBase64: string): Promise<string>;
   savePost(input: SaveInput, isNew: boolean): Promise<SaveResult>;
   /** Discards an unpublished draft. Refuses when the post exists on `main`. */
   discardDraft(slug: string): Promise<{ ok: boolean; reason?: string }>;

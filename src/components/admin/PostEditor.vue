@@ -34,6 +34,10 @@ import {
 } from "@/lib/admin/imagePipeline";
 import type { Frontmatter, PostLayout } from "@/lib/post";
 import { imageTarget, isValidSlug } from "@/lib/contentPaths";
+import { ACTION_BODY_LIMIT } from "@/consts";
+
+/** Room left in the upload request for everything around the base64 string. */
+const MAX_IMAGE_BASE64 = ACTION_BODY_LIMIT - 1024;
 
 const props = defineProps<{ isLocal: boolean; online: boolean }>();
 const emit = defineEmits<{
@@ -425,6 +429,48 @@ function onFileInput(event: Event) {
   if (files.length > 0) void addFiles(files);
 }
 
+/**
+ * Uploads each pending image that has not gone up yet, one request per image,
+ * and returns every pending image by the SHA the save refers to it with.
+ * The SHA is kept in the draft as soon as it is known, so a retry after a
+ * failure part-way through picks up where this left off.
+ */
+async function uploadPendingImages(): Promise<{ name: string; sha: string }[]> {
+  // Looked up afresh each time: images can be added or removed meanwhile.
+  for (;;) {
+    const image = pendingImages.value.find((item) => item.sha === undefined);
+    if (!image) break;
+    const contentBase64 = await blobToBase64(image.blob);
+    if (contentBase64.length > MAX_IMAGE_BASE64) {
+      throw new Error(
+        `画像が大きすぎるためアップロードできません: ${image.name}（上限 ${Math.floor((MAX_IMAGE_BASE64 * 3) / 4 / 1024 / 1024)}MB 程度）`,
+      );
+    }
+    const { sha } = await api.uploadImage(contentBase64);
+    await replaceState(() => {
+      pendingImages.value = pendingImages.value.map((item) =>
+        item.reference === image.reference ? { ...item, sha } : item,
+      );
+    });
+    await putDraft(toDraft(draftKey())).catch((error) => console.error(error));
+  }
+  return pendingImages.value.map((image) => ({
+    name: image.name,
+    sha: image.sha!,
+  }));
+}
+
+/** Drops the upload SHAs so the next save sends every pending image again. */
+async function forgetUploads() {
+  await replaceState(() => {
+    pendingImages.value = pendingImages.value.map((item) => ({
+      ...item,
+      sha: undefined,
+    }));
+  });
+  await putDraft(toDraft(draftKey())).catch((error) => console.error(error));
+}
+
 async function save(force = false) {
   if (!canSave.value) return;
   if (!props.online && !props.isLocal) {
@@ -435,12 +481,7 @@ async function save(force = false) {
   saving.value = true;
   const editsBefore = editCount;
   try {
-    const images = await Promise.all(
-      pendingImages.value.map(async (image) => ({
-        name: image.name,
-        contentBase64: await blobToBase64(image.blob),
-      })),
-    );
+    const images = await uploadPendingImages();
     const input = {
       slug: slug.value,
       layout: layout.value,
@@ -464,6 +505,15 @@ async function save(force = false) {
       );
       return;
     }
+    if (!result.ok && result.reason === "missing-image") {
+      await forgetUploads();
+      emit(
+        "toast",
+        "アップロード済みの画像がサーバーに見つかりませんでした。もう一度保存してください。",
+        "error",
+      );
+      return;
+    }
     if (!result.ok && result.reason === "exists") {
       emit("toast", `slug "${slug.value}" は既に存在します。`, "error");
       return;
@@ -477,11 +527,16 @@ async function save(force = false) {
     // their draft is kept; otherwise the saved state needs no draft.
     const editedMeanwhile = editCount !== editsBefore;
     await replaceState(() => {
-      baseSha.value = result.commitSha;
+      baseSha.value = result.baseSha;
       pendingImages.value = [];
       deletions.value = [];
       conflict.value = null;
-      committedImages.value = [...committedImages.value, ...result.images];
+      // An image whose content was already committed comes back again.
+      const saved = new Set(result.images.map((image) => image.path));
+      committedImages.value = [
+        ...committedImages.value.filter((image) => !saved.has(image.path)),
+        ...result.images,
+      ];
       originalTitle.value = frontmatter.value.title;
     });
 
@@ -495,9 +550,11 @@ async function save(force = false) {
     }
     emit(
       "toast",
-      props.isLocal
-        ? "ローカルのファイルに保存しました。"
-        : `${result.branch} に commit しました（main は変更されていません）。`,
+      !result.changed
+        ? "変更がないため保存しませんでした。"
+        : props.isLocal
+          ? "ローカルのファイルに保存しました。"
+          : `${result.branch} に commit しました（main は変更されていません）。`,
     );
 
     if (isNew.value) {

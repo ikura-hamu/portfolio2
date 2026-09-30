@@ -14,6 +14,11 @@ export interface PendingImage {
   /** How the body refers to it once saved. */
   reference: string;
   blob: Blob;
+  /**
+   * Set once the image has been uploaded, so a save that fails afterwards
+   * (a conflict, a dropped connection) does not send it again.
+   */
+  sha?: string;
 }
 
 export interface Draft {

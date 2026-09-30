@@ -5,7 +5,7 @@ import remarkLinkCard from "remark-link-card-plus";
 
 import icon from "astro-icon";
 import vue from "@astrojs/vue";
-import { SHIKI_THEME } from "./src/consts";
+import { ACTION_BODY_LIMIT, SHIKI_THEME } from "./src/consts";
 
 import vercel from "@astrojs/vercel";
 
@@ -44,6 +44,11 @@ export default defineConfig({
   },
 
   output: "static",
+
+  // Astro's default of 1 MB is too small for one photo sent as base64.
+  security: {
+    actionBodySizeLimit: ACTION_BODY_LIMIT,
+  },
 
   // Admin UI settings. All are server-only secrets, read at runtime rather
   // than inlined into the bundle, and optional: each is checked where it is

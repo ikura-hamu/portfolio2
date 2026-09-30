@@ -12,6 +12,8 @@ import { z } from "astro/zod";
 import { BACKEND_KIND, getBackend } from "@/lib/backend";
 import { UnsafePathError, isValidSlug } from "@/lib/paths";
 import { AUTH_MODE } from "@/lib/session";
+import { ACTION_BODY_LIMIT } from "@/consts";
+import { BLOB_SHA_PATTERN } from "@/lib/backend/blob";
 import { CONTENT_REPO } from "astro:env/server";
 import type { APIContext } from "astro";
 
@@ -60,7 +62,7 @@ const frontmatterSchema = z
 
 const imageSchema = z.object({
   name: z.string().min(1).max(255),
-  contentBase64: z.string().min(1),
+  sha: z.string().regex(BLOB_SHA_PATTERN),
 });
 
 const saveFields = {
@@ -129,6 +131,20 @@ export const server = {
           });
         }
         return post;
+      } catch (error) {
+        toActionError(error);
+      }
+    },
+  }),
+
+  uploadImage: defineAction({
+    input: z.object({
+      contentBase64: z.string().min(1).max(ACTION_BODY_LIMIT),
+    }),
+    handler: async ({ contentBase64 }, context) => {
+      requireUser(context);
+      try {
+        return { sha: await (await getBackend()).uploadImage(contentBase64) };
       } catch (error) {
         toActionError(error);
       }

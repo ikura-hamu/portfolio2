@@ -6,6 +6,7 @@
  * pipeline. Nothing here touches git: branch-related values are dummies.
  */
 import { promises as fs } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import {
   BLOG_DIR,
@@ -24,6 +25,7 @@ import {
   serializePost,
   slugFromMarkdownPath,
 } from "../post";
+import { BLOB_SHA_PATTERN, gitBlobSha } from "./blob";
 import { compareForListing, paginate } from "./ordering";
 import type {
   ContentBackend,
@@ -36,6 +38,26 @@ import type {
 } from "./types";
 
 const root = process.cwd();
+
+/**
+ * Uploaded images wait here, named by their SHA, until a save copies them
+ * into the working tree. Outside the project so the dev server ignores them.
+ */
+const uploadDir = path.join(os.tmpdir(), "portfolio2-admin-uploads");
+
+function uploadPath(sha: string): string {
+  if (!BLOB_SHA_PATTERN.test(sha)) throw new Error(`Not a blob SHA: ${sha}`);
+  return path.join(uploadDir, sha);
+}
+
+async function readIfExists(file: string): Promise<Buffer | undefined> {
+  try {
+    return await fs.readFile(file);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    throw error;
+  }
+}
 
 function absolute(repoPath: string): string {
   return path.join(root, repoPath);
@@ -162,6 +184,9 @@ export class LocalBackend implements ContentBackend {
     const layout = existing ? layoutFromMarkdownPath(existing) : input.layout;
     const target = assertWritablePath(markdownPath(input.slug, layout));
 
+    // Everything is read before anything is written, so a missing upload
+    // leaves the working tree as it was.
+    const uploads: { safePath: string; content: Buffer }[] = [];
     const written: PostImage[] = [];
     for (const image of input.images) {
       const name = sanitizeImageName(image.name);
@@ -171,27 +196,54 @@ export class LocalBackend implements ContentBackend {
         name,
       );
       const safePath = assertWritablePath(repoPath);
-      await fs.mkdir(path.dirname(absolute(safePath)), { recursive: true });
-      await fs.writeFile(
-        absolute(safePath),
-        Buffer.from(image.contentBase64, "base64"),
-      );
+      const content = await readIfExists(uploadPath(image.sha));
+      if (!content) return { ok: false, reason: "missing-image" };
+      uploads.push({ safePath, content });
       written.push({ path: safePath, reference });
+    }
+
+    let changed = false;
+    for (const { safePath, content } of uploads) {
+      const before = await readIfExists(absolute(safePath));
+      if (before?.equals(content)) continue;
+      await fs.mkdir(path.dirname(absolute(safePath)), { recursive: true });
+      await fs.writeFile(absolute(safePath), content);
+      changed = true;
     }
 
     for (const deletion of input.deletions) {
       const safePath = assertOwnedByPost(deletion, input.slug, layout);
+      if (!(await exists(safePath))) continue;
       await fs.rm(absolute(safePath), { force: true });
+      changed = true;
     }
 
-    await fs.mkdir(path.dirname(absolute(target)), { recursive: true });
-    await fs.writeFile(
-      absolute(target),
+    const markdown = Buffer.from(
       serializePost(input.frontmatter, input.body),
       "utf8",
     );
+    const before = await readIfExists(absolute(target));
+    if (!before?.equals(markdown)) {
+      await fs.mkdir(path.dirname(absolute(target)), { recursive: true });
+      await fs.writeFile(absolute(target), markdown);
+      changed = true;
+    }
 
-    return { ok: true, commitSha: "local", branch: "local", images: written };
+    return {
+      ok: true,
+      changed,
+      baseSha: "local",
+      branch: "local",
+      images: written,
+    };
+  }
+
+  async uploadImage(contentBase64: string): Promise<string> {
+    const content = Buffer.from(contentBase64, "base64");
+    const sha = gitBlobSha(content);
+    await fs.mkdir(uploadDir, { recursive: true });
+    await fs.writeFile(uploadPath(sha), content);
+    return sha;
   }
 
   async discardDraft(): Promise<{ ok: boolean; reason?: string }> {

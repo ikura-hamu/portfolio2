@@ -1,9 +1,11 @@
 ---
-title: VueFes
+title: Vue Fes Japan 2026 参加記
 pubDate: 2026-10-24T01:29:23.519Z
 ---
 
-KeyNote
+## セッション
+
+### キーノート
 
 - tsrs
 - content mapper
@@ -14,7 +16,7 @@ KeyNote
 - tool design has a second audience
 - 速いのが正義
 
-astro rust
+### AstroとRustで考えるフロントエンドツールチェーンの今
 
 - 最初GoだったのはesbuildがGo
 - LinterとかフォーマッタとかLanguage toolが処理するのに、いろんな変換とかエッジケースの対応をたくさんしないといけない。
@@ -25,7 +27,7 @@ astro rust
 - コンパイルするだけじゃなくてlinterとかlanguage toolの対応大変だ
 - Rustでできたtoolchainを活用してはやくなった
 
-Vite Task cache
+### Vite Task’s Cache Magic
 
 - vp run、モノレポで便利
 - エージェントは何回もコマンドを実行するのでキャッシュで速くするの大事

@@ -1,6 +1,10 @@
 ---
 title: Vue Fes Japan 2026 参加記
-pubDate: 2026-10-24T01:29:23.519Z
+pubDate: 2026-10-24T12:30:00.000Z
+heroImageContent: ./vuefes.webp
+tags:
+  - Vue
+  - 参加記
 ---
 
 2026 年 10/24 (今日)開催された Vue Fes Japan 2026 に参加しました。

@@ -23,4 +23,15 @@ astro rust
 - oxc parserを使って.astroをASTにして、コード生成
 - 誤ったHTMLの補正を行わなくなった
 - コンパイルするだけじゃなくてlinterとかlanguage toolの対応大変だ
+- Rustでできたtoolchainを活用してはやくなった
+
+Vite Task cache
+
+- vp run、モノレポで便利
+- エージェントは何回もコマンドを実行するのでキャッシュで速くするの大事
+- 入力が同じだったら実行しない
+- キャッシュヒットして実行しなくても出力はするんだ。パイプとかでこまるからそれはそうか
+- 入力になるファイルを知るのが難しい。普通は人間がそれを指定する
+- ファイルアクセスとかを監視する
+- remote cacheも重要。（in development）Cloudflare workerで提供してくれるのいいね
 -

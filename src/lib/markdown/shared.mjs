@@ -7,7 +7,9 @@
  * and the admin preview renders a placeholder instead.
  */
 import remarkBreaks from "remark-breaks";
+import remarkMath from "remark-math";
 import remarkToc from "remark-toc";
+import rehypeKatex from "rehype-katex";
 
 export const TOC_OPTIONS = {
   heading: "目次",
@@ -17,4 +19,11 @@ export const TOC_OPTIONS = {
 };
 
 /** Applied after the link-card plugins in production, and on their own in the admin preview. */
-export const sharedRemarkPlugins = [remarkBreaks, [remarkToc, TOC_OPTIONS]];
+export const sharedRemarkPlugins = [
+  remarkMath,
+  remarkBreaks,
+  [remarkToc, TOC_OPTIONS],
+];
+
+/** Render math identically in published posts and the browser preview. */
+export const sharedRehypePlugins = [rehypeKatex];

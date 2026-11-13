@@ -1,0 +1,15 @@
+@import "katex/dist/katex.min.css";
+
+/* Keep wide equations inside the article or preview on small screens. */
+.prose .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.25em;
+}
+
+/* Center short equations while keeping the start of long equations visible. */
+.prose .katex-display > .katex {
+  width: max-content;
+  min-width: 100%;
+}

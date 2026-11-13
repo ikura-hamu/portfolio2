@@ -6,6 +6,7 @@ import Footer from "../components/Footer.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 import { SITE_DESCRIPTION } from "@/consts";
 import { Image, getImage } from "astro:assets";
+import "../styles/math.css";
 type Props = CollectionEntry<"blog">["data"];
 
 const {
@@ -80,45 +81,39 @@ const ogImage =
     <main class="max-w-full">
       <article>
         <div class="w-full">
-          {
-            (heroImageContent && (
-              <Image
-                src={heroImageContent}
+          {(heroImageContent && (
+            <Image
+              src={heroImageContent}
+              alt=""
+              class="block ml-0 mr-auto rounded-xl shadow-lg"
+            />
+          )) ||
+            (heroImage && (
+              <img
+                src={heroImage}
                 alt=""
                 class="block ml-0 mr-auto rounded-xl shadow-lg"
               />
-            )) ||
-              (heroImage && (
-                <img
-                  src={heroImage}
-                  alt=""
-                  class="block ml-0 mr-auto rounded-xl shadow-lg"
-                />
-              ))
-          }
+            ))}
         </div>
         <div class="w-180 max-w-full m-auto">
           <div class="title mb-s4 py-s4 px-0 text-center leading-none">
             <div class="date mb-s2 rgb">
               {pubDate && <FormattedDate date={pubDate} />}
-              {
-                updatedDate && (
-                  <div class="last-updated-on italic">
-                    Last updated on <FormattedDate date={updatedDate} />
-                  </div>
-                )
-              }
+              {updatedDate && (
+                <div class="last-updated-on italic">
+                  Last updated on <FormattedDate date={updatedDate} />
+                </div>
+              )}
             </div>
             <h1>{title}</h1>
-            {
-              tags && (
-                <div class="flex mb-s4 gap-s2">
-                  {tags.map((tag) => (
-                    <span class="text-primary">#{tag}</span>
-                  ))}
-                </div>
-              )
-            }
+            {tags && (
+              <div class="flex mb-s4 gap-s2">
+                {tags.map((tag) => (
+                  <span class="text-primary">#{tag}</span>
+                ))}
+              </div>
+            )}
             <hr />
           </div>
           <slot />

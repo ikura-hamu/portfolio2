@@ -15,7 +15,10 @@ import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import type { Root as MdastRoot, RootContent, PhrasingContent } from "mdast";
 import type { Root as HastRoot, Element } from "hast";
-import { sharedRemarkPlugins } from "../markdown/shared.mjs";
+import {
+  sharedRemarkPlugins,
+  sharedRehypePlugins,
+} from "../markdown/shared.mjs";
 
 /** Resolves a markdown image reference to something the browser can display. */
 export type ImageResolver = (reference: string) => string | undefined;
@@ -110,6 +113,7 @@ export function createPreviewRenderer(resolve: ImageResolver) {
     .use(remarkLinkCardPlaceholder)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(sharedRehypePlugins)
     .use(rehypeResolveImages, resolve)
     .use(rehypeStringify, { allowDangerousHtml: true });
 }

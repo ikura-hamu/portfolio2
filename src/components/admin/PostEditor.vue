@@ -772,7 +772,7 @@ onBeforeUnmount(() => {
       </section>
 
       <section
-        class="w-full md:w-1/2"
+        class="min-w-0 w-full md:w-1/2"
         :class="
           tab === 'preview'
             ? 'block'

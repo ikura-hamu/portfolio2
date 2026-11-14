@@ -8,6 +8,7 @@
  * owner editing their own posts; nothing here renders third-party markdown.
  */
 import { ref, watch } from "vue";
+import "@/styles/math.css";
 import { errorMessage } from "@/lib/admin/api";
 import {
   escapeHTML,

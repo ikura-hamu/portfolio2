@@ -11,7 +11,10 @@ import vercel from "@astrojs/vercel";
 
 import tailwindcss from "@tailwindcss/vite";
 import remarkLinkCardShowURL from "./src/plugins/remark-link-card-show-url.mjs";
-import { sharedRemarkPlugins } from "./src/lib/markdown/shared.mjs";
+import {
+  sharedRemarkPlugins,
+  sharedRehypePlugins,
+} from "./src/lib/markdown/shared.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -36,6 +39,7 @@ export default defineConfig({
         // that both renderers stay in step. Their order must not change.
         ...sharedRemarkPlugins,
       ],
+      rehypePlugins: sharedRehypePlugins,
     }),
     shikiConfig: {
       theme: SHIKI_THEME,

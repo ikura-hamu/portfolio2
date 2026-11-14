@@ -63,6 +63,23 @@ All commands are run from the root of the project, from a terminal:
 
 Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
 
+## 数式の書き方
+
+記事本文と管理画面のプレビューは、KaTeXによる数式表示に対応しています。
+文中の数式は `$...$`、独立した数式は別行の `$$` で囲みます。
+
+```markdown
+エネルギーは $E = mc^2$ で表せます。
+
+$$
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+$$
+```
+
+コード内の `$` は数式として処理されません。本文中でドル記号をそのまま
+表示したい場合は `\$` と書きます。対応するコマンドは
+[KaTeXの対応構文一覧](https://katex.org/docs/supported.html)を参照してください。
+
 ## Credit
 
 This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).

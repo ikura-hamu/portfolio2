@@ -1,6 +1,6 @@
 ---
 title: "左再帰の構文を再帰下降構文解析する"
-pubDate: 2026-11-14T10:00:00+09:000
+pubDate: 2026-11-14T11:00:00+09:00
 description: "左再帰の構文を再帰下降構文解析する"
 tags: ["コンパイラ", "wooo", "Go"]
 # heroImageContent: "./261113_parseleftrecursion.png" # optional

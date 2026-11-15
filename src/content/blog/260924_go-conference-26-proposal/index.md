@@ -1,8 +1,7 @@
 ---
-title: "【Go Conference 2026 プロポーザル】 Goコンパイラを作ってGoをもっと理解する"
-description: "Go Conference 2026で採択されたプロポーザル" # optional
+title: 【Go Conference 2026 プロポーザル】 Goコンパイラを作ってGoをもっと理解する
+description: Go Conference 2026で採択されたプロポーザル
 pubDate: 2026-09-24T15:00:00+09:00
-# heroImage: ""
 tags:
   - Go
 ---
@@ -39,3 +38,5 @@ Go のコンパイラを書くと、普段 Go を使うだけでは得られな�
 10/28 の [Go Connect #18]( https://gotalk.connpass.com/event/406245/) で発表する予定です。今度は体調管理を万全にして行きますので、よろしくお願いします！
 
 https://gotalk.connpass.com/event/406245/
+
+追記: 発表しました。スライド資料 https://speakerdeck.com/ikura_hamu/build-a-go-compiler-to-better-understand-go

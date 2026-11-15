@@ -110,7 +110,12 @@ const ogImage =
             {tags && (
               <div class="flex mb-s4 gap-s2">
                 {tags.map((tag) => (
-                  <span class="text-primary">#{tag}</span>
+                  <a
+                    href={`/blog/tags/${encodeURIComponent(tag)}/`}
+                    class="text-primary"
+                  >
+                    #{tag}
+                  </a>
                 ))}
               </div>
             )}

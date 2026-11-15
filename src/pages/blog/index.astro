@@ -4,7 +4,7 @@ import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
-import BlogPostCard from "@/components/BlogPostCard.astro";
+import BlogPostList from "@/components/BlogPostList.astro";
 import { JSDOM } from "jsdom";
 import ViewMoreButton from "@/components/ViewMoreButton.astro";
 
@@ -57,34 +57,8 @@ const trapBlogs = await fetchTrapBlogs();
       main {
         width: 960px;
       }
-      ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      ul li {
-        width: calc(50% - 8px);
-      }
-      ul li * {
-        text-decoration: none;
-        transition: 0.2s ease;
-      }
-
       main {
         max-width: calc(100% - 2em);
-      }
-
-      @media (max-width: 720px) {
-        ul {
-          gap: 8px;
-        }
-        ul li {
-          width: 100%;
-          text-align: center;
-        }
       }
     </style>
   </head>
@@ -92,30 +66,15 @@ const trapBlogs = await fetchTrapBlogs();
     <Header />
     <main>
       <section class="flex flex-col gap-s4">
-        <ul class="">
-          {
-            blogs.map((post) => (
-              <li>
-                <BlogPostCard post={post} />
-              </li>
-            ))
-          }
-        </ul>
+        <a href="/blog/tags/">タグ一覧</a>
+        <BlogPostList posts={blogs} />
       </section>
       <hr class="border-4 border-primary my-s6" />
 
       <section class="flex flex-col gap-s4">
         <h2>traPでのブログ</h2>
         外部ページに飛びます
-        <ul class="">
-          {
-            trapBlogs.map((post) => (
-              <li>
-                <BlogPostCard post={post} />
-              </li>
-            ))
-          }
-        </ul>
+        <BlogPostList posts={trapBlogs} />
         <ViewMoreButton
           extraContent={{
             icon: "ri:external-link-fill",

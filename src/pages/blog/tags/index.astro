@@ -1,0 +1,45 @@
+---
+import { getCollection } from "astro:content";
+import BaseHead from "@/components/BaseHead.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { SITE_TITLE } from "@/consts";
+
+const posts = await getCollection("blog");
+const counts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of new Set(post.data.tags ?? [])) {
+    counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  }
+}
+const tags = [...counts].sort(
+  ([a, aCount], [b, bCount]) => bCount - aCount || a.localeCompare(b, "ja"),
+);
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <BaseHead
+      title={`タグ一覧 | ${SITE_TITLE}`}
+      description="ブログのタグと記事数の一覧"
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <a href="/blog/">ブログ一覧</a>
+      <h1>タグ一覧</h1>
+      <ul class="flex flex-col gap-s2">
+        {tags.map(([tag, count]) => (
+          <li>
+            <a href={`/blog/tags/${encodeURIComponent(tag)}/`}>
+              #{tag}（{count}件）
+            </a>
+          </li>
+        ))}
+      </ul>
+    </main>
+    <Footer />
+  </body>
+</html>

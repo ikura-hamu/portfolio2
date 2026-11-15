@@ -1,0 +1,45 @@
+---
+import type { ComponentProps } from "astro/types";
+import BlogPostCard from "./BlogPostCard.astro";
+
+interface Props {
+  posts: ComponentProps<typeof BlogPostCard>["post"][];
+}
+
+const { posts } = Astro.props;
+---
+
+<ul>
+  {posts.map((post) => (
+    <li>
+      <BlogPostCard post={post} />
+    </li>
+  ))}
+</ul>
+
+<style>
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    width: calc(50% - 8px);
+  }
+  li :global(*) {
+    text-decoration: none;
+    transition: 0.2s ease;
+  }
+  @media (max-width: 720px) {
+    ul {
+      gap: 8px;
+    }
+    li {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,56 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseHead from "@/components/BaseHead.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import BlogPostList from "@/components/BlogPostList.astro";
+import { SITE_TITLE } from "@/consts";
+
+export async function getStaticPaths() {
+  const posts = (await getCollection("blog")).sort(
+    (a, b) =>
+      (b.data.pubDate?.valueOf() ?? 0) - (a.data.pubDate?.valueOf() ?? 0),
+  );
+  const tags = new Set(posts.flatMap((post) => post.data.tags ?? []));
+  return [...tags].map((tag) => ({
+    params: { tagName: tag },
+    props: {
+      tag,
+      posts: posts.filter((post) => post.data.tags?.includes(tag)),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: CollectionEntry<"blog">[];
+}
+const { tag, posts } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <BaseHead
+      title={`#${tag}の記事一覧 | ${SITE_TITLE}`}
+      description={`「${tag}」タグのブログ記事一覧`}
+    />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <a href="/blog/tags/">タグ一覧</a>
+      <h1>#{tag}の記事一覧</h1>
+      <p class="mb-s4">{posts.length}件</p>
+      <BlogPostList posts={posts} />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main {
+    width: 960px;
+    max-width: calc(100% - 2em);
+  }
+</style>

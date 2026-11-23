@@ -5,6 +5,7 @@ import { replaceURL } from "@/util/url";
 import { Icon } from "astro-icon/components";
 import Layout from "../../layouts/BlogPost.astro";
 import PortfolioGraph from "../../components/PortfolioGraph.astro";
+import WorkLinks from "../../components/WorkLinks.astro";
 import { neighborhood, portfolioUrl } from "../../lib/portfolioGraph";
 
 export async function getStaticPaths() {
@@ -56,17 +57,7 @@ const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
         />
       )
     )}
-    {item.data.links.length > 0 && (
-      <ul class="flex flex-wrap gap-s4">
-        {item.data.links.map((link) => (
-          <li>
-            <a href={link.url} class="inline-flex items-center gap-s2">
-              {link.name}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )}
+    <WorkLinks links={item.data.links} />
     <section>
       <h2>直接つながっている要素</h2>
       {neighbors.length === 0 ? (

@@ -29,6 +29,13 @@ interface GraphNode extends SimulationNodeDatum {
 type GraphLink = SimulationLinkDatum<GraphNode>;
 
 const { nodes, edges, root, distance } = Astro.props;
+const nodeWidth = 192;
+const nodeSize = 52;
+const nodeTop = 92;
+const nodeRadius = nodeSize / 2;
+const horizontalPadding = nodeWidth / 2 + 10;
+const verticalPadding = nodeTop + 4;
+const linkDistance = 175;
 const graphNodes: GraphNode[] = nodes.map(({ id }) => ({
   id,
   hop: distance?.get(id) ?? 0,
@@ -45,16 +52,16 @@ forceSimulation(graphNodes)
     "links",
     forceLink<GraphNode, GraphLink>(graphLinks)
       .id((node) => node.id)
-      .distance(155)
+      .distance(linkDistance)
       .strength(0.3),
   )
   .force("repulsion", forceManyBody().strength(-160))
-  .force("collision", forceCollide(78).iterations(3))
+  .force("collision", forceCollide(nodeWidth / 2).iterations(3))
   .force(
     "radius",
-    forceRadial<GraphNode>((node) => (root ? node.hop * 155 : 0)).strength(
-      root ? 0.35 : 0.055,
-    ),
+    forceRadial<GraphNode>((node) =>
+      root ? node.hop * linkDistance : 0,
+    ).strength(root ? 0.35 : 0.055),
   )
   .stop()
   .tick(300);
@@ -66,19 +73,19 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.title]));
 const points = Array.from(positions.values());
 const xs = points.map(({ x }) => x);
 const ys = points.map(({ y }) => y);
-const halfWidth = Math.max(0, ...xs.map(Math.abs)) + 92;
-const halfHeight = Math.max(0, ...ys.map(Math.abs)) + 62;
-const left = root ? -halfWidth : Math.min(0, ...xs) - 92;
-const right = root ? halfWidth : Math.max(0, ...xs) + 92;
-const top = root ? -halfHeight : Math.min(0, ...ys) - 62;
-const bottom = root ? halfHeight : Math.max(0, ...ys) + 38;
+const halfWidth = Math.max(0, ...xs.map(Math.abs)) + horizontalPadding;
+const halfHeight = Math.max(0, ...ys.map(Math.abs)) + verticalPadding;
+const left = root ? -halfWidth : Math.min(0, ...xs) - horizontalPadding;
+const right = root ? halfWidth : Math.max(0, ...xs) + horizontalPadding;
+const top = root ? -halfHeight : Math.min(0, ...ys) - verticalPadding;
+const bottom = root ? halfHeight : Math.max(0, ...ys) + nodeRadius + 10;
 const width = right - left;
 ---
 
 <div class="graph-scroll" role="region" aria-label="関連グラフ" tabindex="0">
   <svg
     viewBox={`${left} ${top} ${width} ${bottom - top}`}
-    style={`--graph-min-width: ${Math.min(450, width)}px; --graph-width: ${width}px`}
+    style={`--graph-min-width: ${Math.min(450, width)}px; --graph-width: ${width}px; --node-size: ${nodeSize}px`}
     class="graph"
     role="group"
     aria-label={
@@ -99,15 +106,18 @@ const width = right - left;
     {nodes.map(({ id, data }) => {
       const { x, y } = positions.get(id)!;
       return (
-        <a
-          href={portfolioUrl(id)}
-          aria-label={`${data.title}の詳細`}
-          aria-current={id === root ? "page" : undefined}
-          class:list={[data.category, { current: id === root }]}
+        <foreignObject
+          x={x - nodeWidth / 2}
+          y={y - nodeTop}
+          width={nodeWidth}
+          height={nodeTop + nodeRadius}
         >
-          <title>{data.title}</title>
-          <foreignObject x={x - 82} y={y - 60} width="164" height="80">
-            <div class="node" aria-hidden="true">
+          <div class="node">
+            <a
+              href={portfolioUrl(id)}
+              aria-current={id === root ? "page" : undefined}
+              class:list={[data.category, { current: id === root }]}
+            >
               <span class="node-title">{data.title}</span>
               <span class="node-icon">
                 <Icon
@@ -116,12 +126,12 @@ const width = right - left;
                       ? "ri:code-s-slash-line"
                       : data.icon
                   }
-                  size={20}
+                  size={26}
                 />
               </span>
-            </div>
-          </foreignObject>
-        </a>
+            </a>
+          </div>
+        </foreignObject>
       );
     })}
   </svg>
@@ -149,14 +159,12 @@ const width = right - left;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 4px;
-    color: inherit;
     pointer-events: none;
   }
   .node-title {
     background: var(--color-background);
     color: inherit;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     line-height: 1.2;
     text-align: center;
@@ -166,14 +174,19 @@ const width = right - left;
     display: grid;
     place-items: center;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: var(--node-size);
+    height: var(--node-size);
     flex: none;
     background: var(--color-background);
     border: 2px solid currentColor;
     color: var(--node-color);
   }
   a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
     color: inherit;
     text-decoration: none;
   }
@@ -196,6 +209,7 @@ const width = right - left;
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-color) 25%, transparent);
   }
   foreignObject {
-    pointer-events: bounding-box;
+    overflow: visible;
+    pointer-events: none;
   }
 </style>

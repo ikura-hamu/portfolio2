@@ -6,6 +6,7 @@ import { Image } from "astro:assets";
 import { replaceURL } from "@/util/url";
 import { portfolioUrl } from "../lib/portfolioGraph";
 import ViewMoreButton from "./ViewMoreButton.astro";
+import WorkLinks from "./WorkLinks.astro";
 
 interface Props {
   workType: "products" | "slides";
@@ -66,18 +67,7 @@ const works = (
 
         <div class="text-base" set:html={replaceURL(work.description)} />
 
-        <div class="grid grid-cols-3 gap-s2 mt-auto">
-          {work.links.map((link) => (
-            <a
-              href={link.url}
-              class="hover:duration-150 flex items-end self-end text-primary hover:text-secondary gap-x-s1"
-              title={link.name}
-            >
-              <Icon name={link.icon} class="text-3xl" />
-              <div class="text-xs">{link.name}</div>
-            </a>
-          ))}
-        </div>
+        <WorkLinks links={work.links} class="mt-auto" />
       </div>
     ))}
   </div>

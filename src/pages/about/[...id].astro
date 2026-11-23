@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getPortfolioGraph } from "@/lib/portfolioContent";
 import { Image } from "astro:assets";
 import { replaceURL } from "@/util/url";
 import { Icon } from "astro-icon/components";
@@ -8,17 +8,19 @@ import PortfolioGraph from "../../components/PortfolioGraph.astro";
 import { neighborhood, portfolioUrl } from "../../lib/portfolioGraph";
 
 export async function getStaticPaths() {
-  const items = await getCollection("portfolio");
-  const relations = await getCollection("relation");
+  const { nodes: items, relations } = await getPortfolioGraph();
   return items.map((item) => ({
     params: { id: item.id },
     props: { item, graph: neighborhood(items, relations, item.id) },
   }));
 }
 const { item, graph } = Astro.props;
-const section = { skills: "Skills", products: "Products", slides: "Slides" }[
-  item.data.category
-];
+const section = {
+  skills: "Skills",
+  products: "Products",
+  slides: "Slides",
+  tags: "Relations",
+}[item.data.category];
 const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
 ---
 
@@ -27,9 +29,13 @@ const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
   description={item.data.description.replace(/<[^>]*>/g, " ")}
 >
   <div class="flex flex-col gap-s5">
-    <a href={`/about/#${section}`}>← About Me / {section}</a>
+    <a href={`/about/#${section}`}>
+      ← About Me / {item.data.category === "tags" ? "関連グラフ" : section}
+    </a>
     <div class="flex items-center gap-s4">
-      <Icon name={item.data.icon} size={72} />
+      {item.data.category === "skills" && (
+        <Icon name={item.data.icon} size={72} />
+      )}
       <div>
         {item.data.subtitle && <p class="text-sm">{item.data.subtitle}</p>}
         <p set:html={replaceURL(item.data.description)} />
@@ -55,7 +61,6 @@ const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
         {item.data.links.map((link) => (
           <li>
             <a href={link.url} class="inline-flex items-center gap-s2">
-              <Icon name={link.icon} size={20} />
               {link.name}
             </a>
           </li>
@@ -74,7 +79,6 @@ const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
                 href={portfolioUrl(id)}
                 class="inline-flex items-center gap-s2"
               >
-                <Icon name={data.icon} size={24} />
                 {data.title}
               </a>
               {graph.edges

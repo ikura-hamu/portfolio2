@@ -1,54 +1,92 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import { portfolioUrl } from "../lib/portfolioGraph";
+import { Icon } from "astro-icon/components";
+import {
+  forceCollide,
+  forceLink,
+  forceManyBody,
+  forceRadial,
+  forceSimulation,
+  type SimulationLinkDatum,
+  type SimulationNodeDatum,
+} from "d3-force";
+import {
+  portfolioUrl,
+  type PortfolioNode,
+  type PortfolioRelation,
+} from "../lib/portfolioGraph";
+
 interface Props {
-  nodes: CollectionEntry<"portfolio">[];
-  edges: CollectionEntry<"relation">[];
+  nodes: PortfolioNode[];
+  edges: PortfolioRelation[];
   root?: string;
   distance?: Map<string, number>;
 }
+
+interface GraphNode extends SimulationNodeDatum {
+  id: string;
+  hop: number;
+}
+type GraphLink = SimulationLinkDatum<GraphNode>;
+
 const { nodes, edges, root, distance } = Astro.props;
-const groups = root
-  ? [0, 1, 2].map((hop) => nodes.filter(({ id }) => distance?.get(id) === hop))
-  : ["skills", "products", "slides"].map((category) =>
-      nodes
-        .filter(({ data }) => data.category === category)
-        .sort((a, b) => a.data.order - b.data.order),
-    );
-const columnWidth = 164;
-const rowHeight = 108;
-const width = Math.max(2, ...groups.map((group) => group.length)) * columnWidth;
-const rows = groups.filter((group) => group.length > 0);
-const positions = new Map<string, { x: number; y: number }>();
-rows.forEach((group, row) => {
-  group.forEach(({ id }, column) => {
-    positions.set(id, {
-      x: width / 2 + (column - (group.length - 1) / 2) * columnWidth,
-      y: (row + 0.5) * rowHeight,
-    });
-  });
-});
+const graphNodes: GraphNode[] = nodes.map(({ id }) => ({
+  id,
+  hop: distance?.get(id) ?? 0,
+  ...(id === root ? { fx: 0, fy: 0 } : {}),
+}));
+const graphLinks: GraphLink[] = edges.map(({ data }) => ({
+  source: data.source.id,
+  target: data.target.id,
+}));
+
+// Run the layout during rendering so the links and graph work without browser JavaScript.
+forceSimulation(graphNodes)
+  .force(
+    "links",
+    forceLink<GraphNode, GraphLink>(graphLinks)
+      .id((node) => node.id)
+      .distance(155)
+      .strength(0.3),
+  )
+  .force("repulsion", forceManyBody().strength(-160))
+  .force("collision", forceCollide(78).iterations(3))
+  .force(
+    "radius",
+    forceRadial<GraphNode>((node) => (root ? node.hop * 155 : 0)).strength(
+      root ? 0.35 : 0.055,
+    ),
+  )
+  .stop()
+  .tick(300);
+
+const positions = new Map(
+  graphNodes.map((node) => [node.id, { x: node.x ?? 0, y: node.y ?? 0 }]),
+);
 const names = new Map(nodes.map(({ id, data }) => [id, data.title]));
+const points = Array.from(positions.values());
+const xs = points.map(({ x }) => x);
+const ys = points.map(({ y }) => y);
+const halfWidth = Math.max(0, ...xs.map(Math.abs)) + 92;
+const halfHeight = Math.max(0, ...ys.map(Math.abs)) + 62;
+const left = root ? -halfWidth : Math.min(0, ...xs) - 92;
+const right = root ? halfWidth : Math.max(0, ...xs) + 92;
+const top = root ? -halfHeight : Math.min(0, ...ys) - 62;
+const bottom = root ? halfHeight : Math.max(0, ...ys) + 38;
+const width = right - left;
 ---
 
-<div
-  class="graph-scroll"
-  role="region"
-  aria-label="関連グラフ（横にスクロールできます）"
-  tabindex="0"
->
+<div class="graph-scroll" role="region" aria-label="関連グラフ" tabindex="0">
   <svg
-    viewBox={`0 0 ${width} ${rows.length * rowHeight}`}
-    style={`--graph-width: ${width}px`}
+    viewBox={`${left} ${top} ${width} ${bottom - top}`}
+    style={`--graph-min-width: ${Math.min(450, width)}px; --graph-width: ${width}px`}
     class="graph"
     role="group"
     aria-label={
       root
         ? `${names.get(root)}から2ステップ以内の関連グラフ`
-        : "Skills・Products・Slides の関連グラフ"
+        : "Skills・Products・Slides・タグの関連グラフ"
     }
   >
-    <title>要素を選択すると詳細ページに移動します</title>
     {edges.map(({ data: { source, target, label } }) => {
       const a = positions.get(source.id)!;
       const b = positions.get(target.id)!;
@@ -59,39 +97,35 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.title]));
       );
     })}
     {nodes.map(({ id, data }) => {
-      const position = positions.get(id)!;
+      const { x, y } = positions.get(id)!;
       return (
         <a
           href={portfolioUrl(id)}
           aria-label={`${data.title}の詳細`}
-          class:list={[{ current: id === root }]}
+          aria-current={id === root ? "page" : undefined}
+          class:list={[data.category, { current: id === root }]}
         >
           <title>{data.title}</title>
-          <rect
-            x={position.x - 76}
-            y={position.y - 24}
-            width="152"
-            height="48"
-            rx="12"
-          />
-          <text
-            x={position.x}
-            y={position.y}
-            dominant-baseline="central"
-            text-anchor="middle"
-          >
-            {data.title.length > 11
-              ? `${data.title.slice(0, 10)}…`
-              : data.title}
-          </text>
+          <foreignObject x={x - 82} y={y - 60} width="164" height="80">
+            <div class="node" aria-hidden="true">
+              <span class="node-title">{data.title}</span>
+              <span class="node-icon">
+                <Icon
+                  name={
+                    data.category === "skills"
+                      ? "ri:code-s-slash-line"
+                      : data.icon
+                  }
+                  size={20}
+                />
+              </span>
+            </div>
+          </foreignObject>
         </a>
       );
     })}
   </svg>
 </div>
-<p class="text-sm">
-  線は要素同士の関係を表します。各要素を選択して、関連をたどれます。
-</p>
 <style>
   .graph-scroll {
     overflow-x: auto;
@@ -100,30 +134,68 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.title]));
   }
   .graph {
     display: block;
-    width: var(--graph-width);
+    width: 100%;
+    min-width: var(--graph-min-width);
+    max-width: var(--graph-width);
     margin-inline: auto;
   }
   line {
     stroke: var(--color-secondary);
     stroke-width: 2;
   }
-  rect {
-    fill: var(--color-background);
-    stroke: var(--color-secondary);
-    stroke-width: 2;
+  .node {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    color: inherit;
+    pointer-events: none;
   }
-  text {
-    fill: currentColor;
+  .node-title {
+    background: var(--color-background);
+    color: inherit;
     font-size: 13px;
     font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    padding-inline: 3px;
   }
-  .current rect {
-    stroke: var(--color-primary);
-    stroke-width: 4;
+  .node-icon {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    background: var(--color-background);
+    border: 2px solid currentColor;
+    color: var(--node-color);
   }
-  a:hover rect,
-  a:focus rect {
-    stroke: var(--color-primary);
-    stroke-width: 4;
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a.skills {
+    --node-color: #0f71f2;
+  }
+  a.products {
+    --node-color: #16856e;
+  }
+  a.slides {
+    --node-color: #a153be;
+  }
+  a.tags {
+    --node-color: #9d6226;
+  }
+  a.current .node-icon,
+  a:hover .node-icon,
+  a:focus-visible .node-icon {
+    border-width: 3px;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-color) 25%, transparent);
+  }
+  foreignObject {
+    pointer-events: bounding-box;
   }
 </style>

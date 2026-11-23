@@ -1,14 +1,23 @@
 import type { CollectionEntry } from "astro:content";
 
-type PortfolioItem = CollectionEntry<"portfolio">;
-type Relation = CollectionEntry<"relation">;
+type ItemData = CollectionEntry<"portfolio">["data"];
+export type PortfolioNode = {
+  id: string;
+  data: Omit<ItemData, "category"> & {
+    category: ItemData["category"] | "tags";
+  };
+};
+export type PortfolioRelation = Pick<
+  CollectionEntry<"relation">,
+  "id" | "data"
+>;
 export const portfolioUrl = (id: string) =>
   `/about/${id.split("/").map(encodeURIComponent).join("/")}/`;
 
 // Relations are stored once and traversed in both directions.
 export function neighborhood(
-  items: PortfolioItem[],
-  relations: Relation[],
+  items: PortfolioNode[],
+  relations: PortfolioRelation[],
   root: string,
   depth = 2,
 ) {

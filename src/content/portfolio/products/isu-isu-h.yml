@@ -1,0 +1,21 @@
+category: products
+order: 2
+icon: ri:code-box-line
+title: isu-isu-h
+description: "ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。"
+heroImageContent: "../../work/products/isu-isu-h.png"
+tags:
+  - ISUCON
+  - Ansible
+  - Docker
+links:
+  - Github:
+    name: GitHub
+    url: https://github.com/reactive-futakotamagawa/isu-isu-h-13
+    icon: codicon:github
+    primary: true
+  - ブログ:
+    name: ブログ
+    url: https://trap.jp/post/2047/
+    icon: ri:article-line
+    primary: false

@@ -1,4 +1,0 @@
-name: "CLI・TUI"
-description: "ターミナルで使うツールの制作。Go を使っています。"
-icon: "ri:terminal-box-line"
-category: "field"

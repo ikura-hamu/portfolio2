@@ -84,26 +84,21 @@ $$
 
 This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
 
-### Skills と関連グラフ
+### About の要素と関連グラフ
 
-`src/content/skill/*.yml` の1ファイルが1要素です。ファイル名がIDとなり、
-`/about/skills/<ID>/` に詳細ページを生成します。`name`（タイトル）、
-`description`、`icon`（Iconify名）、`category` を指定してください。
-`category: technology` は About の Skills 一覧にも表示し、`field` は関連分野として扱います。
+Skills・Products・Slides は `portfolio` Content Collection で管理します。
+`src/content/portfolio/<カテゴリ>/<ID>.yml` の1ファイルにつき
+`/about/<カテゴリ>/<ID>/` に詳細ページを生成します。`order` が一覧での表示順です。
 
-関係も `relation` Content Collection で管理しています。
-`src/content/relation/*.yml` に次の形式で追加します。
+関係は `src/content/relation/*.yml` の `relation` Content Collection で管理します。
 
 ```yaml
-source: go
-target: backend
-label: サーバー開発に使う
+source: skills/go
+target: products/card
+label: Go を使用
 ```
 
-`source` と `target` には要素のIDを指定します。
-Astro の `reference("skill")` で参照先を検証します。
-関係は双方向にたどるため、逆方向の定義は不要です。`label` は関係の説明です。
-詳細ページは直接の隣接要素と、最短距離2以内の要素間の全関係を表示します。
-追加した要素と関係は About の全体グラフにも自動で反映されます。
+`source` と `target` はカテゴリを含む要素IDです。関係は双方向にたどれます。
+詳細ページは直接つながる要素の一覧と、最短距離2以内の要素間の関係を表示します。
 
-グラフ探索の検証: `node --test tests/skillGraph.test.ts`
+グラフ探索の検証は `node --test tests/portfolioGraph.test.ts` で実行できます。

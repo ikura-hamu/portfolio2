@@ -1,4 +1,5 @@
-name: "Next.js"
+category: skills
+order: 2
+title: "Next.js"
 description: "関わったフロントエンドはほとんど Next.js でした。"
 icon: "devicon:nextjs"
-category: "technology"

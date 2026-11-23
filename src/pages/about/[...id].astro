@@ -1,0 +1,99 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import { replaceURL } from "@/util/url";
+import { Icon } from "astro-icon/components";
+import Layout from "../../layouts/BlogPost.astro";
+import PortfolioGraph from "../../components/PortfolioGraph.astro";
+import { neighborhood, portfolioUrl } from "../../lib/portfolioGraph";
+
+export async function getStaticPaths() {
+  const items = await getCollection("portfolio");
+  const relations = await getCollection("relation");
+  return items.map((item) => ({
+    params: { id: item.id },
+    props: { item, graph: neighborhood(items, relations, item.id) },
+  }));
+}
+const { item, graph } = Astro.props;
+const section = { skills: "Skills", products: "Products", slides: "Slides" }[
+  item.data.category
+];
+const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
+---
+
+<Layout
+  title={item.data.title}
+  description={item.data.description.replace(/<[^>]*>/g, " ")}
+>
+  <div class="flex flex-col gap-s5">
+    <a href={`/about/#${section}`}>← About Me / {section}</a>
+    <div class="flex items-center gap-s4">
+      <Icon name={item.data.icon} size={72} />
+      <div>
+        {item.data.subtitle && <p class="text-sm">{item.data.subtitle}</p>}
+        <p set:html={replaceURL(item.data.description)} />
+      </div>
+    </div>
+    {item.data.heroImageContent ? (
+      <Image
+        src={item.data.heroImageContent}
+        alt=""
+        class="max-h-72 self-center object-contain"
+      />
+    ) : (
+      item.data.heroImage && (
+        <img
+          src={item.data.heroImage}
+          alt=""
+          class="max-h-72 self-center object-contain"
+        />
+      )
+    )}
+    {item.data.links.length > 0 && (
+      <ul class="flex flex-wrap gap-s4">
+        {item.data.links.map((link) => (
+          <li>
+            <a href={link.url} class="inline-flex items-center gap-s2">
+              <Icon name={link.icon} size={20} />
+              {link.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+    <section>
+      <h2>直接つながっている要素</h2>
+      {neighbors.length === 0 ? (
+        <p>関連する要素はまだありません。</p>
+      ) : (
+        <ul class="flex flex-col gap-s3">
+          {neighbors.map(({ id, data }) => (
+            <li>
+              <a
+                href={portfolioUrl(id)}
+                class="inline-flex items-center gap-s2"
+              >
+                <Icon name={data.icon} size={24} />
+                {data.title}
+              </a>
+              {graph.edges
+                .filter(
+                  ({ data: { source, target } }) =>
+                    (source.id === item.id && target.id === id) ||
+                    (target.id === item.id && source.id === id),
+                )
+                .map(({ data }) => (
+                  <p class="text-sm">{data.label}</p>
+                ))}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+    <section>
+      <h2>2ステップ先までの関連</h2>
+      <PortfolioGraph {...graph} root={item.id} />
+    </section>
+  </div>
+</Layout>

@@ -1,30 +1,34 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { skillUrl } from "../lib/skillGraph";
+import { portfolioUrl } from "../lib/portfolioGraph";
 interface Props {
-  nodes: CollectionEntry<"skill">[];
+  nodes: CollectionEntry<"portfolio">[];
   edges: CollectionEntry<"relation">[];
   root?: string;
   distance?: Map<string, number>;
 }
 const { nodes, edges, root, distance } = Astro.props;
-// Separate rings keep direct and second-degree neighbors visually distinct.
+const groups = root
+  ? [0, 1, 2].map((hop) => nodes.filter(({ id }) => distance?.get(id) === hop))
+  : ["skills", "products", "slides"].map((category) =>
+      nodes
+        .filter(({ data }) => data.category === category)
+        .sort((a, b) => a.data.order - b.data.order),
+    );
+const columnWidth = 164;
+const rowHeight = 108;
+const width = Math.max(2, ...groups.map((group) => group.length)) * columnWidth;
+const rows = groups.filter((group) => group.length > 0);
 const positions = new Map<string, { x: number; y: number }>();
-if (root) positions.set(root, { x: 420, y: 330 });
-for (const ring of root ? [1, 2] : [1]) {
-  const members = nodes.filter(({ id }) =>
-    root ? distance?.get(id) === ring : true,
-  );
-  members.forEach(({ id }, i) => {
-    const angle = (i / members.length) * Math.PI * 2 - Math.PI / 2;
-    const radius = root && ring === 1 ? 145 : 280;
+rows.forEach((group, row) => {
+  group.forEach(({ id }, column) => {
     positions.set(id, {
-      x: 420 + Math.cos(angle) * radius,
-      y: 330 + Math.sin(angle) * radius,
+      x: width / 2 + (column - (group.length - 1) / 2) * columnWidth,
+      y: (row + 0.5) * rowHeight,
     });
   });
-}
-const names = new Map(nodes.map(({ id, data }) => [id, data.name]));
+});
+const names = new Map(nodes.map(({ id, data }) => [id, data.title]));
 ---
 
 <div
@@ -34,13 +38,14 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.name]));
   tabindex="0"
 >
   <svg
-    viewBox="0 0 840 660"
+    viewBox={`0 0 ${width} ${rows.length * rowHeight}`}
+    style={`--graph-width: ${width}px`}
     class="graph"
-    role="img"
+    role="group"
     aria-label={
       root
         ? `${names.get(root)}から2ステップ以内の関連グラフ`
-        : "技術と分野の関連グラフ"
+        : "Skills・Products・Slides の関連グラフ"
     }
   >
     <title>要素を選択すると詳細ページに移動します</title>
@@ -57,14 +62,15 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.name]));
       const position = positions.get(id)!;
       return (
         <a
-          href={skillUrl(id)}
-          aria-label={`${data.name}の詳細`}
+          href={portfolioUrl(id)}
+          aria-label={`${data.title}の詳細`}
           class:list={[{ current: id === root }]}
         >
+          <title>{data.title}</title>
           <rect
-            x={position.x - 72}
+            x={position.x - 76}
             y={position.y - 24}
-            width="144"
+            width="152"
             height="48"
             rx="12"
           />
@@ -74,7 +80,9 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.name]));
             dominant-baseline="central"
             text-anchor="middle"
           >
-            {data.name}
+            {data.title.length > 11
+              ? `${data.title.slice(0, 10)}…`
+              : data.title}
           </text>
         </a>
       );
@@ -92,8 +100,8 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.name]));
   }
   .graph {
     display: block;
-    width: 100%;
-    min-width: 650px;
+    width: var(--graph-width);
+    margin-inline: auto;
   }
   line {
     stroke: var(--color-secondary);

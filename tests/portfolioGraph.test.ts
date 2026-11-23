@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { CollectionEntry } from "astro:content";
-import { neighborhood } from "../src/lib/skillGraph.ts";
+import { neighborhood } from "../src/lib/portfolioGraph.ts";
 
 const skills = ["a", "b", "c", "d", "isolated"].map((id) => ({
   id,
-})) as CollectionEntry<"skill">[];
+})) as CollectionEntry<"portfolio">[];
 // Reversed edges and a cycle exercise undirected shortest-path traversal.
 const relations = [
   ["b", "a"],
@@ -15,8 +15,8 @@ const relations = [
 ].map(([source, target], i) => ({
   id: String(i),
   data: {
-    source: { collection: "skill", id: source },
-    target: { collection: "skill", id: target },
+    source: { collection: "portfolio", id: source },
+    target: { collection: "portfolio", id: target },
     label: "関連",
   },
 })) as CollectionEntry<"relation">[];

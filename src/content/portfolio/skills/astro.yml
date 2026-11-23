@@ -1,4 +1,5 @@
-name: "Astro"
+category: skills
+order: 3
+title: "Astro"
 description: "このサイトは Astro で作っています。SSG でビルドされるので、パフォーマンスがとても良いです。"
 icon: "devicon:astro"
-category: "technology"

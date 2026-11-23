@@ -1,7 +1,6 @@
 import { defineCollection, reference } from "astro:content";
 import { z } from "astro/zod";
 import { glob } from "astro/loaders";
-import { skills } from "./content/skill/_schema";
 import { post } from "./content/blog/_schema";
 
 const blog = defineCollection({
@@ -12,45 +11,43 @@ const blog = defineCollection({
   schema: post,
 });
 
-const skill = defineCollection({
-  loader: glob({ pattern: "**/*.yml", base: "./src/content/skill" }),
-  schema: skills,
-});
-
-const relation = defineCollection({
-  loader: glob({ pattern: "**/*.yml", base: "./src/content/relation" }),
-  schema: z
-    .object({
-      source: reference("skill"),
-      target: reference("skill"),
-      label: z.string().min(1),
-    })
-    .refine((edge) => edge.source.id !== edge.target.id, {
-      message: "関係の両端は異なる要素を指定してください",
-    }),
-});
-
-const work = defineCollection({
-  loader: glob({ pattern: "**/*.yml", base: "./src/content/work" }),
+const portfolio = defineCollection({
+  loader: glob({ pattern: "**/*.yml", base: "./src/content/portfolio" }),
   schema: ({ image }) =>
-    z.array(
-      z.object({
-        title: z.string(),
-        subtitle: z.string().optional(),
-        description: z.string(),
-        heroImage: z.string().optional(),
-        heroImageContent: image().optional(),
-        tags: z.array(z.string()),
-        links: z.array(
+    z.object({
+      title: z.string().min(1),
+      description: z.string().min(1),
+      icon: z.string().min(1),
+      category: z.enum(["skills", "products", "slides"]),
+      order: z.number().int(),
+      subtitle: z.string().optional(),
+      heroImage: z.string().optional(),
+      heroImageContent: image().optional(),
+      tags: z.array(z.string()).default([]),
+      links: z
+        .array(
           z.object({
             name: z.string(),
             url: z.string(),
             icon: z.string(),
             primary: z.boolean().optional(),
           }),
-        ),
-      }),
-    ),
+        )
+        .default([]),
+    }),
+});
+
+const relation = defineCollection({
+  loader: glob({ pattern: "**/*.yml", base: "./src/content/relation" }),
+  schema: z
+    .object({
+      source: reference("portfolio"),
+      target: reference("portfolio"),
+      label: z.string().min(1),
+    })
+    .refine((edge) => edge.source.id !== edge.target.id, {
+      message: "関係の両端は異なる要素を指定してください",
+    }),
 });
 
 const career = defineCollection({
@@ -67,8 +64,7 @@ const career = defineCollection({
 
 export const collections = {
   blog: blog,
-  skill: skill,
+  portfolio,
   relation,
-  work: work,
   career: career,
 };

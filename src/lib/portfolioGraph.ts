@@ -1,13 +1,13 @@
 import type { CollectionEntry } from "astro:content";
 
-type Skill = CollectionEntry<"skill">;
+type PortfolioItem = CollectionEntry<"portfolio">;
 type Relation = CollectionEntry<"relation">;
-export const skillUrl = (id: string) =>
-  `/about/skills/${encodeURIComponent(id)}/`;
+export const portfolioUrl = (id: string) =>
+  `/about/${id.split("/").map(encodeURIComponent).join("/")}/`;
 
 // Relations are stored once and traversed in both directions.
 export function neighborhood(
-  skills: Skill[],
+  items: PortfolioItem[],
   relations: Relation[],
   root: string,
   depth = 2,
@@ -24,7 +24,7 @@ export function neighborhood(
     }
   }
   return {
-    nodes: skills.filter(({ id }) => distance.has(id)),
+    nodes: items.filter(({ id }) => distance.has(id)),
     edges: relations.filter(
       ({ data: { source, target } }) =>
         distance.has(source.id) && distance.has(target.id),

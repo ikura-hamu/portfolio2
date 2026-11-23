@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import SkillGraph from "../components/SkillGraph.astro";
+import PortfolioGraph from "../components/PortfolioGraph.astro";
 import { Image } from "astro:assets";
 
 import Layout from "../layouts/BlogPost.astro";
@@ -10,7 +10,7 @@ import Career from "@/components/Career.astro";
 import Other from "@/components/Other.astro";
 import iconImage from "@/images/icon.png";
 
-const graphNodes = await getCollection("skill");
+const graphNodes = await getCollection("portfolio");
 const graphEdges = await getCollection("relation");
 
 const grade =
@@ -62,7 +62,6 @@ const grade =
           <a href="#Skills">Skills</a>
         </h3>
         <Skills />
-        <SkillGraph nodes={graphNodes} edges={graphEdges} />
       </section>
 
       <section class="flex flex-col gap-s4">
@@ -91,6 +90,11 @@ const grade =
             url: "https://ikura-hamu.github.io/slides/",
           }}
         />
+      </section>
+
+      <section class="flex flex-col gap-s4">
+        <h3 id="Relations">関連グラフ</h3>
+        <PortfolioGraph nodes={graphNodes} edges={graphEdges} />
       </section>
 
       <section class="flex flex-col gap-s4">

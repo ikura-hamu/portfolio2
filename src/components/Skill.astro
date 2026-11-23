@@ -1,30 +1,32 @@
 ---
 import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
-import { skillUrl } from "../lib/skillGraph";
+import { portfolioUrl } from "../lib/portfolioGraph";
 const skills = await getCollection(
-  "skill",
-  ({ data }) => data.category === "technology",
+  "portfolio",
+  ({ data }) => data.category === "skills",
 );
 ---
 
 <div class="flex flex-col gap-s3">
-  {skills.map(({ id, data: skill }) => (
-    <a
-      href={skillUrl(id)}
-      class="skill-card rounded-md flex min-w-60 max-w-full"
-    >
-      <div class="grid p-s2 items-center bg-secondary/20 rounded-md">
-        <Icon name={skill.icon} size={60} />
-      </div>
-      <div class="m-s2 flex flex-col gap-s2">
-        <div class="text-xl font-bold">
-          {skill.name} <span aria-hidden="true">→</span>
+  {skills
+    .sort((a, b) => a.data.order - b.data.order)
+    .map(({ id, data: skill }) => (
+      <a
+        href={portfolioUrl(id)}
+        class="skill-card rounded-md flex min-w-60 max-w-full"
+      >
+        <div class="grid p-s2 items-center bg-secondary/20 rounded-md">
+          <Icon name={skill.icon} size={60} />
         </div>
-        <p>{skill.description}</p>
-      </div>
-    </a>
-  ))}
+        <div class="m-s2 flex flex-col gap-s2">
+          <div class="text-xl font-bold">
+            {skill.title} <span aria-hidden="true">→</span>
+          </div>
+          <p>{skill.description}</p>
+        </div>
+      </a>
+    ))}
 </div>
 <style>
   .skill-card {

@@ -1,0 +1,4 @@
+name: "Astro"
+description: "このサイトは Astro で作っています。SSG でビルドされるので、パフォーマンスがとても良いです。"
+icon: "devicon:astro"
+category: "technology"

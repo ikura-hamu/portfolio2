@@ -83,3 +83,27 @@ $$
 ## Credit
 
 This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+
+### Skills と関連グラフ
+
+`src/content/skill/*.yml` の1ファイルが1要素です。ファイル名がIDとなり、
+`/about/skills/<ID>/` に詳細ページを生成します。`name`（タイトル）、
+`description`、`icon`（Iconify名）、`category` を指定してください。
+`category: technology` は About の Skills 一覧にも表示し、`field` は関連分野として扱います。
+
+関係も `relation` Content Collection で管理しています。
+`src/content/relation/*.yml` に次の形式で追加します。
+
+```yaml
+source: go
+target: backend
+label: サーバー開発に使う
+```
+
+`source` と `target` には要素のIDを指定します。
+Astro の `reference("skill")` で参照先を検証します。
+関係は双方向にたどるため、逆方向の定義は不要です。`label` は関係の説明です。
+詳細ページは直接の隣接要素と、最短距離2以内の要素間の全関係を表示します。
+追加した要素と関係は About の全体グラフにも自動で反映されます。
+
+グラフ探索の検証: `node --test tests/skillGraph.test.ts`

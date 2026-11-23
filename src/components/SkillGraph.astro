@@ -1,0 +1,121 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { skillUrl } from "../lib/skillGraph";
+interface Props {
+  nodes: CollectionEntry<"skill">[];
+  edges: CollectionEntry<"relation">[];
+  root?: string;
+  distance?: Map<string, number>;
+}
+const { nodes, edges, root, distance } = Astro.props;
+// Separate rings keep direct and second-degree neighbors visually distinct.
+const positions = new Map<string, { x: number; y: number }>();
+if (root) positions.set(root, { x: 420, y: 330 });
+for (const ring of root ? [1, 2] : [1]) {
+  const members = nodes.filter(({ id }) =>
+    root ? distance?.get(id) === ring : true,
+  );
+  members.forEach(({ id }, i) => {
+    const angle = (i / members.length) * Math.PI * 2 - Math.PI / 2;
+    const radius = root && ring === 1 ? 145 : 280;
+    positions.set(id, {
+      x: 420 + Math.cos(angle) * radius,
+      y: 330 + Math.sin(angle) * radius,
+    });
+  });
+}
+const names = new Map(nodes.map(({ id, data }) => [id, data.name]));
+---
+
+<div
+  class="graph-scroll"
+  role="region"
+  aria-label="関連グラフ（横にスクロールできます）"
+  tabindex="0"
+>
+  <svg
+    viewBox="0 0 840 660"
+    class="graph"
+    role="img"
+    aria-label={
+      root
+        ? `${names.get(root)}から2ステップ以内の関連グラフ`
+        : "技術と分野の関連グラフ"
+    }
+  >
+    <title>要素を選択すると詳細ページに移動します</title>
+    {edges.map(({ data: { source, target, label } }) => {
+      const a = positions.get(source.id)!;
+      const b = positions.get(target.id)!;
+      return (
+        <line x1={a.x} y1={a.y} x2={b.x} y2={b.y}>
+          <title>{names.get(source.id)} — {label} — {names.get(target.id)}</title>
+        </line>
+      );
+    })}
+    {nodes.map(({ id, data }) => {
+      const position = positions.get(id)!;
+      return (
+        <a
+          href={skillUrl(id)}
+          aria-label={`${data.name}の詳細`}
+          class:list={[{ current: id === root }]}
+        >
+          <rect
+            x={position.x - 72}
+            y={position.y - 24}
+            width="144"
+            height="48"
+            rx="12"
+          />
+          <text
+            x={position.x}
+            y={position.y}
+            dominant-baseline="central"
+            text-anchor="middle"
+          >
+            {data.name}
+          </text>
+        </a>
+      );
+    })}
+  </svg>
+</div>
+<p class="text-sm">
+  線は要素同士の関係を表します。各要素を選択して、関連をたどれます。
+</p>
+<style>
+  .graph-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--color-secondary);
+    border-radius: 16px;
+  }
+  .graph {
+    display: block;
+    width: 100%;
+    min-width: 650px;
+  }
+  line {
+    stroke: var(--color-secondary);
+    stroke-width: 2;
+  }
+  rect {
+    fill: var(--color-background);
+    stroke: var(--color-secondary);
+    stroke-width: 2;
+  }
+  text {
+    fill: currentColor;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .current rect {
+    stroke: var(--color-primary);
+    stroke-width: 4;
+  }
+  a:hover rect,
+  a:focus rect {
+    stroke: var(--color-primary);
+    stroke-width: 4;
+  }
+</style>

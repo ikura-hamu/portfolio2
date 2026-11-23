@@ -1,0 +1,4 @@
+name: "Go"
+description: "Web アプリのサーバーや CLI・TUI ツールを作るときに使います。最も得意な言語です。"
+icon: "devicon:go"
+category: "technology"

@@ -1,0 +1,58 @@
+---
+import { getCollection } from "astro:content";
+import { Icon } from "astro-icon/components";
+import Layout from "../../../layouts/BlogPost.astro";
+import SkillGraph from "../../../components/SkillGraph.astro";
+import { neighborhood, skillUrl } from "../../../lib/skillGraph";
+
+export async function getStaticPaths() {
+  const skills = await getCollection("skill");
+  const relations = await getCollection("relation");
+  return skills.map((skill) => ({
+    params: { id: skill.id },
+    props: { skill, graph: neighborhood(skills, relations, skill.id) },
+  }));
+}
+const { skill, graph } = Astro.props;
+const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
+---
+
+<Layout title={skill.data.name} description={skill.data.description}>
+  <div class="flex flex-col gap-s5">
+    <a href="/about/#Skills">← About Me / Skills</a>
+    <div class="flex items-center gap-s4">
+      <Icon name={skill.data.icon} size={72} />
+      <p>{skill.data.description}</p>
+    </div>
+    <section>
+      <h2>直接つながっている要素</h2>
+      {neighbors.length === 0 ? (
+        <p>関連する要素はまだありません。</p>
+      ) : (
+        <ul class="flex flex-col gap-s3">
+          {neighbors.map(({ id, data }) => (
+            <li>
+              <a href={skillUrl(id)} class="inline-flex items-center gap-s2">
+                <Icon name={data.icon} size={24} />
+                {data.name}
+              </a>
+              {graph.edges
+                .filter(
+                  ({ data: { source, target } }) =>
+                    (source.id === skill.id && target.id === id) ||
+                    (target.id === skill.id && source.id === id),
+                )
+                .map(({ data }) => (
+                  <p class="text-sm">{data.label}</p>
+                ))}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+    <section>
+      <h2>2ステップ先までの関連</h2>
+      <SkillGraph {...graph} root={skill.id} />
+    </section>
+  </div>
+</Layout>

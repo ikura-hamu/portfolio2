@@ -1,4 +1,4 @@
-import { defineCollection } from "astro:content";
+import { defineCollection, reference } from "astro:content";
 import { z } from "astro/zod";
 import { glob } from "astro/loaders";
 import { skills } from "./content/skill/_schema";
@@ -13,8 +13,21 @@ const blog = defineCollection({
 });
 
 const skill = defineCollection({
-  loader: glob({ pattern: "**/skills.yml", base: "./src/content/skill" }),
+  loader: glob({ pattern: "**/*.yml", base: "./src/content/skill" }),
   schema: skills,
+});
+
+const relation = defineCollection({
+  loader: glob({ pattern: "**/*.yml", base: "./src/content/relation" }),
+  schema: z
+    .object({
+      source: reference("skill"),
+      target: reference("skill"),
+      label: z.string().min(1),
+    })
+    .refine((edge) => edge.source.id !== edge.target.id, {
+      message: "関係の両端は異なる要素を指定してください",
+    }),
 });
 
 const work = defineCollection({
@@ -55,6 +68,7 @@ const career = defineCollection({
 export const collections = {
   blog: blog,
   skill: skill,
+  relation,
   work: work,
   career: career,
 };

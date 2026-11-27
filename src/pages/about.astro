@@ -93,7 +93,12 @@ const grade =
 
       <section class="flex flex-col gap-s4">
         <h3 id="Relations">関連グラフ</h3>
-        <PortfolioGraph nodes={graphNodes} edges={graphEdges} />
+        <PortfolioGraph
+          nodes={graphNodes}
+          edges={graphEdges}
+          height="min(540px, 80vw)"
+          initialZoom={1.5}
+        />
       </section>
 
       <section class="flex flex-col gap-s4">

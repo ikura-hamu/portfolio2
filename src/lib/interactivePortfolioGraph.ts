@@ -38,8 +38,18 @@ export class PortfolioGraph extends HTMLElement {
     }
 
     const { x, y, width, height } = svg.viewBox.baseVal;
-    const initialView = { x, y, width, height };
-    const initialViewBox = svg.getAttribute("viewBox")!;
+    const initialZoom = Math.min(
+      4,
+      Math.max(0.5, Number(this.dataset.initialZoom) || 1),
+    );
+    const initialWidth = width / initialZoom;
+    const initialHeight = height / initialZoom;
+    const initialView = {
+      x: x + (width - initialWidth) / 2,
+      y: y + (height - initialHeight) / 2,
+      width: initialWidth,
+      height: initialHeight,
+    };
     let view = { ...initialView };
     let gesture:
       | {
@@ -228,7 +238,7 @@ export class PortfolioGraph extends HTMLElement {
             node.fy = node === activeRoot ? node.y : null;
           });
           view = { ...initialView };
-          svg.setAttribute("viewBox", initialViewBox);
+          renderView();
           render();
         } else if (action === "in" || action === "out") {
           zoom(
@@ -240,6 +250,7 @@ export class PortfolioGraph extends HTMLElement {
       { signal },
     );
 
+    if (initialZoom !== 1) renderView();
     controls.hidden = false;
     this.setAttribute("data-interactive", "");
     this.#disconnect = () => {

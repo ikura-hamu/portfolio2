@@ -2,7 +2,10 @@
 import { Icon } from "astro-icon/components";
 import {
   graphSimulation,
+  graphNodeSize,
+  graphNodeTop,
   graphNodeWidth,
+  separateGraphNodes,
   type GraphNode,
   type GraphLink,
 } from "../lib/portfolioGraphLayout";
@@ -17,12 +20,16 @@ interface Props {
   edges: PortfolioRelation[];
   root?: string;
   distance?: Map<string, number>;
+  maxWidth?: number;
+  height?: number | string;
+  initialZoom?: number;
 }
 
-const { nodes, edges, root, distance } = Astro.props;
+const { nodes, edges, root, distance, maxWidth, height, initialZoom } =
+  Astro.props;
 const nodeWidth = graphNodeWidth;
-const nodeSize = 64;
-const nodeTop = 110;
+const nodeSize = graphNodeSize;
+const nodeTop = graphNodeTop;
 const nodeRadius = nodeSize / 2;
 const horizontalPadding = nodeWidth / 2 + 10;
 const verticalPadding = nodeTop + 4;
@@ -38,6 +45,7 @@ const graphLinks: GraphLink[] = edges.map(({ data }) => ({
 
 // Initial positions are rendered on the server for visitors without JavaScript.
 graphSimulation(graphNodes, graphLinks, Boolean(root)).tick(300);
+separateGraphNodes(graphNodes, graphLinks);
 
 const positions = new Map(
   graphNodes.map((node) => [node.id, { x: node.x ?? 0, y: node.y ?? 0 }]),
@@ -46,16 +54,26 @@ const names = new Map(nodes.map(({ id, data }) => [id, data.title]));
 const points = Array.from(positions.values());
 const xs = points.map(({ x }) => x);
 const ys = points.map(({ y }) => y);
-const halfWidth = Math.max(0, ...xs.map(Math.abs)) + horizontalPadding;
-const halfHeight = Math.max(0, ...ys.map(Math.abs)) + verticalPadding;
-const left = root ? -halfWidth : Math.min(0, ...xs) - horizontalPadding;
-const right = root ? halfWidth : Math.max(0, ...xs) + horizontalPadding;
-const top = root ? -halfHeight : Math.min(0, ...ys) - verticalPadding;
-const bottom = root ? halfHeight : Math.max(0, ...ys) + nodeRadius + 10;
-const width = right - left;
+const left = Math.min(0, ...xs) - horizontalPadding;
+const right = Math.max(0, ...xs) + horizontalPadding;
+const top = Math.min(0, ...ys) - verticalPadding;
+const bottom = Math.max(0, ...ys) + nodeRadius + 10;
+const pixelHeight = typeof height === "number" ? height : undefined;
+const viewWidth = root
+  ? (pixelHeight ?? 2 * Math.max(-left, right))
+  : right - left;
+const viewHeight = root
+  ? (pixelHeight ?? 2 * Math.max(-top, bottom))
+  : bottom - top;
 ---
 
-<portfolio-graph class="graph-scroll" data-root={root}>
+<portfolio-graph
+  class="graph-scroll"
+  data-root={root}
+  data-fixed-height={height !== undefined ? "" : undefined}
+  data-initial-zoom={initialZoom}
+  style={maxWidth === undefined ? undefined : `max-width: ${maxWidth}px`}
+>
   <div class="graph-controls" hidden>
     <button type="button" data-zoom="in" aria-label="拡大">
       ＋
@@ -68,8 +86,13 @@ const width = right - left;
     </button>
   </div>
   <svg
-    viewBox={`${left} ${top} ${width} ${bottom - top}`}
-    style={`--graph-min-width: ${Math.min(450, width)}px; --graph-width: ${width}px; --node-size: ${nodeSize}px`}
+    viewBox={`${root ? -viewWidth / 2 : left} ${root ? -viewHeight / 2 : top} ${viewWidth} ${viewHeight}`}
+    style={{
+      "--graph-min-width": `${Math.min(450, viewWidth)}px`,
+      "--graph-width": `${viewWidth}px`,
+      "--node-size": `${nodeSize}px`,
+      height: typeof height === "number" ? `${height}px` : height,
+    }}
     class="graph"
     role="group"
     aria-label={
@@ -146,11 +169,19 @@ const width = right - left;
 </script>
 <style>
   .graph-scroll {
+    --graph-background: color-mix(
+      in srgb,
+      var(--color-secondary) 12%,
+      var(--color-background)
+    );
     display: block;
     position: relative;
+    width: 100%;
+    margin-inline: auto;
     overflow-x: auto;
     border: 1px solid var(--color-secondary);
     border-radius: 16px;
+    background-color: var(--graph-background);
   }
   .graph {
     display: block;
@@ -159,8 +190,13 @@ const width = right - left;
     max-width: var(--graph-width);
     margin-inline: auto;
   }
+  .graph-scroll[data-fixed-height],
   .graph-scroll[data-interactive] {
     overflow: hidden;
+  }
+  .graph-scroll[data-fixed-height] .graph {
+    min-width: 0;
+    max-width: none;
   }
   .graph-scroll[data-interactive] .graph {
     min-width: 0;
@@ -202,7 +238,7 @@ const width = right - left;
     pointer-events: none;
   }
   .node-title {
-    background: var(--color-background);
+    background: var(--graph-background);
     color: inherit;
     font-size: 19px;
     font-weight: 700;

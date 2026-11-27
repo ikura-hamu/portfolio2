@@ -4,6 +4,8 @@ icon: ri:code-box-line
 title: isu-isu-h
 description: "ISUCON(https://isucon.net)での改善をスムーズに行うためのツール群です。「いすいすえいち」と読みます。"
 heroImageContent: "../../work/products/isu-isu-h.png"
+relation:
+  - target: slides/isu-isu-h
 tags:
   - ISUCON
   - Ansible

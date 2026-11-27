@@ -3,7 +3,16 @@ import type { PortfolioNode, PortfolioRelation } from "./portfolioGraph";
 
 export async function getPortfolioGraph() {
   const entries = await getCollection("portfolio");
-  const relations: PortfolioRelation[] = await getCollection("relation");
+  const entryIds = new Set(entries.map(({ id }) => id));
+  const relations: PortfolioRelation[] = entries.flatMap(({ id, data }) =>
+    data.relation.map(({ target, label }) => {
+      if (id === target.id)
+        throw new Error(`「${id}」の関連には別の要素を指定してください。`);
+      if (!entryIds.has(target.id))
+        throw new Error(`「${id}」の関連先「${target.id}」が見つかりません。`);
+      return { data: { source: { id }, target, label } };
+    }),
+  );
   const nodes: PortfolioNode[] = [...entries];
   const tagTargets = new Map(
     entries
@@ -16,7 +25,6 @@ export async function getPortfolioGraph() {
   );
 
   for (const { id, data } of entries) {
-    if (data.category === "slides") continue;
     for (const value of data.tags) {
       const title = value.trim();
       if (!title) continue;
@@ -42,11 +50,9 @@ export async function getPortfolioGraph() {
       if (id === target || linked.has(pair)) continue;
       linked.add(pair);
       relations.push({
-        id: pair,
         data: {
-          source: { id, collection: "portfolio" },
-          target: { id: target, collection: "portfolio" },
-          label: `タグ「${title}」`,
+          source: { id },
+          target: { id: target },
         },
       });
     }

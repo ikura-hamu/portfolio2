@@ -81,6 +81,9 @@ const width = right - left;
     {edges.map(({ data: { source, target, label } }) => {
       const a = positions.get(source.id)!;
       const b = positions.get(target.id)!;
+      const title = [names.get(source.id), label, names.get(target.id)]
+        .filter(Boolean)
+        .join(" — ");
       return (
         <line
           data-source={source.id}
@@ -90,7 +93,7 @@ const width = right - left;
           x2={b.x}
           y2={b.y}
         >
-          <title>{names.get(source.id)} — {label} — {names.get(target.id)}</title>
+          <title>{title}</title>
         </line>
       );
     })}

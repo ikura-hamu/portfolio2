@@ -24,6 +24,14 @@ const portfolio = defineCollection({
       heroImage: z.string().optional(),
       heroImageContent: image().optional(),
       tags: z.array(z.string()).default([]),
+      relation: z
+        .array(
+          z.object({
+            target: reference("portfolio"),
+            label: z.string().min(1).optional(),
+          }),
+        )
+        .default([]),
       links: z
         .array(
           z.object({
@@ -34,19 +42,6 @@ const portfolio = defineCollection({
           }),
         )
         .default([]),
-    }),
-});
-
-const relation = defineCollection({
-  loader: glob({ pattern: "**/*.yml", base: "./src/content/relation" }),
-  schema: z
-    .object({
-      source: reference("portfolio"),
-      target: reference("portfolio"),
-      label: z.string().min(1),
-    })
-    .refine((edge) => edge.source.id !== edge.target.id, {
-      message: "関係の両端は異なる要素を指定してください",
     }),
 });
 
@@ -65,6 +60,5 @@ const career = defineCollection({
 export const collections = {
   blog: blog,
   portfolio,
-  relation,
   career: career,
 };

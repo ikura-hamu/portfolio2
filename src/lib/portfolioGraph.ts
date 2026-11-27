@@ -3,14 +3,17 @@ import type { CollectionEntry } from "astro:content";
 type ItemData = CollectionEntry<"portfolio">["data"];
 export type PortfolioNode = {
   id: string;
-  data: Omit<ItemData, "category"> & {
+  data: Omit<ItemData, "category" | "relation"> & {
     category: ItemData["category"] | "tags";
   };
 };
-export type PortfolioRelation = Pick<
-  CollectionEntry<"relation">,
-  "id" | "data"
->;
+export type PortfolioRelation = {
+  data: {
+    source: { id: string };
+    target: { id: string };
+    label?: string;
+  };
+};
 export const portfolioUrl = (id: string) =>
   `/about/${id.split("/").map(encodeURIComponent).join("/")}/`;
 

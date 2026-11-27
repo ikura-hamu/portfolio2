@@ -105,5 +105,3 @@ relation:
 詳細ページは直接つながる要素の一覧と、最短距離2以内の要素間の関係を表示します。
 Skills・Products・Slides の `tags` からタグノードと関係が自動で生成されます。
 タグ名と同じ名前の Skill がある場合は、その Skill にリンクします。
-
-グラフ探索の検証は `node --test tests/portfolioGraph.test.ts` で実行できます。

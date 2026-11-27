@@ -28,7 +28,6 @@ const portfolio = defineCollection({
         .array(
           z.object({
             target: reference("portfolio"),
-            label: z.string().min(1).optional(),
           }),
         )
         .default([]),

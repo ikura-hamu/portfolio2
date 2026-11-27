@@ -5,12 +5,12 @@ export async function getPortfolioGraph() {
   const entries = await getCollection("portfolio");
   const entryIds = new Set(entries.map(({ id }) => id));
   const relations: PortfolioRelation[] = entries.flatMap(({ id, data }) =>
-    data.relation.map(({ target, label }) => {
+    data.relation.map(({ target }) => {
       if (id === target.id)
         throw new Error(`「${id}」の関連には別の要素を指定してください。`);
       if (!entryIds.has(target.id))
         throw new Error(`「${id}」の関連先「${target.id}」が見つかりません。`);
-      return { data: { source: { id }, target, label } };
+      return { data: { source: { id }, target } };
     }),
   );
   const nodes: PortfolioNode[] = [...entries];

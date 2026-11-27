@@ -59,36 +59,55 @@ const neighbors = graph.nodes.filter(({ id }) => graph.distance.get(id) === 1);
     )}
     <WorkLinks links={item.data.links} />
     <section>
-      <h2>直接つながっている要素</h2>
+      <h2>関連</h2>
       {neighbors.length === 0 ? (
         <p>関連する要素はまだありません。</p>
       ) : (
-        <ul class="flex flex-col gap-s3">
+        <ul class="related-list flex flex-col gap-s3" role="list">
           {neighbors.map(({ id, data }) => (
-            <li>
-              <a
-                href={portfolioUrl(id)}
-                class="inline-flex items-center gap-s2"
+            <li class="flex items-center gap-s3">
+              <div
+                class="grid h-12 w-16 shrink-0 place-items-center overflow-hidden rounded-md bg-secondary/20"
+                aria-hidden="true"
               >
-                {data.title}
-              </a>
-              {graph.edges
-                .filter(
-                  ({ data: { source, target } }) =>
-                    (source.id === item.id && target.id === id) ||
-                    (target.id === item.id && source.id === id),
-                )
-                .map(({ data }) => (
-                  <p class="text-sm">{data.label}</p>
-                ))}
+                {data.heroImageContent ? (
+                  <Image
+                    src={data.heroImageContent}
+                    alt=""
+                    width={128}
+                    class="h-12 w-16 object-contain"
+                  />
+                ) : data.heroImage ? (
+                  <img
+                    src={data.heroImage}
+                    alt=""
+                    width="64"
+                    height="48"
+                    loading="lazy"
+                    class="h-12 w-16 object-contain"
+                  />
+                ) : (
+                  <Icon name={data.icon} size={28} />
+                )}
+              </div>
+              <div>
+                <a href={portfolioUrl(id)}>{data.title}</a>
+              </div>
             </li>
           ))}
         </ul>
       )}
     </section>
     <section>
-      <h2>2ステップ先までの関連</h2>
+      <h2>近くのグラフ</h2>
       <PortfolioGraph {...graph} root={item.id} />
     </section>
   </div>
 </Layout>
+
+<style>
+  .related-list {
+    list-style: none;
+    padding: 0;
+  }
+</style>

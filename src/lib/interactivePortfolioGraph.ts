@@ -66,6 +66,14 @@ export class PortfolioGraph extends HTMLElement {
         }
       | undefined;
     let dragged = false;
+    let pinch:
+      | {
+          view: typeof view;
+          inverse: DOMMatrix;
+          anchor: DOMPoint;
+          distance: number;
+        }
+      | undefined;
 
     const render = () => {
       nodes.forEach((node, i) => {
@@ -85,92 +93,79 @@ export class PortfolioGraph extends HTMLElement {
         `${view.x} ${view.y} ${view.width} ${view.height}`,
       );
     };
-    const zoom = (factor: number, point: DOMPoint) => {
+    const zoom = (
+      from: typeof view,
+      factor: number,
+      anchor: DOMPoint,
+      center = anchor,
+    ) => {
       const nextWidth = Math.min(
         width * 2,
-        Math.max(width / 4, view.width * factor),
+        Math.max(width / 4, from.width * factor),
       );
-      const ratio = nextWidth / view.width;
+      const ratio = nextWidth / from.width;
       view = {
-        x: point.x - (point.x - view.x) * ratio,
-        y: point.y - (point.y - view.y) * ratio,
+        x: anchor.x - (center.x - from.x) * ratio,
+        y: anchor.y - (center.y - from.y) * ratio,
         width: nextWidth,
-        height: view.height * ratio,
+        height: from.height * ratio,
       };
       renderView();
     };
     simulation.on("tick", render);
 
-    svg.addEventListener(
-      "pointerdown",
-      (event) => {
-        if (event.button !== 0 || gesture) return;
-        const inverse = svg.getScreenCTM()?.inverse();
-        if (!inverse) return;
-        dragged = false;
-        const element =
-          event.target instanceof Element
-            ? event.target.closest("g[data-node]")
-            : null;
-        const node = element
-          ? byId.get(element.getAttribute("data-node")!)
-          : undefined;
-        gesture = {
-          pointerId: event.pointerId,
-          start: new DOMPoint(event.clientX, event.clientY).matrixTransform(
-            inverse,
-          ),
-          screenX: event.clientX,
-          screenY: event.clientY,
-          inverse,
-          view: { ...view },
-          node,
-          nodeX: node?.x ?? 0,
-          nodeY: node?.y ?? 0,
-          moved: false,
-        };
-      },
-      { signal },
-    );
+    const startDrag = (
+      id: number,
+      x: number,
+      y: number,
+      target: EventTarget | null,
+    ) => {
+      const inverse = svg.getScreenCTM()?.inverse();
+      if (!inverse) return;
+      const element =
+        target instanceof Element ? target.closest("g[data-node]") : null;
+      const node = element
+        ? byId.get(element.getAttribute("data-node")!)
+        : undefined;
+      gesture = {
+        pointerId: id,
+        start: new DOMPoint(x, y).matrixTransform(inverse),
+        screenX: x,
+        screenY: y,
+        inverse,
+        view: { ...view },
+        node,
+        nodeX: node?.x ?? 0,
+        nodeY: node?.y ?? 0,
+        moved: false,
+      };
+    };
 
-    svg.addEventListener(
-      "pointermove",
-      (event) => {
-        if (!gesture || gesture.pointerId !== event.pointerId) return;
-        if (!gesture.moved) {
-          if (
-            Math.hypot(
-              event.clientX - gesture.screenX,
-              event.clientY - gesture.screenY,
-            ) < 5
-          )
-            return;
-          gesture.moved = true;
-          dragged = true;
-          svg.setPointerCapture(event.pointerId);
-          this.toggleAttribute("data-dragging", true);
-          if (gesture.node) simulation.alphaTarget(0.24).restart();
-        }
-        const point = new DOMPoint(
-          event.clientX,
-          event.clientY,
-        ).matrixTransform(gesture.inverse);
-        const dx = point.x - gesture.start.x;
-        const dy = point.y - gesture.start.y;
-        if (gesture.node) {
-          gesture.node.fx = gesture.nodeX + dx;
-          gesture.node.fy = gesture.nodeY + dy;
-        } else {
-          view.x = gesture.view.x - dx;
-          view.y = gesture.view.y - dy;
-          renderView();
-        }
-      },
-      { signal },
-    );
+    const moveDrag = (x: number, y: number, capture?: () => void) => {
+      if (!gesture) return;
+      if (!gesture.moved) {
+        if (Math.hypot(x - gesture.screenX, y - gesture.screenY) < 5) return;
+        gesture.moved = true;
+        dragged = true;
+        capture?.();
+        this.setAttribute("data-dragging", "");
+        if (gesture.node) simulation.alphaTarget(0.24).restart();
+      }
+      const point = new DOMPoint(x, y).matrixTransform(gesture.inverse);
+      const dx = point.x - gesture.start.x;
+      const dy = point.y - gesture.start.y;
+      if (gesture.node) {
+        gesture.node.fx = gesture.nodeX + dx;
+        gesture.node.fy = gesture.nodeY + dy;
+      } else {
+        view.x = gesture.view.x - dx;
+        view.y = gesture.view.y - dy;
+        renderView();
+      }
+    };
 
-    const end = (event: PointerEvent) => {
-      if (!gesture || gesture.pointerId !== event.pointerId) return;
+    const endDrag = () => {
+      if (!gesture) return;
       const { node, moved } = gesture;
       gesture = undefined;
       this.removeAttribute("data-dragging");
@@ -182,22 +177,138 @@ export class PortfolioGraph extends HTMLElement {
         simulation.alphaTarget(0);
       }
     };
-    svg.addEventListener("pointerup", end, { signal });
-    svg.addEventListener("pointercancel", end, { signal });
+
     svg.addEventListener(
-      "lostpointercapture",
+      "pointerdown",
       (event) => {
-        if (event.target === svg) end(event);
+        if (
+          event.pointerType === "touch" ||
+          event.button !== 0 ||
+          gesture ||
+          pinch
+        )
+          return;
+        dragged = false;
+        startDrag(event.pointerId, event.clientX, event.clientY, event.target);
       },
       { signal },
     );
+    svg.addEventListener(
+      "pointermove",
+      (event) => {
+        if (
+          event.pointerType === "touch" ||
+          gesture?.pointerId !== event.pointerId
+        )
+          return;
+        moveDrag(event.clientX, event.clientY, () =>
+          svg.setPointerCapture(event.pointerId),
+        );
+      },
+      { signal },
+    );
+    const endPointer = (event: PointerEvent) => {
+      if (
+        event.pointerType !== "touch" &&
+        gesture?.pointerId === event.pointerId
+      )
+        endDrag();
+    };
+    svg.addEventListener("pointerup", endPointer, { signal });
+    svg.addEventListener("pointercancel", endPointer, { signal });
+    svg.addEventListener("lostpointercapture", endPointer, { signal });
     svg.addEventListener(
       "pointerleave",
       (event) => {
-        if (!gesture?.moved) end(event);
+        if (!gesture?.moved) endPointer(event);
       },
       { signal },
     );
+
+    // Handle touch explicitly: relying on pointer capture inside an SVG
+    // foreignObject can leave scrolling and zooming to the browser.
+    const graphTouches = (event: TouchEvent) =>
+      Array.from(event.touches).filter(
+        ({ target }) => target instanceof Node && svg.contains(target),
+      );
+    const touchGeometry = (a: Touch, b: Touch) => ({
+      center: new DOMPoint(
+        (a.clientX + b.clientX) / 2,
+        (a.clientY + b.clientY) / 2,
+      ),
+      distance: Math.max(
+        1,
+        Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+      ),
+    });
+    const startPinch = (a: Touch, b: Touch) => {
+      const inverse = svg.getScreenCTM()?.inverse();
+      if (!inverse) return;
+      const { center, distance } = touchGeometry(a, b);
+      endDrag();
+      dragged = true;
+      pinch = {
+        view: { ...view },
+        inverse,
+        anchor: center.matrixTransform(inverse),
+        distance,
+      };
+    };
+
+    svg.addEventListener(
+      "touchstart",
+      (event) => {
+        const [first, second] = graphTouches(event);
+        if (second) {
+          event.preventDefault();
+          if (!pinch) startPinch(first, second);
+        } else if (first && !gesture) {
+          dragged = false;
+          startDrag(
+            first.identifier,
+            first.clientX,
+            first.clientY,
+            first.target,
+          );
+        }
+      },
+      { signal, passive: false },
+    );
+
+    svg.addEventListener(
+      "touchmove",
+      (event) => {
+        const [first, second] = graphTouches(event);
+        if (!first) return;
+        event.preventDefault();
+        if (second && pinch) {
+          const { center, distance } = touchGeometry(first, second);
+          zoom(
+            pinch.view,
+            pinch.distance / distance,
+            pinch.anchor,
+            center.matrixTransform(pinch.inverse),
+          );
+        } else if (gesture?.pointerId === first.identifier) {
+          moveDrag(first.clientX, first.clientY);
+        }
+      },
+      { signal, passive: false },
+    );
+
+    const endTouch = (event: TouchEvent) => {
+      const [first, second] = graphTouches(event);
+      if (pinch) {
+        pinch = undefined;
+        if (second) startPinch(first, second);
+        else if (first)
+          startDrag(first.identifier, first.clientX, first.clientY, null);
+      } else if (!first) {
+        endDrag();
+      }
+    };
+    svg.addEventListener("touchend", endTouch, { signal });
+    svg.addEventListener("touchcancel", endTouch, { signal });
     svg.addEventListener(
       "click",
       (event) => {
@@ -211,11 +322,12 @@ export class PortfolioGraph extends HTMLElement {
     svg.addEventListener(
       "wheel",
       (event) => {
-        if ((!event.ctrlKey && !event.metaKey) || gesture) return;
+        if ((!event.ctrlKey && !event.metaKey) || gesture || pinch) return;
         const inverse = svg.getScreenCTM()?.inverse();
         if (!inverse) return;
         event.preventDefault();
         zoom(
+          view,
           event.deltaY < 0 ? 0.9 : 1.1,
           new DOMPoint(event.clientX, event.clientY).matrixTransform(inverse),
         );
@@ -226,7 +338,8 @@ export class PortfolioGraph extends HTMLElement {
     controls.addEventListener(
       "click",
       (event) => {
-        if (!(event.target instanceof HTMLButtonElement) || gesture) return;
+        if (!(event.target instanceof HTMLButtonElement) || gesture || pinch)
+          return;
         const action = event.target.dataset.zoom;
         if (action === "reset") {
           simulation.stop().alphaTarget(0).alpha(1);
@@ -242,6 +355,7 @@ export class PortfolioGraph extends HTMLElement {
           render();
         } else if (action === "in" || action === "out") {
           zoom(
+            view,
             action === "in" ? 0.8 : 1.25,
             new DOMPoint(view.x + view.width / 2, view.y + view.height / 2),
           );

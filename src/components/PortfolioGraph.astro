@@ -1,0 +1,294 @@
+---
+import { Icon } from "astro-icon/components";
+import {
+  graphSimulation,
+  graphNodeSize,
+  graphNodeTop,
+  graphNodeWidth,
+  separateGraphNodes,
+  type GraphNode,
+  type GraphLink,
+} from "../lib/portfolioGraphLayout";
+import {
+  portfolioUrl,
+  type PortfolioNode,
+  type PortfolioRelation,
+} from "../lib/portfolioGraph";
+
+interface Props {
+  nodes: PortfolioNode[];
+  edges: PortfolioRelation[];
+  root?: string;
+  distance?: Map<string, number>;
+  maxWidth?: number;
+  height?: number | string;
+  initialZoom?: number;
+}
+
+const { nodes, edges, root, distance, maxWidth, height, initialZoom } =
+  Astro.props;
+const nodeWidth = graphNodeWidth;
+const nodeSize = graphNodeSize;
+const nodeTop = graphNodeTop;
+const nodeRadius = nodeSize / 2;
+const horizontalPadding = nodeWidth / 2 + 10;
+const verticalPadding = nodeTop + 4;
+const graphNodes: GraphNode[] = nodes.map(({ id }) => ({
+  id,
+  hop: distance?.get(id) ?? 0,
+  ...(id === root ? { fx: 0, fy: 0 } : {}),
+}));
+const graphLinks: GraphLink[] = edges.map(({ data }) => ({
+  source: data.source.id,
+  target: data.target.id,
+}));
+
+// Initial positions are rendered on the server for visitors without JavaScript.
+graphSimulation(graphNodes, graphLinks, Boolean(root)).tick(300);
+separateGraphNodes(graphNodes, graphLinks);
+
+const positions = new Map(
+  graphNodes.map((node) => [node.id, { x: node.x ?? 0, y: node.y ?? 0 }]),
+);
+const names = new Map(nodes.map(({ id, data }) => [id, data.title]));
+const points = Array.from(positions.values());
+const xs = points.map(({ x }) => x);
+const ys = points.map(({ y }) => y);
+const left = Math.min(0, ...xs) - horizontalPadding;
+const right = Math.max(0, ...xs) + horizontalPadding;
+const top = Math.min(0, ...ys) - verticalPadding;
+const bottom = Math.max(0, ...ys) + nodeRadius + 10;
+const pixelHeight = typeof height === "number" ? height : undefined;
+const viewWidth = root
+  ? (pixelHeight ?? 2 * Math.max(-left, right))
+  : right - left;
+const viewHeight = root
+  ? (pixelHeight ?? 2 * Math.max(-top, bottom))
+  : bottom - top;
+---
+
+<portfolio-graph
+  class="graph-scroll"
+  data-root={root}
+  data-fixed-height={height !== undefined ? "" : undefined}
+  data-initial-zoom={initialZoom}
+  style={maxWidth === undefined ? undefined : `max-width: ${maxWidth}px`}
+>
+  <div class="graph-controls" hidden>
+    <button type="button" data-zoom="in" aria-label="拡大">
+      ＋
+    </button>
+    <button type="button" data-zoom="out" aria-label="縮小">
+      −
+    </button>
+    <button type="button" data-zoom="reset">
+      リセット
+    </button>
+  </div>
+  <svg
+    viewBox={`${root ? -viewWidth / 2 : left} ${root ? -viewHeight / 2 : top} ${viewWidth} ${viewHeight}`}
+    style={{
+      "--graph-min-width": `${Math.min(450, viewWidth)}px`,
+      "--graph-width": `${viewWidth}px`,
+      "--node-size": `${nodeSize}px`,
+      height: typeof height === "number" ? `${height}px` : height,
+    }}
+    class="graph"
+    role="group"
+    aria-label={
+      root
+        ? `${names.get(root)}から2ステップ以内の関連グラフ`
+        : "Skills・Products・Slides・タグの関連グラフ"
+    }
+  >
+    {edges.map(({ data: { source, target, label } }) => {
+      const a = positions.get(source.id)!;
+      const b = positions.get(target.id)!;
+      const title = [names.get(source.id), label, names.get(target.id)]
+        .filter(Boolean)
+        .join(" — ");
+      return (
+        <line
+          data-source={source.id}
+          data-target={target.id}
+          x1={a.x}
+          y1={a.y}
+          x2={b.x}
+          y2={b.y}
+        >
+          <title>{title}</title>
+        </line>
+      );
+    })}
+    {nodes.map(({ id, data }, index) => {
+      const { x, y } = positions.get(id)!;
+      return (
+        <g
+          data-node={id}
+          data-hop={graphNodes[index].hop}
+          data-x={x}
+          data-y={y}
+          transform={`translate(${x} ${y})`}
+        >
+          <foreignObject
+            x={-nodeWidth / 2}
+            y={-nodeTop}
+            width={nodeWidth}
+            height={nodeTop + nodeRadius}
+          >
+            <div class="node">
+              <a
+                href={portfolioUrl(id)}
+                draggable="false"
+                aria-current={id === root ? "page" : undefined}
+                class:list={[data.category, { current: id === root }]}
+              >
+                <span class="node-title">{data.title}</span>
+                <span class="node-icon">
+                  <Icon
+                    name={
+                      data.category === "skills"
+                        ? "ri:code-s-slash-line"
+                        : data.icon
+                    }
+                    size={32}
+                  />
+                </span>
+              </a>
+            </div>
+          </foreignObject>
+        </g>
+      );
+    })}
+  </svg>
+</portfolio-graph>
+<script>
+  import { PortfolioGraph } from "../lib/interactivePortfolioGraph";
+  if (!customElements.get("portfolio-graph"))
+    customElements.define("portfolio-graph", PortfolioGraph);
+</script>
+<style>
+  .graph-scroll {
+    --graph-background: color-mix(
+      in srgb,
+      var(--color-secondary) 12%,
+      var(--color-background)
+    );
+    display: block;
+    position: relative;
+    width: 100%;
+    margin-inline: auto;
+    overflow-x: auto;
+    border: 1px solid var(--color-secondary);
+    border-radius: 16px;
+    background-color: var(--graph-background);
+  }
+  .graph {
+    display: block;
+    width: 100%;
+    min-width: var(--graph-min-width);
+    max-width: var(--graph-width);
+    margin-inline: auto;
+  }
+  .graph-scroll[data-fixed-height],
+  .graph-scroll[data-interactive] {
+    overflow: hidden;
+  }
+  .graph-scroll[data-fixed-height] .graph {
+    min-width: 0;
+    max-width: none;
+  }
+  .graph-scroll[data-interactive] {
+    touch-action: none;
+  }
+  .graph-scroll[data-interactive] .graph {
+    min-width: 0;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+  }
+  .graph-scroll[data-dragging] .graph,
+  .graph-scroll[data-dragging] a {
+    cursor: grabbing;
+  }
+  .graph-controls:not([hidden]) {
+    position: absolute;
+    inset: 8px 8px auto auto;
+    display: flex;
+    gap: 4px;
+  }
+  .graph-controls button {
+    min-width: 32px;
+    min-height: 32px;
+    padding-inline: 6px;
+    border: 1px solid var(--color-secondary);
+    border-radius: 6px;
+    background: var(--color-background);
+    color: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  line {
+    stroke: var(--color-secondary);
+    stroke-width: 2;
+  }
+  .node {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+  }
+  .node-title {
+    background: var(--graph-background);
+    color: inherit;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    padding-inline: 3px;
+  }
+  .node-icon {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    width: var(--node-size);
+    height: var(--node-size);
+    flex: none;
+    background: var(--color-background);
+    border: 2px solid currentColor;
+    color: var(--node-color);
+  }
+  a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: auto;
+    color: inherit;
+    text-decoration: none;
+  }
+  a.skills {
+    --node-color: #0f71f2;
+  }
+  a.products {
+    --node-color: #16856e;
+  }
+  a.slides {
+    --node-color: #a153be;
+  }
+  a.tags {
+    --node-color: #9d6226;
+  }
+  a.current .node-icon,
+  a:hover .node-icon,
+  a:focus-visible .node-icon {
+    border-width: 3px;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-color) 25%, transparent);
+  }
+  foreignObject {
+    overflow: visible;
+    pointer-events: none;
+  }
+</style>

@@ -83,3 +83,25 @@ $$
 ## Credit
 
 This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+
+### About の要素と関連グラフ
+
+Skills・Products・Slides は `portfolio` Content Collection で管理します。
+`src/content/portfolio/<カテゴリ>/<ID>.yml` の1ファイルにつき
+`/about/<カテゴリ>/<ID>/` に詳細ページを生成します。`order` が一覧での表示順です。
+
+関連は各要素の YAML に `relation` として記述します。
+たとえば Go と Card の関連は `src/content/portfolio/skills/go.yml` に追加します。
+
+```yaml
+relation:
+  - target: products/card
+    label: Go を使用
+```
+
+`target` はカテゴリを含む関連先の要素IDです。
+`label` は省略できます。
+関連は双方向にたどれるため、どちらか一方の YAML に記述します。
+詳細ページは直接つながる要素の一覧と、最短距離2以内の要素間の関係を表示します。
+Skills・Products・Slides の `tags` からタグノードと関係が自動で生成されます。
+タグ名と同じ名前の Skill がある場合は、その Skill にリンクします。

@@ -1,0 +1,11 @@
+category: skills
+order: 0
+title: "Go"
+description: "Web アプリのサーバーや CLI・TUI ツールを作るときに使います。最も得意な言語です。"
+icon: "devicon:go"
+relation:
+  - target: products/card
+  - target: products/hakka-mura
+  - target: products/hasten
+  - target: products/ooo
+  - target: products/trap-collection

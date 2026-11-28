@@ -1,0 +1,19 @@
+category: slides
+order: 1
+icon: ri:slideshow-fill
+title: traP の部内 ISUCON とそれを支えるポータル
+subtitle: 2025/1/10 ISUCON14 公式反省会
+description: traP の部内 ISUCON について、内容と工夫、新しいポータルの計画について話しました。
+heroImage: https://ikura-hamu.github.io/slides/250110_isucon14_review/images/ogp.png
+tags:
+  - ISUCON
+links:
+  - event:
+    name: connpass
+    url: https://lycorptech-jp.connpass.com/event/340046/
+    icon: ri:article-line
+  - event:
+    name: スライド
+    url: https://ikura-hamu.github.io/slides/250110_isucon14_review
+    icon: ri:slideshow-fill
+    primary: true

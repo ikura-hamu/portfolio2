@@ -1,0 +1,25 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  links: { url: string; name: string; icon: string }[];
+  class?: string;
+}
+
+const { links, class: className } = Astro.props;
+---
+
+{links.length > 0 && (
+  <div class:list={["grid grid-cols-3 gap-s2", className]}>
+    {links.map((link) => (
+      <a
+        href={link.url}
+        class="flex items-end self-end gap-x-s1 text-primary hover:text-secondary hover:duration-150"
+        title={link.name}
+      >
+        <Icon name={link.icon} class="shrink-0 text-3xl" />
+        <span class="min-w-0 text-xs">{link.name}</span>
+      </a>
+    ))}
+  </div>
+)}

@@ -1,32 +1,41 @@
 ---
-import { getEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
-
-const allSkills = await getEntry("skill", "skills");
-
-const skills = allSkills
-  ? allSkills.data.map((skill) => {
-      return {
-        name: skill.name,
-        description: skill.description,
-        icon: skill.icon,
-      };
-    })
-  : [];
+import { portfolioUrl } from "../lib/portfolioGraph";
+const skills = await getCollection(
+  "portfolio",
+  ({ data }) => data.category === "skills",
+);
 ---
 
 <div class="flex flex-col gap-s3">
-  {
-    skills.map((skill) => (
-      <div class="rounded-md flex min-w-60 max-w-full">
+  {skills
+    .sort((a, b) => a.data.order - b.data.order)
+    .map(({ id, data: skill }) => (
+      <a
+        href={portfolioUrl(id)}
+        class="skill-card rounded-md flex min-w-60 max-w-full"
+      >
         <div class="grid p-s2 items-center bg-secondary/20 rounded-md">
           <Icon name={skill.icon} size={60} />
         </div>
         <div class="m-s2 flex flex-col gap-s2">
-          <div class="text-xl font-bold">{skill.name}</div>
-          <p class="">{skill.description}</p>
+          <div class="text-xl font-bold">
+            {skill.title} <span aria-hidden="true">→</span>
+          </div>
+          <p>{skill.description}</p>
         </div>
-      </div>
-    ))
-  }
+      </a>
+    ))}
 </div>
+<style>
+  .skill-card {
+    color: inherit;
+    text-decoration: none;
+    font-weight: normal;
+  }
+  .skill-card:hover,
+  .skill-card:focus-visible {
+    background: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+  }
+</style>

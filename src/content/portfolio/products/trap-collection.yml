@@ -1,0 +1,16 @@
+category: products
+order: 0
+icon: ri:code-box-line
+title: traP Collection
+description: traPで開発したゲームを管理・配信するためのサービスです。バックエンドの開発・運用を行っています。
+heroImageContent: "../../work/products/trap-collection-logo.png"
+tags:
+  - Go
+  - MariaDB
+  - traP
+links:
+  - Github:
+    name: GitHub
+    url: https://github.com/traPtitech/trap-collection-server
+    icon: codicon:github
+    primary: true

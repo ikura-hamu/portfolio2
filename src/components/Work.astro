@@ -1,13 +1,15 @@
 ---
-import { getEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
 import { Image } from "astro:assets";
 
 import { replaceURL } from "@/util/url";
+import { portfolioUrl } from "../lib/portfolioGraph";
 import ViewMoreButton from "./ViewMoreButton.astro";
+import WorkLinks from "./WorkLinks.astro";
 
 interface Props {
-  workType: string;
+  workType: "products" | "slides";
   extraContent?: {
     icon: string;
     name: string;
@@ -16,99 +18,69 @@ interface Props {
 }
 
 const { workType, extraContent } = Astro.props;
-const allWorks = await getEntry("work", workType);
-if (!allWorks) {
-  throw new Error(`No works found ${workType}`);
-}
-
-const works = allWorks.data.map((work) => {
-  return {
-    title: work.title,
-    subtitle: work.subtitle,
-    heroImage: work.heroImage,
-    heroImageContent: work.heroImageContent,
-    tags: work.tags,
-    description: replaceURL(work.description),
-    links: work.links,
-  };
-});
+const works = (
+  await getCollection("portfolio", ({ data }) => data.category === workType)
+).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <div class="flex flex-col gap-s4">
-  <div
-    class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-x-s4 gap-y-s5 work-grid"
-  >
-    {
-      works.map((work) => (
-        <div class="flex flex-col rounded-md min-w-75 max-w-full p-s2 gap-s1 work-card">
-          <a
-            href={work.links.filter((link) => link.primary)[0].url}
-            class="hover:duration-150 rounded-md p-s1 work-link flex flex-col gap-s1 work-link"
-          >
-            <div class="flex justify-center h-32 overflow-hidden">
-              {work.heroImageContent ? (
-                <Image
-                  src={work.heroImageContent}
-                  alt={work.title}
-                  class="object-contain h-full w-full"
-                />
-              ) : (
-                <img
-                  src={work.heroImage ?? "/favicon.png"}
-                  alt={work.title}
-                  class="object-contain h-full w-full"
-                />
-              )}
-            </div>
-
-            <h5 class="truncate" title={work.title}>
-              <div class="inline">{work.title}</div>
-              <Icon name="codicon:link-external" class="inline ml-s1 text-xs" />
-            </h5>
-
-            {work.subtitle && (
-              <div class="leading-tight text-sm">{work.subtitle}</div>
+  <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-x-s4 gap-y-s5 work-grid">
+    {works.map(({ id, data: work }) => (
+      <div class="flex flex-col rounded-md min-w-75 max-w-full p-s2 gap-s1 work-card">
+        <a
+          href={portfolioUrl(id)}
+          class="hover:duration-150 rounded-md p-s1 work-link flex flex-col gap-s1 work-link"
+        >
+          <div class="flex justify-center h-32 overflow-hidden">
+            {work.heroImageContent ? (
+              <Image
+                src={work.heroImageContent}
+                alt={work.title}
+                class="object-contain h-full w-full"
+              />
+            ) : (
+              <img
+                src={work.heroImage ?? "/favicon.png"}
+                alt={work.title}
+                class="object-contain h-full w-full"
+              />
             )}
-          </a>
-
-          <div class="flex gap-s2">
-            {work.tags.map((tag) => (
-              <div class="text-sm bg-accent dark:text-black rounded-md px-s2">
-                #{tag}
-              </div>
-            ))}
           </div>
 
-          <div class="text-base" set:html={work.description} />
+          <h5 class="truncate" title={work.title}>
+            <div class="inline">{work.title}</div>
+            <Icon name="ri:arrow-right-line" class="inline ml-s1 text-xs" />
+          </h5>
 
-          <div class="grid grid-cols-3 gap-s2 mt-auto">
-            {work.links.map((link) => (
-              <a
-                href={link.url}
-                class="hover:duration-150 flex items-end self-end text-primary hover:text-secondary gap-x-s1"
-                title={link.name}
-              >
-                <Icon name={link.icon} class="text-3xl" />
-                <div class="text-xs">{link.name}</div>
-              </a>
-            ))}
-          </div>
+          {work.subtitle && (
+            <div class="leading-tight text-sm">{work.subtitle}</div>
+          )}
+        </a>
+
+        <div class="flex gap-s2">
+          {work.tags.map((tag) => (
+            <div class="text-sm bg-accent dark:text-black rounded-md px-s2">
+              #{tag}
+            </div>
+          ))}
         </div>
-      ))
-    }
+
+        <div class="text-base" set:html={replaceURL(work.description)} />
+
+        <WorkLinks links={work.links} class="mt-auto" />
+      </div>
+    ))}
   </div>
 
-  {
-    extraContent && (
-      <ViewMoreButton
-        extraContent={{
-          icon: extraContent.icon,
-          name: extraContent.name,
-          url: extraContent.url,
-        }}
-      />
-    )
-  }
+  {extraContent && (
+    <ViewMoreButton
+      extraContent={{
+        icon: extraContent.icon,
+        name: extraContent.name,
+        url: extraContent.url,
+      }}
+    />
+  )}
 </div>
 
 <style>
